@@ -1,0 +1,3 @@
+
+proc JVputError {msg} {puts [JVformatError $msg];}
+

@@ -1,0 +1,222 @@
+
+#------------------------------------------------------------------
+# script to handle iRAC Server Configuration
+#------------------------------------------------------------------
+
+source jv.jacl;						# include procedures script
+source includes.jacl;				# include server configuration script
+source abc.jacl;					# include server attributes script
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "create.jacl; Starting";
+
+#--------------------------------------------------------------------
+# get server, node and cell info from the command line
+#--------------------------------------------------------------------
+
+JVputInfo "Processing Command Arguments";
+set returnCode [JVprocessArguments $argc $argv];
+#JVputTrace "create.jacl; code $returnCode";
+if {$returnCode != 1} {
+	JVputError "JVprocessArguments failed";
+	exit 1;
+}
+JVshowServer;
+set myServerName [JVget_server];
+set myNodeName [JVget_node];
+set myCellName [JVget_cell];
+
+#
+#  load properties file
+#
+set myPropertiesFile "jacl.properties";
+JVputInfo "Loading Properties file $myPropertiesFile";
+set fileprops [JVloadProperties $myPropertiesFile];
+JVputTrace "JVloadProperties.jacl; code $fileprops";
+if {$fileprops == 0} {
+	JVputError "Load Properties failed";
+	exit 1;
+}
+JVputInfo "Loaded Properties file";
+
+#
+# get properties
+#
+set myUser [JVgetProperty $fileprops "username"];
+puts "prop user :$myUser:";
+set myPassword [JVgetProperty $fileprops "password"];
+puts "prop password :$myPassword:";
+set myFred [JVgetProperty $fileprops "fred"];
+puts "prop fred :$myFred:";
+exit 0;
+
+#
+#  this works fine
+#
+#set myValue "SINGLE";
+#JVsetAppServerClassLoadingPolicy $myNodeName $myServerName $myValue;
+#puts "OK";
+
+#
+#  this works fine
+#
+#set myValue "c:\\irac\\src\\iRACSrc3.0_INT\\iRACSource\\MapPointEAR\\lib";
+#JVsetAppServerJVMClassPath $myNodeName $myServerName $myValue;
+#puts "OK";
+
+#
+#  this has problems - could be 5.0 related
+#
+#  come back to this when have a 6.0 server - 
+#    this works with a RAD 6.0 server on Linux....
+#
+#set myValue1 "c:\\Program Files\\SQLLIB\\java12\\db2java.zip";
+#set myValue2 "iRAC component requirement";
+set myValue1 "/opt/IBM/db2/V8.1/java/db2java.zip";
+set myValue2 "iRAC component requirement";
+JVsetAppServerWebSphereClasspath $myNodeName $myServerName $myValue1 $myValue2;
+
+JVsave;
+puts "after save";
+exit 0;
+
+#
+#  create a data source
+#
+#set myValue1 "com/hertz/irac/HertzDB";
+#set myValue2 "Default DB2 JDBC Provider";
+#set myValue3 "DBName";
+#set myValue4 "db2";
+#set myValue1 "com/idc/db/jv/myDB";
+#set myValue2 "Oracle JDBC Driver";
+#set myValue2 "DB2 Universal JDBC Driver Provider (XA)";
+#set myValue2 "Cloudscape JDBC Provider (XA)";
+#set myValue3 "DBName";
+#set myValue4 "oracle";
+#set myValue4 "cloudscape";
+#JVcreateDataSource $myNodeName $myServerName $myValue1 $myValue2 $myValue3 $myValue4;
+#puts "OK";
+
+#JVsave;
+#puts "after save";
+#exit 0;
+
+#--------------------------------------------------------------------
+# Create J2C Resource Adapter
+#--------------------------------------------------------------------
+
+createJ2CResourceAdapter $myNodeName $myServerName;
+
+#--------------------------------------------------------------------
+# Setup security cell
+#--------------------------------------------------------------------
+
+set secAuthAlias "$myCellName/samples"
+set secDescript  "JAAS Alias for WebSphere Samples"
+set secUserID    "samples"
+set secPassword  "s1amples"
+createJAASAuthenticationAlias $myCellName $secAuthAlias $secDescript $secUserID $secPassword
+#
+#--------------------------------------------------------------------
+# Create JDBC Provider
+#--------------------------------------------------------------------
+  
+#
+#  this seems to work
+#
+set templName    "Cloudscape JDBC Provider (XA)"
+set provName     "Samples Cloudscape JDBC Provider (XA)"
+createJDBCProvider $myNodeName $myServerName $templName $provName
+
+#
+#  now try Oracle
+#
+#  this seems to work fine
+#
+#set templName    "Oracle JDBC Driver (XA)"
+#set provName     "JV Oracle JDBC Provider (XA)"
+#createJDBCProvider $myNodeName $myServerName $templName $provName
+
+#
+#  try to remove it - harder than it looks
+#
+#removeJDBCProvider $myNodeName $myServerName $templName $provName
+
+#--------------------------------------------------------------------
+# Create Datasource
+#--------------------------------------------------------------------
+  
+set templName    "Cloudscape JDBC Driver XA DataSource"
+set dsName       "BANKDS"
+set dsJNDI       "jdbc/Bank"
+set dsDesc       "Data source for the WebSphereBank entity beans"
+set dsAuthMech   "BASIC_PASSWORD"
+set dbName       "\${APP_INSTALL_ROOT}/\${CELL}/WebSphereBank.ear/Database/BankDB"
+set secAuthAlias "N_O_N_E"
+set connAttrs    "upgrade=true"
+createDatasource $myNodeName $myServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $dbName $secAuthAlias $connAttrs
+  
+#--------------------------------------------------------------------
+# Create Connection Factory (use builtin_rra)
+#--------------------------------------------------------------------
+  
+set dsName       "BANKDS"
+set cfName       "BANKDS_CF"
+set cfAuthMech   "BASIC_PASSWORD"
+set secAuthAlias "N_O_N_E"
+set cfi          "javax.resource.cci.ConnectionFactory"
+createConnectionFactory $myNodeName $myServerName $provName $dsName $cfName $cfAuthMech $secAuthAlias $cfi
+
+#--------------------------------------------------------------------
+# Create SIBus
+#--------------------------------------------------------------------
+
+set SIBusName [getSamplesBusName $myNodeName]
+createSIBus $myNodeName $myServerName $SIBusName
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+set jmsCFName    "BankJMSConnFactory"
+set jmsCFJNDI    "jms/BankJMSConnFactory"
+set jmsCFDesc    "WebSphere Bank Sample JMS ConnectionFactory"
+set jmsCFType    ""
+set secAuthAlias "$myCellName/samples"
+createSIBJMSConnectionFactory $myNodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName
+
+#--------------------------------------------------------------------
+# Create SIB JMS Queue that references a SIB Queue
+#--------------------------------------------------------------------
+  
+set jmsQName   "BankJMSQueue"
+set jmsQJNDI   "jms/BankJMSQueue"
+set jmsQDesc   "WebSphere Bank Sample Queue (WebSphere Bank receives a message from this Queue)"
+set SIBQName   "BankJSQueue"
+createSIBJMSQueue $myNodeName $jmsQName $jmsQJNDI $jmsQDesc $SIBQName
+
+#--------------------------------------------------------------------
+# Create SIB Queue
+#--------------------------------------------------------------------
+
+createSIBQueue $myNodeName $myServerName $SIBQName $SIBusName
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Queue
+#--------------------------------------------------------------------
+
+set activationSpecName     "BankActivationSpec"
+set activationSpecJndiName "eis/$activationSpecName"
+set destinationType        "javax.jms.Queue"
+set secAuthAlias           "$myCellName/samples"
+createSIBJMSActivationSpec $myNodeName $activationSpecName $activationSpecJndiName $jmsQJNDI $destinationType $secAuthAlias $SIBusName
+
+#------------------------------------------------------------------
+# all done
+#------------------------------------------------------------------
+
+JVsave;
+puts "after save";
+JVputInfo "create.jacl; Complete";
+exit 0;
+

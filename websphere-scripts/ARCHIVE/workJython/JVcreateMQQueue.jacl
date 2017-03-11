@@ -1,0 +1,78 @@
+
+
+proc JVcreateMQQueue {NodeName MQJMSProvider qcfName qcfMgr qcfHost qcfPort qcfChannel mqQname mqqDesc mqqJNDI mqqPersistence mqqExpiry mqqBname mqqUser} {   
+
+   global AdminConfig;
+ 
+#--------------------------------------------------------------------
+# Create MQ Queue
+#--------------------------------------------------------------------
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create MQ Queue                                  ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    Node                $NodeName                              ";
+   puts " MQ JMS Provider:                                              ";
+   puts "    Name                $MQJMSProvider                         ";
+   puts " Connection Factory:                                           ";
+   puts "    Name                $qcfName                               ";
+   puts "    Queue Manager       $qcfMgr                                ";
+   puts "    Queue Manager Host  $qcfHost                               ";
+   puts "    Queue Manager Port  $qcfPort                               ";
+   puts "    Channel             $qcfChannel                            ";
+   puts " Queue:                                                        ";
+   puts "    Name                $mqQname                               ";
+   puts "    Description         $mqqDesc                               ";
+   puts "    JNDI                $mqqJNDI                               ";
+   puts "    Persistence         $mqqPersistence                        ";
+   puts "    Expiry              $mqqExpiry                             ";
+   puts "    Base Queue Name     $mqqBname                              ";
+   puts "    User Name           $mqqUser                               ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   puts "Checking if MQ Queue Connection Factory exists";
+   set mqcfID [$AdminConfig getid "/Node:$NodeName/JMSProvider:$MQJMSProvider/MQQueueConnectionFactory:$qcfName"];
+   if {[llength $mqcfID] == 0} {
+      JVputInfo "The $qcfName MQ queue connection factory does not exist.";
+      return;
+   }
+
+   puts "Getting MQ JMS Provider ID";
+   set mqcfID [$AdminConfig getid "/Node:$NodeName/JMSProvider:$MQJMSProvider"];
+#   puts "mqcfID $mqcfID";
+
+   puts "Setting attributes";
+   set attr01   [ list CCSID 1208 ];
+   set attr02   [ list name $mqQname ];
+   set attr03   [ list jndiName $mqqJNDI ];
+   set attr04   [ list persistence $mqqPersistence ];
+   set attr05   [ list priority QUEUE_DEFINED ];
+   set attr06   [ list specifiedPriority 0 ];
+   set attr07   [ list expiry $mqqExpiry ];
+   set attr08   [ list specifiedExpiry 65 ];
+   set attr09   [ list baseQueueName $mqqBname ];
+   set attr10   [ list baseQueueManagerName $qcfMgr ];
+   set attr11   [ list useNativeEncoding true ];
+   set attr12   [ list integerEncoding Normal ];
+   set attr13   [ list decimalEncoding Normal ];
+   set attr14   [ list floatingPointEncoding IEEENormal ];
+   set attr15   [ list targetClient MQ ];  
+   set attr16   [ list queueManagerHost $qcfHost ];
+   set attr17   [ list queueManagerPort $qcfPort ];
+   set attr18   [ list serverConnectionChannelName $qcfChannel ];
+   set attr19   [ list userName $mqqUser ];
+   set attr20   [ list description $mqqDesc ];
+
+   set attrs [ list $attr01 $attr02 $attr03 $attr04 $attr05 $attr06 $attr07 $attr08 $attr09 $attr10 $attr11 $attr12 $attr13 $attr14 $attr15 $attr16 $attr17 $attr18 $attr19 $attr20 ];
+#   puts "attrs \n $attrs \n";
+
+   puts "Creating MQ Queue";
+   if { [ catch { $AdminConfig create MQQueue $mqcfID $attrs } r ] != 0 } {
+      puts "\nError creating MQQueue $mqQname. Reason: $r\n";
+      return;
+   }
+}
+

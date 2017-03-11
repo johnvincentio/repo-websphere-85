@@ -1,0 +1,33 @@
+source C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1/config/work/was/msglog.jacl
+set logger [getLogger]
+
+set CellName [lindex $argv 0]
+set VirtualHostName [lindex $argv 1]
+
+puts "CellName : $CellName"
+puts "VirtualHostName : $VirtualHostName"
+puts ""
+
+#--------------------------------------------------------------
+# Check if VirtualHost "VirtualHostName" is there
+#--------------------------------------------------------------
+set TmpVirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+if {$TmpVirtualHostId == ""} {
+    set attrs [subst {{name $VirtualHostName}}]
+    set CellId [$AdminConfig getid /Cell:$CellName/]
+	set VirtualHostId [$AdminConfig create VirtualHost $CellId $attrs]
+} else {
+	puts stdout "/VirtualHost:$VirtualHostName/ already there, no Action taken"
+    exit
+}
+
+#--------------------------------------------------------------
+# check for success
+#--------------------------------------------------------------
+set TmpVirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+if {$TmpVirtualHostId == ""} {
+	puts stdout "ERROR: /VirtualHost:$VirtualHostName/ could not be created."
+} else {
+    puts stdout "/VirtualHost:$VirtualHostName/ successfully created."
+    $AdminConfig save
+}

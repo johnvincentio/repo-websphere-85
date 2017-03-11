@@ -1,0 +1,168 @@
+private String sqlserverLibPath;
+private String mySQLLibPath;
+	
+sqlserverLibPath = "C:/development/Microsoft SQLServer JDBC Driver/sqljdbc_4.0/enu";
+mySQLLibPath = "c:/development/MySQL/mysql-connector-java-5.1.30-bin.jar";
+
+if (isValid(tmp = props.getProperty("sqlserver_lib_path"))) sqlserverLibPath = tmp;
+if (isValid(tmp = props.getProperty("mysql_lib_path"))) mySQLLibPath = tmp;
+
+public String getSqlserverLibPath() {return sqlserverLibPath;}
+public String getMySQLLibPath() {return mySQLLibPath;}
+
+
+
+
+
+Statistics is turned off
+
+Base directory C:\work\work205\1\before\JaclSrv01
+Comparing directory C:\work\work205\1\jdbc_provider\JaclSrv01
+
+Show Messages is turned off
+
+Make R/W privileges is turned off
+
+Perform cleaning is turned on
+Ignored files will be deleted is turned on
+
+Compare Files is turned on
+Delete if identical is turned on
+Differences between non identical files is turned on
+White space ignored by the compare is turned off
+
+Comparing file extensions:
+	*.bat
+	*.classpath
+	*.compatibility
+	*.conxmi
+	*.css
+	*.dbxmi
+	*.dnx
+	*.dtd
+	*.gph
+	*.html
+	*.iex
+	*.j2ee
+	*.jacl
+	*.java
+	*.js
+	*.jsp
+	*.modulemaps
+	*.mf
+	*.MF
+	*.prefs
+	*.project
+	*.properties
+	*.rlconxmi
+	*.runtime
+	*.schxmi
+	*.scss
+	*.serverPreference
+	*.sql
+	*.tblxmi
+	*.tld
+	*.txt
+	*.unknown
+	*.values
+	*.websettings
+	*.website-config
+	*.wsdd
+	*.xmi
+	*.xml
+	*.xsd
+	*.xsl
+
+Byte Comparing file extensions:
+	*.class
+	*.ear
+	*.jar
+	*.war
+	*.zip
+
+Delete file extensions:
+	*.bak
+	*.checkedout
+	*.class
+	*.contrib
+	*.dat
+	*.dnx
+	*.ear
+	*.hijacked
+	*.index
+	*.ini
+	ibm_ejbext.properties
+	*.keep
+	*.lock
+	*.log
+	*.psf
+	*.swp
+	*.webspheredeploy
+	_*.java
+	EJS*.java
+
+Cleaning pass through C:\work\work205\1\before\JaclSrv01
+
+Cleaning pass through C:\work\work205\1\jdbc_provider\JaclSrv01
+
+Comparing files C:\WORK\WORK205\1\BEFORE\JACLSRV01\CONFIG\CELLS\PRK-JVINCENTNODE04CELL\resources.xml and C:\WORK\WORK205\1\JDBC_PROVIDER\JACLSRV01\CONFIG\CELLS\PRK-JVINCENTNODE04CELL\RESOURCES.XML
+***** C:\WORK\WORK205\1\BEFORE\JACLSRV01\CONFIG\CELLS\PRK-JVINCENTNODE04CELL\resources.xml
+   22:        <icons xmi:id="IconType_1054132487569" smallIcon="rdb_small_icon.jpg" largeIcon="rdb_large_icon.jpg"/>
+   23:        <displayNames xmi:id="DisplayName_1054132487569" value="WS_RdbResourceAdapter"/>
+   24:        <descriptions xmi:id="Description_1054132487569" value="IBM Relational ResourceAdapter"/>
+***** C:\WORK\WORK205\1\JDBC_PROVIDER\JACLSRV01\CONFIG\CELLS\PRK-JVINCENTNODE04CELL\RESOURCES.XML
+   22:        <icons xmi:id="IconType_1054132487569" smallIcon="rdb_small_icon.jpg" largeIcon="rdb_large_icon.jpg"/>
+   23:        <displayNames xmi:id="DisplayName_1403534350830" value="WS_RdbResourceAdapter"/>
+   24:        <descriptions xmi:id="Description_1054132487569" value="IBM Relational ResourceAdapter"/>
+*****
+
+***** C:\WORK\WORK205\1\BEFORE\JACLSRV01\CONFIG\CELLS\PRK-JVINCENTNODE04CELL\resources.xml
+   60:  specVersion="1.5" eisType="JMS Provider" version="0.3">
+   61:        <displayNames xmi:id="DisplayName_1403532948898" value="WebSphere Default Messaging Provider"/>
+   62:        <displayNames xmi:id="DisplayName_1403532948899" value="WebSphere Default Messaging Provider"/>
+***** C:\WORK\WORK205\1\JDBC_PROVIDER\JACLSRV01\CONFIG\CELLS\PRK-JVINCENTNODE04CELL\RESOURCES.XML
+   60:  specVersion="1.5" eisType="JMS Provider" version="0.3">
+   61:        <displayNames xmi:id="DisplayName_1403534350831" value="WebSphere Default Messaging Provider"/>
+   62:        <displayNames xmi:id="DisplayName_1403532948899" value="WebSphere Default Messaging Provider"/>
+*****
+
+***** C:\WORK\WORK205\1\BEFORE\JACLSRV01\CONFIG\CELLS\PRK-JVINCENTNODE04CELL\resources.xml
+  462:        <displayNames xmi:id="DisplayName_1403532948948" value="WebSphere MQ Resource Adapter"/>
+  463:        <license xmi:id="License_1403532948948" required="true">
+***** C:\WORK\WORK205\1\JDBC_PROVIDER\JACLSRV01\CONFIG\CELLS\PRK-JVINCENTNODE04CELL\RESOURCES.XML
+  462:        <displayNames xmi:id="DisplayName_1403534350837" value="WebSphere MQ Resource Adapter"/>
+  463:        <license xmi:id="License_1403532948948" required="true">
+*****
+
+***** C:\WORK\WORK205\1\BEFORE\JACLSRV01\CONFIG\CELLS\PRK-JVINCENTNODE04CELL\resources.xml
+  642:    </resources.j2c:J2CResourceAdapter>
+  643:  </xmi:XMI>
+***** C:\WORK\WORK205\1\JDBC_PROVIDER\JACLSRV01\CONFIG\CELLS\PRK-JVINCENTNODE04CELL\RESOURCES.XML
+  642:    </resources.j2c:J2CResourceAdapter>
+  643:    <resources.jdbc:JDBCProvider xmi:id="JDBCProvider_1403534350829" name="MySQL User-defined JDBC Provider" description="MySQL U
+  644:  ser-defined JDBC Provider" providerType="User-defined JDBC Provider" isolatedClassLoader="false" implementationClassName="com.m
+  645:  ysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource" xa="false">
+  646:      <classpath>C:\jvDevelopment\repo_websphere_85\eclipse_jee\RadTool\Jacl\jars\mysql-connector-java-5.1.30-bin.jar</classpath>
+  647:  
+  648:      <nativepath></nativepath>
+  649:    </resources.jdbc:JDBCProvider>
+  650:  </xmi:XMI>
+*****
+
+
+Cleaning pass through C:\work\work205\1\before\JaclSrv01
+
+Cleaning pass through C:\work\work205\1\jdbc_provider\JaclSrv01
+
+Added:
+  <resources.jdbc:JDBCProvider xmi:id="JDBCProvider_1403534350829" name="MySQL User-defined JDBC Provider" description="MySQL User-defined JDBC Provider" providerType="User-defined JDBC Provider" isolatedClassLoader="false" implementationClassName="com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource" xa="false">
+    <classpath>C:\jvDevelopment\repo_websphere_85\eclipse_jee\RadTool\Jacl\jars\mysql-connector-java-5.1.30-bin.jar</classpath>
+    <nativepath></nativepath>
+  </resources.jdbc:JDBCProvider>
+  
+  <resources.jdbc:JDBCProvider xmi:id="JDBCProvider_1403546100527" name="JV 1 MySQL User-defined JDBC Provider" description="JV 1 MySQL User-defined JDBC Provider" implementationClassName="com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource">
+    <classpath>C:/jvDevelopment/repo_websphere_85/eclipse_jee/RadTool/Jacl/jars/mysql-connector-java-5.1.30-bin.jar</classpath>
+  </resources.jdbc:JDBCProvider>
+</xmi:XMI>
+
+

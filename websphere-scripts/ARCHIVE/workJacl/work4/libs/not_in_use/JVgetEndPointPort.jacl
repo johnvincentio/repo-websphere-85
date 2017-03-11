@@ -1,0 +1,28 @@
+
+proc JVgetEndPointPort {nodeName serverName endPointName} {
+
+  #--------------------------------------------------------------------
+  # Set up globals  
+  #--------------------------------------------------------------------
+
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Retrieve the endpoint port
+  #--------------------------------------------------------------------
+
+  foreach serverEntry [$AdminConfig list ServerEntry [$AdminConfig getid /Node:$nodeName]] {
+    set serverEntryName [$AdminConfig showAttribute $serverEntry serverName]
+    if {$serverEntryName == $serverName} {
+      foreach namedEndPoint [$AdminConfig list NamedEndPoint $serverEntry] {
+        set name [$AdminConfig showAttribute $namedEndPoint endPointName]
+        if {$name == $endPointName} {
+          set endPoint [$AdminConfig showAttribute $namedEndPoint endPoint]
+          return [$AdminConfig showAttribute $endPoint port]
+        }
+      }
+    }
+  }
+
+}
+

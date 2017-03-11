@@ -1,0 +1,12 @@
+global TypeList
+global ExtensionList
+
+set TypeList {application/msword application/vnd.ms-excel application/vnd.ms-powerpoint}
+set ExtensionList {doc xls ppt}
+
+#some checking
+if {[llength $TypeList] != [llength $ExtensionList]} {
+    puts stdout "ERROR in file profileMimeType.jacl: Create/Remove MimeType: No Of Elements in List pair does not match!"
+    puts stdout "Type/Extension List contains [llength $TypeList]/[llength $ExtensionList] Elements"
+    exit 1
+}

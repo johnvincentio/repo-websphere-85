@@ -1,0 +1,35 @@
+set NodeName {@NodeName@}
+set ServerName @ServerName@
+# AppName and LibraryName are set in profiling jacl.
+
+set FlagErr false
+
+##### Remove Library
+set LibraryId [$AdminConfig getid /Node:$NodeName/Library:$LibraryName/]
+if {$LibraryId == ""} {
+    puts stdout "/Node:$NodeName/Library:$LibraryName/ does not exist, no Action taken"
+} else {
+    foreach  TmpLibraryId $LibraryId {
+        $AdminConfig remove $TmpLibraryId
+    }
+	set LibraryId [$AdminConfig getid /Node:$NodeName/Library:$LibraryName/]
+	if {$LibraryId == ""} {
+		puts stdout "Library: '$LibraryName' successfully removed."
+	} else {		
+		puts stdout "ERROR: /Node:$NodeName/Library:$LibraryName/ could not be removed."
+		set FlagErr true
+	}
+}
+
+
+##### Closing
+if {$FlagErr == "true"} {
+	puts stdout "ERROR: Shared Library for '$LibraryName' could not be removed."
+	puts stdout "Check the messages in this target for more details"
+	puts " "
+	exit 1
+} else {
+	puts stdout "Shared Library for '$LibraryName' successfully removed or just not there."
+	puts " "
+	$AdminConfig save
+}

@@ -1,0 +1,9 @@
+
+#--------------------------------------------------------------------
+# Restart the Server
+#--------------------------------------------------------------------
+
+proc JVserverRestart {NodeName ServerName} {
+	JVserverStop $NodeName $ServerName;
+	JVserverStart $NodeName $ServerName;
+}

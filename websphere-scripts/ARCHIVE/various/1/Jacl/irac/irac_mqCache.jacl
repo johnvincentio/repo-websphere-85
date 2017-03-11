@@ -1,0 +1,46 @@
+
+#------------------------------------------------------------------
+#  Create MQ Resources for Cache
+#------------------------------------------------------------------
+
+proc irac_mqCache {NodeName} {
+
+#--------------------------------------------------------------------
+# Create MQ Topic Connection Factory
+#--------------------------------------------------------------------
+  
+   set MQJMSProvider      "WebSphere MQ JMS Provider";
+   set qcfChannel         "SYSTEM.DEF.SVRCONN";
+   set qcfName            "MQTopicConnectionFactoryCacheManager";
+   set qcfDesc            "MQ Topic Connection Factory for Cache";
+   set qcfHost            "mq01.dev.irac.ecom.ad.hertz.com";
+   set qcfPort            "1414";
+   set qcfMgr             "ISQMQIRT01";
+   set qcfJNDI            "jms/com/hertz/irac/connFactory/CacheManager";
+   JVcreateMQTopicConnectionFactory $NodeName $MQJMSProvider $qcfChannel $qcfName $qcfDesc $qcfHost $qcfPort $qcfMgr $qcfJNDI;
+   
+#--------------------------------------------------------------------
+# Create MQ Topic MQQueueDestCacheManagerAgent
+#--------------------------------------------------------------------
+
+   set mqQname            "MQQueueDestCacheManagerAgent";
+   set mqqDesc            "MQ Topic Destination for CacheManagerAgent";
+   set mqqJNDI            "jms/com/hertz/irac/dest/CacheManagerAgent";
+   set mqqPersistence     "NONPERSISTENT";
+   set mqqExpiry          "APPLICATION_DEFINED";
+   set mqqBname           "CacheManagerAgent";
+   JVcreateMQTopic $NodeName $MQJMSProvider $qcfName $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname;   
+
+#--------------------------------------------------------------------
+# Create MQ Topic MQQueueDestCacheManagerCollector
+#--------------------------------------------------------------------
+
+   set mqQname            "MQQueueDestCacheManagerCollector";
+   set mqqDesc            "MQ Topic Destination for CacheManagerCollector";
+   set mqqJNDI            "jms/com/hertz/irac/dest/CacheManagerCollector";
+   set mqqPersistence     "APPLICATION_DEFINED";
+   set mqqExpiry          "APPLICATION_DEFINED";
+   set mqqBname           "CacheManagerCollector";
+   JVcreateMQTopic $NodeName $MQJMSProvider $qcfName $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname;   
+
+}

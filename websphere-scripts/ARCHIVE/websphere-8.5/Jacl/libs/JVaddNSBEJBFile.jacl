@@ -1,0 +1,27 @@
+
+source ../libs/JVaddNSBEjb.jacl;
+
+proc JVaddNSBEJBFile {fileName cellName nodeName serverName bindingLocation} {
+	puts "filename :$fileName:";
+
+	set jvfile [ open $fileName r ];
+	while {![eof $jvfile]} {
+		set aline [string trim [gets $jvfile]];
+		if { $aline == "" } {
+#			puts "null line";
+			continue;
+		}
+		set cline "";
+#		puts "aline :$aline:";
+		regexp {^#} $aline cline;
+#		puts "cline :$cline:";
+		if { $cline == "#" } {
+#			puts "Comment found";
+			continue;
+		}
+		set first [lindex $aline 0];
+#		puts "first :$first:";
+		JVaddNSBEjb $cellName $nodeName $serverName "" $first $bindingLocation  "";
+	}
+	close $jvfile;
+}

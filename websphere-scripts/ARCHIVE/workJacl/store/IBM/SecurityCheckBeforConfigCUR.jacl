@@ -1,0 +1,19 @@
+##  WAS 5.0 - Security - Config
+##  /config/templates/was/SecurityCheckBeforConfigCUR.jacl
+##------------------------------------------------------------------------------
+
+### Make sure CUR cannot be configured if database type = Cloudscape
+
+global DbType
+set DbType {@DbType@}
+
+puts stdout "\nDatabase type = $DbType"
+	
+if {[string match $DbType cloudscape]} {
+    puts stdout "\nPrerequisites invalid. CUR and Cloudscape database is not supported."
+    puts stdout "Please use a different database type than Cloudscape."
+	exit 1
+} else {
+    puts stdout "\nPrerequisites valid."
+    exit 0
+}

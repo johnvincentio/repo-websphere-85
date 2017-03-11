@@ -1,0 +1,20 @@
+set NodeName {localhost}
+set ServerName {WebSphere_Portal}
+
+# Check if exists
+set ServerId [$AdminConfig getid "/Node:$NodeName/Server:$ServerName/"]
+if {$ServerId != ""} {
+    $AdminConfig remove $ServerId
+	
+	# Check for success
+	set ServerId [$AdminConfig getid "/Node:$NodeName/Server:$ServerName/"]
+	if {$ServerId != ""} {
+		puts stdout "ERROR: /Node:$NodeName/Server:$ServerName/ could not be removed."
+		exit 1
+	} else {
+		puts stdout "/Node:$NodeName/Server:$ServerName/ successfully removed."
+		$AdminConfig save
+	}
+} else {
+    puts stdout "/Node:$NodeName/Server:$ServerName/ does not exist. No action taken"
+}

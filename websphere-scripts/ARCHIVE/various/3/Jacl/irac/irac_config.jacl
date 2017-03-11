@@ -1,0 +1,293 @@
+
+#------------------------------------------------------------------
+# script to handle iRAC Server Configuration
+#------------------------------------------------------------------
+
+source ../libs/JVUtils.jacl;
+source ../libs/JVsetAppServerWebSphereClasspath.jacl;
+source ../libs/JVsetAppServerJVMClasspath.jacl;
+source ../libs/JVsetAppServerJVMArgs.jacl;
+source ../libs/JVcreateSharedLibrary.jacl;
+source ../libs/JVaddNSBStringFile.jacl;
+source ../libs/JVaddNSBEJBFile.jacl;
+source ../libs/JVaddNSBString.jacl;
+source ../libs/JVaddNSBEjb.jacl;
+source ../libs/JVaddWebSphereVariable.jacl;
+source ../libs/JVcreateJAASAuthenticationAlias.jacl;
+
+#------------------------------------------------------------------
+# handle other irac scripts
+#------------------------------------------------------------------
+
+source irac_trace.jacl;
+source irac_jdbc.jacl;
+source irac_jms.jacl;
+source irac_mq.jacl;
+source webcontainer_custom_property.jacl
+
+#--------------------------------------------------------------------
+# main irac server configuration procedure
+#--------------------------------------------------------------------
+
+proc irac_config {myServerName myNodeName myCellName myBindingLocation myRootPath myWorkspaceServerPath mySqlserverLibPath myDb2JavaPath myDb2LibPath myDb2UniversalDriverLibPath myMQJMSLibRoot} {
+
+	JVputInfo "-------------------------------------------------------------------------";
+	JVputInfo "																			";
+	JVputInfo " Scope:								    								";
+	JVputInfo "    Server Instance                  $myServerName                       ";
+	JVputInfo "    Node                             $myNodeName			    			";
+	JVputInfo "    Cell                             $myCellName			    			";
+	JVputInfo "    Binding Location                 $myBindingLocation   		    	";
+	JVputInfo " Workspace:								    							";
+	JVputInfo "    Source Root                      $myRootPath			    			";
+	JVputInfo "    Server Path                      $myWorkspaceServerPath		    	";
+	JVputInfo " Paths:								    								";
+	JVputInfo "    SQLServer Path                   $mySqlserverLibPath		    		";
+	JVputInfo "    DB2 Java Path                    $myDb2JavaPath			    		";
+	JVputInfo "    DB2 Lib Path                     $myDb2LibPath			    		";
+	JVputInfo "    Db2 Universal Driver Lib Path    $myDb2UniversalDriverLibPath	    ";
+	JVputInfo "    MQ JMS Lib Root					$myMQJMSLibRoot	    				";
+	JVputInfo "-------------------------------------------------------------------------";
+
+#
+#  set tracing on
+#
+	irac_trace $myNodeName $myServerName "on";
+
+#
+#  handle JVM settings
+#
+
+#
+#  handle AppServer variables
+#
+
+	JVputInfo "Handle AppServer variables";
+	set myValue "";
+	append myValue "$myRootPath" "/Jacl/jars";
+	JVmodifyVariable "OS400_TOOLBOX_JDBC_DRIVER_PATH" $myValue;
+
+	set myValue $myDb2JavaPath;
+	JVmodifyVariable "DB2UNIVERSAL_JDBC_DRIVER_PATH" $myValue;
+
+	set myValue $myDb2LibPath;
+	JVmodifyVariable "DB2UNIVERSAL_JDBC_DRIVER_NATIVEPATH" $myValue;
+
+	set myValue $myDb2UniversalDriverLibPath;
+	JVmodifyVariable "UNIVERSAL_JDBC_DRIVER_PATH" $myValue;
+
+	set myValue $myMQJMSLibRoot;
+	JVaddWebSphereVariable "MQJMS_LIB_ROOT" $myValue "MQ JMS Library Root" $myNodeName;
+
+#
+#  handle AppServer JVM arguments
+#
+
+	JVputInfo "Handle AppServer JVM arguments";
+	set myValue "";
+	append myValue "-Dworkspace.user.root=" $myWorkspaceServerPath;
+	JVsetAppServerJVMArgs $myNodeName $myServerName $myValue;
+
+#
+#  handle AppServer JVM classpath
+#
+
+	JVputInfo "Handle AppServer JVM classpath";
+	set myValue "";
+	append myValue "$myRootPath" "/Jacl/jars/MapPoint";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/tradedoubler_md5.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/Tidy.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/nekohtml.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/log4j-1.2.13.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/jwebunit-1.2.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/junit.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/jt400.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/js.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/jdom.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/jcifs-1.1.2.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/jce1_2_2.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/httpunit-1.6.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/ctmfiles.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/commons-fileupload-1.1.1.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/commons-io-1.2.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/commons-math-1.1.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;		
+	
+	set myValue "";
+	append myValue "$myRootPath" "/Jars/commons-logging-1.1.jar";
+	JVsetAppServerJVMClasspath $myNodeName $myServerName $myValue;
+
+#
+#  handle AppServer classpath
+#
+
+	JVputInfo "Handle AppServer classpath";
+	set myValue "";
+	append myValue "$myRootPath" "/Jacl/jars/db2java.zip";
+	JVsetAppServerWebSphereClasspath $myNodeName $myServerName $myValue "DB2 V8";
+
+	set myValue "";
+	append myValue "$mySqlserverLibPath" "/msbase.jar";
+	JVsetAppServerWebSphereClasspath $myNodeName $myServerName $myValue "";
+
+	set myValue "";
+	append myValue "$mySqlserverLibPath" "/mssqlserver.jar";
+	JVsetAppServerWebSphereClasspath $myNodeName $myServerName $myValue "";
+
+	set myValue "";
+	append myValue "$mySqlserverLibPath" "/msutil.jar";
+	JVsetAppServerWebSphereClasspath $myNodeName $myServerName $myValue "";
+
+#
+#  handle Shared Libraries
+#
+
+	JVputInfo "Handle Shared Libraries";
+	set myValue "";
+	append myValue "$myRootPath" "/jars/IracBPUTIL.jar";
+	JVcreateSharedLibrary $myNodeName $myServerName "IracBPUTIL" $myValue;
+	
+	set myValue "";
+	append myValue "$myRootPath" "/jars/LeisureBPUTIL.jar";
+	JVcreateSharedLibrary $myNodeName $myServerName "LeisureBPUTIL" $myValue;
+	
+#
+#  handle Nsb Strings
+#
+	JVputInfo "Handle NSBs";
+	set fileName "nsbString.values";
+	JVaddNSBStringFile $fileName $myCellName;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Properties";
+	JVaddNSBString $myCellName "" "string/com/hertz/irac/PropertiesHome" $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/DirectLinkWEB/properties";
+	JVaddNSBString $myCellName "" "string/com/hertz/directlink/PropertiesHome" $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/AdminToolWEB/properties";
+	JVaddNSBString $myCellName "" "string/com/hertz/trump/PropertiesHome" $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/Properties/log";
+	JVaddNSBString $myCellName "" "string/com/hertz/irac/LogHome" $myValue;
+
+	set myValue "";
+	append myValue "$myRootPath" "/DATProperties";
+	JVaddNSBString $myCellName "" "string/com/hertz/irac/DATPropertiesHome" $myValue;
+	
+	set myValue "";
+	append myValue "$myRootPath" "/Properties";
+	JVaddNSBString $myCellName "" "string/com/hertz/irac/AutoSpellchecker" $myValue;
+
+#
+#  handle EJB Nsb
+#
+	JVputInfo "Handle EJB Name Space Bindings";
+	set fileName "nsbEJB.values";
+	JVaddNSBEJBFile $fileName $myCellName $myNodeName $myServerName $myBindingLocation;
+
+#
+#  handle JAAS
+#
+	JVputInfo "Handle JAAS";
+	set myDB "iDevDB";
+	set myUser "prcXYZ";
+	set myPassword "you_need_to_enter_your_own";
+	set myDs "Access DB2 Database";
+	JVcreateJAASAuthenticationAlias $myCellName $myDB $myUser $myPassword $myDs;
+
+	set myDB "db27alias";
+	set myDs "";
+	JVcreateJAASAuthenticationAlias $myCellName $myDB $myUser $myPassword $myDs;
+
+	set myDB "sqlserver";
+	set myUser "hertz_com";
+	set myDs "";
+	JVcreateJAASAuthenticationAlias $myCellName $myDB $myUser $myPassword $myDs;
+
+	set myDB "sqlserver_hertz603";
+	set myUser "hertz_com";
+	set myDs "";
+	JVcreateJAASAuthenticationAlias $myCellName $myDB $myUser $myPassword $myDs;
+
+#
+#  handle JDBC
+#
+	JVputInfo "Handle JDBC";
+	irac_jdbc $myCellName $myNodeName $myServerName;
+
+#
+#  handle JMS
+#
+	JVputInfo "Handle JMS";
+	irac_jms $myNodeName $myServerName;
+
+#
+#  handle MQ
+#
+	JVputInfo "Handle MQ";
+	irac_mq $myNodeName;
+	
+#
+#  handle Web Container Custom Properties
+#	
+
+	JVputInfo "Handle Web Container Custom Properties";
+	webcontainer_custom_property $myCellName $myNodeName $myServerName;
+
+#
+#  set tracing off
+#
+	irac_trace $myNodeName $myServerName "off";
+}

@@ -1,0 +1,65 @@
+
+#------------------------------------------------------------------
+#  Create JMS Resources
+#------------------------------------------------------------------
+
+proc irac_jmsEmailMessage {NodeName ServerName SIBusName} {
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+   set jmsCFName    "EmailMessageConnectionFactory";
+   set jmsCFJNDI    "jms/com/hertz/irac/EmailMessageConnectionFactory";
+   set jmsCFDesc    "EmailMessageConnectionFactory";
+   set jmsCFType    "queue";
+   set secAuthAlias "N_O_N_E";
+   JVcreateSIBJMSConnectionFactory $NodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName;
+
+#--------------------------------------------------------------------
+# Create SIB JMS Queue that references a SIB Queue
+#--------------------------------------------------------------------
+  
+   set jmsQName   "EmailMessageQueue";
+   set jmsQJNDI   "jms/com/hertz/irac/EmailMessageQueue";
+   set jmsQDesc   "EmailMessageQueue";
+   set SIBQName   "SIBEmailMessageQueue";
+   JVcreateSIBJMSQueue $NodeName $jmsQName $jmsQJNDI $jmsQDesc $SIBQName;
+
+#--------------------------------------------------------------------
+# Create SIB Queue
+#--------------------------------------------------------------------
+
+   JVcreateSIBQueue $NodeName $ServerName $SIBQName $SIBusName;
+
+#--------------------------------------------------------------------
+# Create Listener Port - NO
+#--------------------------------------------------------------------
+
+   set lpDescr    "EmailMessage Listener Port";
+   set lpName     "EmailMessageLP";
+   set lpCFJNDI   "$jmsCFJNDI";
+   set lpDestJNDI "$jmsQJNDI";
+   set lpMaxSes   "5";
+   set lpMaxRet   "10";
+   set lpMaxMsgs  "1";
+   set smIState   "START";
+#   JVcreateListenerPort $NodeName $lpDescr $lpName $lpCFJNDI $lpDestJNDI $lpMaxSes $lpMaxRet $lpMaxMsgs $smIState;
+
+#--------------------------------------------------------------------
+# Create Queue Name - don't seem to need in V6
+#--------------------------------------------------------------------
+  
+   set qnName     "$jmsQJNDI";
+   set qnAppend   "true";
+#   JVaddQueueName $NodeName $qnName $qnAppend;
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Queue
+#--------------------------------------------------------------------
+
+   set activationSpecName     "EmailMessageActivationSpec";
+   set activationSpecJndiName "eis/$activationSpecName";
+   set destinationType        "javax.jms.Queue";
+   JVcreateSIBJMSActivationSpec $NodeName $activationSpecName $activationSpecJndiName $jmsQJNDI $destinationType $secAuthAlias $SIBusName;
+}

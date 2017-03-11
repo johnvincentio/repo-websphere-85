@@ -1,0 +1,95 @@
+source C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1/config/work/was/msglog.jacl
+set logger [getLogger]
+
+set EarFileDir [lindex $argv 0]
+set EarFileNameWoType [lindex $argv 1]
+set InstallDir [lindex $argv 2]
+set NodeName [lindex $argv 3]
+set ServerName [lindex $argv 4]
+set VirtualHostName [lindex $argv 5]
+set AppName [lindex $argv 6]
+set DisplayName [lindex $argv 7]
+
+puts "EarFileDir : $EarFileDir"
+puts "EarFileName w/o FileType : $EarFileNameWoType"
+puts "InstallDir : $InstallDir"
+puts "NodeName : $NodeName"
+puts "ServerName : $ServerName"
+puts "VirtualHostName : $VirtualHostName"
+puts "ApplicationName : $AppName"
+puts "DisplayName : $DisplayName"
+puts ""
+
+
+set UriName adminconsole
+# Check if Adminconsole is already installed on the target server
+# Assuming the URI name in the WebModule is the same as the EAR file name
+set DeploymentList [$AdminConfig list Deployment]
+foreach Deployment $DeploymentList {
+    set ApplicationName [lindex [split $Deployment (] 0]
+    set DeployedObject [$AdminConfig showAttribute $Deployment deployedObject]
+    set ModuleList [lindex [$AdminConfig showAttribute $DeployedObject modules] 0] 
+    foreach Module $ModuleList {
+       set TmpUri [$AdminConfig showAttribute $Module uri]
+       set TmpUriExtension [lindex [split $TmpUri .] 1]
+       set TmpUriName [lindex [split $TmpUri .] 0]
+       if {$TmpUriExtension == "war"} {
+           set TargetMapList [lindex [$AdminConfig showAttribute $Module targetMappings] 0]
+           foreach TargetMap $TargetMapList { 
+              set Target [$AdminConfig showAttribute $TargetMap target]
+              set TmpServerName [string trim [lindex [split $Target (] 0] \"]
+              if {$UriName == $TmpUriName & $ServerName == $TmpServerName} {
+                  puts stdout " "
+                  puts stdout "WARNING: $TmpUriName.ear (ApplicationName: $ApplicationName) is allready installed on server '$TmpServerName'. No action taken!"
+                  puts stdout " "
+                  exit
+              }
+           }
+       }
+    }
+}
+
+
+# Check if Adminconsole is already installed on the target server
+# Comparing the application name.
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+    if {[string compare $TmpAppName [string trim $AppName \"]] == 0} {
+        set FlagAppExist "True"
+        break;
+    }
+}
+
+if {$FlagAppExist == "True"} {
+    logMsgOneParm $logger "WARNING" "installEar.jacl" "Config.object.exist.success" $AppName
+	exit
+} else {
+    set WarFileName ""
+	append  WarFileName "$EarFileNameWoType" ".war"
+    set EarFileSpec ""
+	append  EarFileSpec "$EarFileDir" "/" "$EarFileNameWoType" ".ear"
+    set MapWebModToVhAttrs  [subst {{{"$DisplayName" $WarFileName,WEB-INF/web.xml $VirtualHostName}}}]
+	set Attrs [subst {-node $NodeName -server $ServerName -appname $AppName -installdir $InstallDir -MapWebModToVH $MapWebModToVhAttrs}]
+    
+    puts stdout "File: $EarFileSpec"
+    puts stdout " "
+	puts stdout "Options: $Attrs"
+	puts stdout " "
+    $AdminApp install $EarFileSpec $Attrs
+    #$AdminApp install D:/WEBSPH~1/APPSER~1/installableApps/adminconsole.ear {-node 55603G5 -server WebSphere_Portal -appname WpsAdminconsole -installdir D:/WEBSPH~1/PORTAL~1/installedApps  -MapWebModToVH {{adminconsole adminconsole.war,WEB-INF/web.xml [admin_host] }} -nopreCompileJSPs -installed.ear.destination [D:/WEBSPH~1/PORTAL~1/installedApps] -distributeApp -nouseMetaDataFromBinary -nodeployejb -appname [WpsAdminconsole] -createMBeansForResources -noreloadEnabled}
+}
+
+#check for success
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+        if {[string compare $TmpAppName [string trim $AppName \"]] == 0} {
+            set FlagAppExist "True"
+            break;
+        }
+}
+if {$FlagAppExist == "True"} {
+    puts stdout "Application $AppName successfully installed."
+    $AdminConfig save
+} else {
+    puts stdout "ERROR: Application $AppName could not be installed."
+}

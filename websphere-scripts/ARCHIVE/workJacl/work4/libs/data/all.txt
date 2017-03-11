@@ -1,0 +1,28 @@
+#----------------------------------------------------------------------
+#
+#   This script can create the following resources:
+#      J2C Resource Adapters
+#      JAAS Authentication Aliases
+#      JDBC Providers
+#      Datasources
+#      Connection Factories
+#      Work Managers
+#      Schedulers
+#      SI Buses
+#      SIB JMS Connection Factories
+#      SIB JMS Queues
+#      SIB JMS Topics
+#      SIB Queues
+#      SIB JMS Activation Specs
+#      Shared Libraries
+#      Library References
+#
+#   This script can perform the following tasks:
+#      Enable Services
+#      Install Sample Applications
+#
+#
+#   The script is not intended to be run alone.
+#  
+#----------------------------------------------------------------------
+

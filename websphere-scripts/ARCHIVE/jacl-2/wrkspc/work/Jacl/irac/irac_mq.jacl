@@ -1,0 +1,23 @@
+
+#------------------------------------------------------------------
+#  Create MQ Resources
+#------------------------------------------------------------------
+
+source libs/data/JVcreateMQQueueConnectionFactory.jacl;
+source libs/data/JVcreateMQQueue.jacl;
+source libs/data/JVlistMQQueue.jacl;
+
+source irac_mqTestMQConn.jacl;
+
+proc irac_mq {NodeName} {
+
+#--------------------------------------------------------------------
+# List MQ Servers
+#--------------------------------------------------------------------
+
+#   JVlistMQQueue;
+
+   JVputInfo "Handle TestMQcon MQ";
+   irac_mqTestMQConn $NodeName;
+}
+

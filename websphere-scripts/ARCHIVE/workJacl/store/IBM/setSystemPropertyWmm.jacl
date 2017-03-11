@@ -1,0 +1,36 @@
+##  install/config/templates/was/setWMM.jacl
+##-------------------------------------------------------------------------------
+## This file provides scripts to configure  WMM
+##-------------------------------------------------------------------------------
+
+#######################################
+# Create a new WMM properties
+#######################################
+
+global AdminConfig
+
+puts stdout "\n===== Config the WMM Properties"
+
+set cellName {@CellName@}
+set nodeName {@NodeName@}
+set portalName {@ServerName@}
+set portal [$AdminConfig getid /Cell:$cellName/Node:$nodeName/Server:$portalName/]
+#puts "\tPortal: $portal"
+set jvm [$AdminConfig list JavaVirtualMachine $portal]
+#puts "\tJVM: $jvm"
+
+# set the WMM attribute
+set attrs [list [list name "com.ibm.websphere.wmm.configfile"] [list value "wmm.xml"] [list required "false"]]
+#puts "\tattrs: $attrs"
+set propName [lindex [lindex $attrs 0] 1]
+set propId [$AdminConfig getid /Property:$propName/]
+if {$propId != "" } {
+	puts stdout "\n\tThis WMM Property '$propName' is already defined. Will be deleted ..."
+	$AdminConfig remove $propId
+}
+
+puts "\n\tNew WMM Property will be created..."
+$AdminConfig create Property $jvm $attrs
+puts "\tDone."
+
+$AdminConfig save

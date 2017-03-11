@@ -1,0 +1,196 @@
+#--------------------------------------------------------------
+# Setup a WorkManager in case no WorkManaqer with the
+# specified name exists.
+# 
+# slaertz
+#--------------------------------------------------------------
+set wmName                  "wpsWorkManager"
+set wmJNDIName              "wm/wpsWorkManager"
+set wmDesc                  "WPS WorkManager"
+set wmCategory              "default"
+set wmNumAlarmThreads       "0"
+set wmMinThreads            "100"
+set wmMaxThreads            "300"
+set wmThreadPriority        "5"
+set wmGrowable              "false"                   
+# true | false
+set wmSrvSecurity           "false"                    
+# true | false
+set wmSrvWorkArea           "false"                    
+# true | false
+set wmSrvInternational      "false"                    
+# true | false
+set wmSrvAppProfilService   "false"                    
+# true | false
+
+
+# check if WorkManager is a valid config type
+if {[catch {$AdminConfig list WorkManagerInfo} TmpWorkManagerList]} {
+    puts stdout "It appers that 'IBM WebSphere Application Server Enterprise' (PME) is not installed."
+    puts stdout "No need to create a WorkManager"
+    exit
+}
+
+# check if wpsWorkManager does exists already
+set foundWM ""
+foreach TmpWM [$AdminConfig list WorkManagerInfo] {
+        set WorkManagerName [$AdminConfig showAttribute $TmpWM name]
+        if {[string compare $WorkManagerName $wmName] == 0} {
+                set foundWM "true"
+                break;
+        }
+}
+if {$foundWM != ""} {
+        puts stdout "WorkManager with name '$wmName' already exists! No action taken."
+        exit
+}
+
+
+puts stdout "Locating WorkManager Provider!"
+set workManProv [lindex [$AdminConfig list WorkManagerProvider] 0]
+if {$workManProv == ""} {
+        
+        puts stdout "ERROR: WorkManagerProvider could not be found."
+        
+} else {
+
+        puts stdout "Creating wpsWorkManager."
+        
+        # checking the settings
+        if {$wmName == ""} {                
+                puts stdout "ERROR: No name specified."        
+                exit 1
+        } else {
+                set wmNameStr "{name \"$wmName\"}"
+        }
+        if {$wmJNDIName == ""} {                
+                puts stdout "ERROR: No JNDI name specified."        
+                exit 1
+        } else {
+                set wmJNDINameStr "{jndiName \"$wmJNDIName\"}"
+        }        
+        if {$wmDesc == ""} {
+                set wmDescStr ""                
+        } else {
+                set wmDescStr "{description \"$wmDesc\"}"
+        }
+        if {$wmCategory == ""} {
+                set wmCategoryStr ""                
+        } else {
+                set wmCategoryStr "{category \"$wmCategory\"}"
+        }       
+        if {$wmNumAlarmThreads == ""} {
+                puts stdout "ERROR: Number Of Alarm Threads not specified."
+                exit 1
+        } else {
+                set wmNumAlarmThreadsStr "{numAlarmThreads $wmNumAlarmThreads}"
+        }
+        if {$wmMinThreads == ""} {
+                puts stdout "ERROR: Minimum Number Of Threads not specified."
+                exit 1
+        } else {
+                set wmMinThreadsStr "{minThreads $wmMinThreads}"
+        }
+        if {$wmMaxThreads == ""} {
+                puts stdout "ERROR: Maximum Number Of Threads not specified."
+                exit 1
+        } else {
+                set wmMaxThreadsStr "{maxThreads $wmMaxThreads}"
+        }
+        if {$wmThreadPriority == ""} {
+                puts stdout "ERROR: Threads Priority not specified."
+                exit 1
+        } else {
+                set wmThreadPriorityStr "{threadPriority $wmThreadPriority}"
+        }        
+        if {$wmGrowable == ""} {
+                set wmGrowableStr ""                
+        } else {
+                if {$wmGrowable == "false"} {
+                        set wmGrowableStr "{isGrowable false}"
+                } else {
+                        set wmGrowableStr "{isGrowable true}"                        
+                }                
+        }
+        
+        set foundService ""
+        if {$wmSrvSecurity == ""} {
+                set wmSrvSecurityStr ""                
+        } else {
+                if {$wmSrvSecurity == "false"} {
+                        set wmSrvSecurityStr ""
+                } else {
+                        set foundService "true"
+                        set wmSrvSecurityStr "security"                        
+                }                
+        }        
+        if {$wmSrvWorkArea == ""} {
+                set wmSrvWorkArea ""                
+        } else {
+                if {$wmSrvWorkArea == "false"} {
+                        set wmSrvWorkAreaStr ""
+                } else {
+                        if {$foundService == ""} {
+                                set foundService "true"
+                                set wmSrvWorkAreaStr "UserWorkArea"                                
+                        } else {
+                                set wmSrvWorkAreaStr ";UserWorkArea" 
+                        }
+                }                
+        }        
+        if {$wmSrvInternational == ""} {
+                set wmSrvInternational ""                
+        } else {
+                if {$wmSrvInternational == "false"} {
+                        set wmSrvInternationalStr ""
+                } else {
+                        if {$foundService != ""} {
+                                set wmSrvInternationalStr ";com.ibm.ws.i18n" 
+                        } else {
+                                set foundService "true"
+                                set wmSrvInternationalStr "com.ibm.ws.i18n"
+                        }
+                }                
+        }       
+        if {$wmSrvAppProfilService == ""} {
+                set wmSrvAppProfilServiceStr ""                
+        } else {
+                if {$wmSrvAppProfilService == "false"} {
+                        set wmSrvAppProfilServiceStr ""
+                } else {
+                        if {$foundService != ""} {
+                                set wmSrvAppProfilServiceStr ";AppProfileService" 
+                        } else {
+                                set foundService "true"
+                                set wmSrvAppProfilServiceStr "AppProfileService"
+                        }
+                }                
+        }
+                
+        
+        if {$foundService == ""} {
+                set attributes "$wmCategoryStr $wmDescStr $wmGrowableStr $wmJNDINameStr $wmMaxThreadsStr $wmMinThreadsStr $wmNameStr $wmNumAlarmThreadsStr $wmThreadPriorityStr"
+        } else {
+                set wmSrvStr "{serviceNames $wmSrvSecurityStr$wmSrvWorkAreaStr$wmSrvInternationalStr$wmSrvAppProfilServiceStr}"
+                set attributes "$wmCategoryStr $wmDescStr $wmGrowableStr $wmJNDINameStr $wmMaxThreadsStr $wmMinThreadsStr $wmNameStr $wmNumAlarmThreadsStr $wmSrvStr $wmThreadPriorityStr"
+        }
+        
+        $AdminConfig create WorkManagerInfo $workManProv $attributes        
+        $AdminConfig save
+        
+        # lets see if workmanager is there
+        foreach TmpWM [$AdminConfig list WorkManagerInfo] {
+                set WorkManagerName [$AdminConfig showAttribute $TmpWM name]
+                if {[string compare $WorkManagerName $wmName] == 0} {
+                        set foundWM "true"
+                        break;
+                }
+        }
+        if {$foundWM == "true"} {
+                puts stdout "Successfully created wpsWorkManager."
+                exit
+        }
+}
+
+
+

@@ -1,0 +1,197 @@
+set ServerName {WebSphere_Portal}
+set WpsAppName {wps}
+
+set FlagServerExist "False"
+foreach TmpServer [$AdminConfig list Server] {
+	set TmpServerName [$AdminConfig showAttribute $TmpServer name]
+    if {[string compare $TmpServerName $ServerName] == 0} {
+        set FlagServerExist "True"
+        break;
+    }
+}
+
+if {$FlagServerExist == "False"} {
+    puts stdout "Server $ServerName does not exist, no Action taken"
+	exit 1
+} else {
+	#####################################################################################
+	#  create MemberManagerProvider via Template
+	#####################################################################################
+	set MemberManagerProviderId [$AdminConfig getid /Server:$ServerName/MemberManagerProvider:MembershipProvider/]
+	if {$MemberManagerProviderId != ""} {
+		puts stdout "ERROR: /MemberManagerProvider:MembershipProvider/ already there, no Action taken"
+		exit 1
+	}
+	
+	set ServerId [$AdminConfig getid /Server:$ServerName/]
+	set MemberManagerProviderTemplateId [$AdminConfig listTemplates MemberManagerProvider]
+
+	set DefaultParentMemberList [list defaultParentMember "o=Default Organization"]
+	set DefaultProfileRepositoryList [list defaultProfileRepository "DB1"]
+	set NamePersonList [list name "Person"]
+	set NameOrganizationList [list name "Organization"]
+	set NameOrganizationalUnitList [list name "OrganizationalUnit"]
+	set NameGroupList [list name "Group"]
+	set RdnAttrNameUid [list rdnAttrName "uid"]
+	set RdnAttrNameO [list rdnAttrName "o"]
+	set RdnAttrNameOu [list rdnAttrName "ou"]
+	set RdnAttrNameCn [list rdnAttrName "cn"]
+	set UidList [list $DefaultParentMemberList $DefaultProfileRepositoryList $NamePersonList $RdnAttrNameUid]
+	set OList [list $DefaultParentMemberList $DefaultProfileRepositoryList $NameOrganizationList $RdnAttrNameO]
+	set OuList [list $DefaultParentMemberList $DefaultProfileRepositoryList $NameOrganizationalUnitList $RdnAttrNameOu]
+	set CList [list $DefaultParentMemberList $DefaultProfileRepositoryList $NameGroupList $RdnAttrNameCn]
+	set SupportedMemberTypesList [list supportedMemberTypes [list $UidList $OList $OuList $CList]]
+
+
+	set NameList [list name "MembershipProvider"]
+	set DescriptionList [list description "Default Membership Provider"]
+	set HorizontalPartitioningList [list horizontalPartitioning "false"]
+	set UniqueIdGeneratorClassNameList [list uniqueIdGeneratorClassName "com.ibm.ws.wmm.uniqueid.WMMUniqueMemberIdentifierGenerator"]
+	set LookAsideList [list lookAside "false"]
+	set ConfigurationFileList [list configurationFile "wmmAttributes.xml"]
+	set SearchTimeoutList [list searchTimeout "300000"]
+	set MaximumSearchResultsList [list maximumSearchResults "500000"]
+	set DefaultRealmNameList [list defaultRealmName "garlic"]
+	set ClasspathList [list classpath {}]
+	set NativepathList [list nativepath {}]
+	set ReferenceablesList [list referenceables {}]
+
+    set Attrs [list $SupportedMemberTypesList $NameList $DescriptionList $HorizontalPartitioningList $UniqueIdGeneratorClassNameList $LookAsideList $ConfigurationFileList $SearchTimeoutList $MaximumSearchResultsList $DefaultRealmNameList $ClasspathList $NativepathList $ReferenceablesList]
+	
+    $AdminConfig createUsingTemplate MemberManagerProvider $ServerId $Attrs $MemberManagerProviderTemplateId
+	#$AdminConfig createUsingTemplate MemberManagerProvider [$AdminConfig getid /Server:WebSphere_Portal/] [list [list name "MembershipProvider"] [list description "Default Membership Provider"] [list horizontalPartitioning "false"] [list uniqueIdGeneratorClassName "com.ibm.ws.wmm.uniqueid.WMMUniqueMemberIdentifierGenerator"] [list lookAside "false"] [list configurationFile "wmmAttributes.xml"] [list searchTimeout "300000"] [list maximumSearchResults "100000"]] [$AdminConfig listTemplates MemberManagerProvider]
+	
+	set MemberManagerProviderId [$AdminConfig getid /Server:$ServerName/MemberManagerProvider:MembershipProvider/]
+	if {$MemberManagerProviderId == ""} {
+		puts stdout "ERROR: MemberManagerProvider /MemberManagerProvider:MembershipProvider/ could not be created"
+		exit 1
+	} else {
+		puts stdout "OK: /MemberManagerProvider:MembershipProvider/ created"
+	}
+
+	
+    #####################################################################################
+    #   From the MemberManagerProvider Template for this WMM Implementation we don't need:
+    #   LookAsideRepository	wmmLookAside
+    #   ProfileRepository	wmmProfile
+    #   LdapRepository		wmmLDAP
+    #####################################################################################
+    set LookAsideRepositoryId [$AdminConfig getid /LookAsideRepository:wmmLookAside/]
+	if {$LookAsideRepositoryId == ""} {
+		puts stdout "/LookAsideRepository:wmmLookAside/ does not exist, no Action taken"
+	} else {
+		$AdminConfig remove $LookAsideRepositoryId
+	    set TmpId [$AdminConfig getid /LookAsideRepository:wmmLookAside/]
+		if {$LookAsideRepositoryId != ""} {
+			puts stdout "OK: /LookAsideRepository:wmmLookAside/ removed"
+		} else {
+			puts stdout "ERROR: /LookAsideRepository:wmmLookAside/ could not be removed"
+			exit 1
+		}
+	}
+
+	set ProfileRepositoryId [$AdminConfig getid /ProfileRepository:wmmProfile/]
+	if {$ProfileRepositoryId == ""} {
+		puts stdout "/ProfileRepository:wmmProfile/ does not exist, no Action taken"
+	} else {
+		$AdminConfig remove $ProfileRepositoryId
+		set TmpId [$AdminConfig getid /ProfileRepository:wmmProfile/]
+		if {$TmpId == ""} {
+			puts stdout "OK: /ProfileRepository:wmmProfile/ removed"
+		} else {
+			puts stdout "ERROR: /ProfileRepository:wmmProfile/ could not be removed"
+			exit 1
+		}
+	}
+	
+
+	set LdapRepositoryId [$AdminConfig getid /LdapRepository:wmmLDAP/]
+	if {$LdapRepositoryId == ""} {
+		puts stdout "/LdapRepository:wmmLDAP/ does not exist, no Action taken"
+	} else {
+		$AdminConfig remove $LdapRepositoryId
+		set TmpId [$AdminConfig getid /LdapRepository:wmmLDAP/]
+		if {$TmpId == ""} {
+			puts stdout "OK: /LdapRepository:wmmLDAP/ removed"
+		} else {
+			puts stdout "ERROR: /LdapRepository:wmmLDAP/ could not be removed"
+			exit 1
+		}
+	}
+
+	#####################################################################################
+	#  modify MemberManagerProvider -> DatabaseRepository
+    #  DatabaseRepository is introduced by the MemberManagerProvider Template.
+    #  Therefore it has no "parents"
+	#####################################################################################
+    #set DatabaseRepositoryId [$AdminConfig getid /Server:$ServerName/MemberManagerProvider:MembershipProvider/DatabaseRepository:wmmDB/]
+    set DatabaseRepositoryId [$AdminConfig getid /DatabaseRepository:wmmDB/]
+	if {$DatabaseRepositoryId == ""} {
+		puts stdout "ERROR: /DatabaseRepository:wmmDB/ could not be found, no action taken"
+		exit 1
+	}
+
+	set NameList [list name "wmmDB"]
+	set ProviderList [list provider $MemberManagerProviderId]
+	set AdapterClassNameList [list adapterClassName "com.ibm.ws.wmm.db.DatabaseRepository"]
+	set AdapterVersionList [list adapterVersion "0.9"]
+	set CategoryList [list category "test data"]
+	set ConfigurationFileList [list configurationFile "wmmDBAttributes.xml"]
+	set DataAccessManagerClassNameList [list dataAccessManagerClassName "com.ibm.ws.wmm.db.dao.db2.WMMDB2Dao"]
+	set DatabaseIsolationLevelList [list databaseIsolationLevel TRANSACTION_READ_COMMITTED]
+	set DatabaseTypeList [list databaseType "DB2"]
+	set DatasourceNameList [list datasourceName "jdbc/wmm50DS"]
+	set DescriptionList [list description "An DB Repository"]
+	set GenerateExtIdList [list generateExtId true] 
+	set JndiNameList [list jndiName "wmm/DBRepository"]
+	set SpecVersionList [list specVersion "0.9"]
+	set SupportDynamicAttributesList [list supportDynamicAttributes true]
+	set SupportGetPersonByAccountNameList [list supportGetPersonByAccountName true]
+	set SupportTransactionsList [list supportTransactions true]
+	set UuidList [list uuid "DB1"]
+	set VendorList [list vendor "IBM"]
+    set ProfileRepositoryForGroupsList [list profileRepositoryForGroups {}]
+	set AdminAliasList [list adminAlias {}]
+	set Attrs [list $NameList $ProviderList $AdapterClassNameList $AdapterVersionList $CategoryList $ConfigurationFileList $DataAccessManagerClassNameList $DatabaseIsolationLevelList $DatabaseTypeList $DatasourceNameList $DescriptionList $GenerateExtIdList $JndiNameList $SpecVersionList $SupportDynamicAttributesList $SupportGetPersonByAccountNameList $SupportTransactionsList $UuidList $VendorList $ProfileRepositoryForGroupsList $AdminAliasList]
+
+	$AdminConfig modify $DatabaseRepositoryId $Attrs
+	#$AdminConfig modify [$AdminConfig getid /DatabaseRepository:wmmDB/] [list [list adapterClassName "com.ibm.ws.wmm.db.DatabaseRepository"] [list adapterVersion "0.9"] [list category "test data"] [list configurationFile wmmDBAttributes.xml] [list dataAccessManagerClassName "com.ibm.ws.wmm.db.dao.db2.WMMDB2Dao"] [list databaseIsolationLevel TRANSACTION_READ_COMMITTED] [list databaseType DB2] [list datasourceName "jdbc/wmm50DS"] [list description "An DB Repository"] [list generateExtId true] [list jndiName "wmm/DBRepository"] [list name "wmmDB"] [list profileRepositoryForGroups {}] [list provider $MemberManagerProviderId] [list specVersion "5.1"] [list supportDynamicAttributes true] [list supportGetPersonByAccountName false] [list supportTransactions true] [list uuid "DB1"] [list vendor "IBM"] [list adminAlias {}]]
+
+
+    #add profileRepositoryForGroups and nodeMaps Attributes
+	set ProfileRepositoryForGroupsList [list profileRepositoryForGroups DB1]
+	set NodeList [list node "o=Default Organization"]
+	set PluginNodeList [list pluginNode "o=Default Organization"]
+	set NodeMapsList [list nodeMaps [list [list $NodeList $PluginNodeList]]]
+	set Attrs [list $ProfileRepositoryForGroupsList $NodeMapsList]
+	$AdminConfig modify $DatabaseRepositoryId $Attrs
+
+#{supportedMemberTypes {
+#{{defaultParentMember "o=Default Organization"} {defaultProfileRepository DB1} {name Person} {rdnAttrName uid}}
+#{{defaultParentMember "o=Default Organization"} {defaultProfileRepository DB1} {name Organization} {rdnAttrName o}}
+#{{defaultParentMember "o=Default Organization"} {defaultProfileRepository DB1} {name OrganizationalUnit} {rdnAttrName ou}}
+#{{defaultParentMember "o=Default Organization"} {defaultProfileRepository DB1} {name Group} {rdnAttrName cn}}
+#}}	
+
+	#modify supportedMemberTypes
+	set DefaultParentMemberList [list defaultParentMember "o=Default Organization"]
+	set DefaultProfileRepositoryList [list defaultProfileRepository "DB1"]
+	set NamePersonList [list name "Person"]
+	set NameOrganizationList [list name "Organization"]
+	set NameOrganizationalUnitList [list name "OrganizationalUnit"]
+	set NameGroupList [list name "Group"]
+	set RdnAttrNameUid [list rdnAttrName "uid"]
+	set RdnAttrNameO [list rdnAttrName "o"]
+	set RdnAttrNameOu [list rdnAttrName "ou"]
+	set RdnAttrNameCn [list rdnAttrName "cn"]
+	set UidList [list $DefaultParentMemberList $DefaultProfileRepositoryList $NamePersonList $RdnAttrNameUid]
+	set OList [list $DefaultParentMemberList $DefaultProfileRepositoryList $NameOrganizationList $RdnAttrNameO]
+	set OuList [list $DefaultParentMemberList $DefaultProfileRepositoryList $NameOrganizationalUnitList $RdnAttrNameOu]
+	set CList [list $DefaultParentMemberList $DefaultProfileRepositoryList $NameGroupList $RdnAttrNameCn]
+	set Attrs [list [list supportedMemberTypes [list $UidList $OList $OuList $CList]]]
+#	$AdminConfig modify $MemberManagerProviderId $Attrs
+
+	puts stdout "OK: /DatabaseRepository:wmmDB/ Attributes modified"
+    
+	$AdminConfig save
+}

@@ -1,0 +1,26 @@
+set WpsAppName {wps}
+
+set DeploymentId [$AdminConfig getid /Deployment:$WpsAppName/]
+if {$DeploymentId == ""} {
+    puts stdout "ERROR: $WpsAppName.ear is not installed, no Action taken"
+	exit 1
+} else {
+	#####################################################################################
+	#  modify Deployment -> ApplicationDeployment attribute startingWeight
+	#####################################################################################
+    set ApplicationDeploymentId [$AdminConfig getid /Deployment:$WpsAppName/ApplicationDeployment:/]
+    if {[llength $ApplicationDeploymentId] != 1} {
+        puts stdout $ApplicationDeploymentId
+        puts stdout "ERROR: Wrong No Of ApplicationDeployments for Deployment:$WpsAppName"
+        puts stdout "expected: 1; actual: [llength $ApplicationDeploymentId]"
+        exit 1
+    }
+
+    puts stdout "Old: [$AdminConfig show $ApplicationDeploymentId startingWeight]"
+    set attrs [list [list startingWeight 10]]
+	$AdminConfig modify $ApplicationDeploymentId $attrs 
+	puts stdout "New: [$AdminConfig show $ApplicationDeploymentId startingWeight]"
+	puts stdout "Deployment:$WpsAppName Attribute startingWeight modified."
+
+    $AdminConfig save
+}

@@ -1,0 +1,27 @@
+source @WpsInstallLocation@/config/work/was/msglog.jacl
+set logger [getLogger]
+
+set CellName [lindex $argv 0]
+set VirtualHostName [lindex $argv 1]
+
+puts "CellName : $CellName"
+puts "VirtualHostName : $VirtualHostName"
+puts ""
+
+# Check if exists
+set VirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+if {$VirtualHostId != ""} {
+    $AdminConfig remove $VirtualHostId
+	
+	# Check for success
+    set VirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+    if {$VirtualHostId != ""} {
+        puts stdout "ERROR: /VirtualHost:$VirtualHostName/ could not be removed."
+		exit 1
+	} else {
+        puts stdout "/VirtualHost:$VirtualHostName/ successfully removed."
+		$AdminConfig save
+	}
+} else {
+	puts stdout "/VirtualHost:$VirtualHostName/ does not exist. No action taken"
+}

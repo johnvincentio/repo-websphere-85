@@ -1,0 +1,12 @@
+##  WAS 5.0 - Security - Config
+##  /config/templates/was/SecurityDisable.jacl
+##------------------------------------------------------------------------------
+## This file provides scripts to disable global security for the WAS 5.0
+##------------------------------------------------------------------------------
+
+puts stdout "\n===== Disable global security for the WAS 5.0"
+
+setSecurityEnable {disable}
+
+saveConfig
+puts stdout "\tConfiguration saved."

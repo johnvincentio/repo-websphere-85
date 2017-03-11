@@ -1,0 +1,126 @@
+#############################################################################################
+#     
+#   Author:  Ganesan Karuppaiah  (Ken) 
+#            IBM WebSphere Support Team
+#   This script is used to generate thread dump from running JVM (dmgr,nodeagent and Server)
+#   
+#   It can be used both Base Only,ND Only and Federated Cell Environment (Base/ND)   
+#
+#############################################################################################
+#
+#  How to use:
+#  -----------
+#  1.Copy and paste this "getThreadDump.jacl"  <was_root>/bin dir
+#  2.Start wsadmin from command line with -f 
+#   <was_root>/bin>wsadmin -f getThreadDump.jacl  
+#  3.If you choose to place this "getThreadDump.jacl" in some other dir 
+#    Please provide fully qualified name
+#    Ex: I am placing this in C:\myDir\getThreadDump.jacl
+#   <was_root>/bin>wsadmin  -f  C:\myDir\getThreadDump.jacl
+#
+#         WARNING !!!!! 
+#         Federated Cell  Env. 
+#         =================== 
+#         This script uses $AdminConfig and $AdminControl Objects 
+#         If you are trying to connect wsadmin  to "NodeAgent" or "Server" port  this will fail !!
+#         $AdminConfig  service is not available for NodeAgent/Server in a Federated Cell  Env.
+#
+#         Suggestion:
+#         ===========
+#         In a Federated Cell  Env. always start wsadmin using "dmgr" port (ND SOAP Port)
+#         This process will have access to all Servers !!
+#         (If you want to connect wsadmin to a particular Server/NodeAgent SOAP port
+#         Please comment the $AdminConfig function from this script  )
+#
+#         Stand alone Base Env
+#         ======================        
+#         If you are connecting wsadmin to a Server's SOAP port this will work
+#
+#         
+#
+#  
+#############################################################################################
+
+
+set thisNode [$AdminControl getNode]
+set thisPort [$AdminControl getPort]
+set kenAvailableServer [$AdminConfig list Server]
+puts "  "
+puts "  "
+puts "------------------------Start---------------------------------------------"
+puts "  "
+puts "  "
+puts "This wsadmin script is connected to"
+puts "  "
+puts "  "
+puts "Node => $thisNode"
+puts "Port => $thisPort"
+puts "  "
+puts "Only following Server(s) are available for This wsadmin connection"
+puts "  "
+puts "=================================================================="
+puts "  "
+puts "  "
+puts "$kenAvailableServer"
+puts "  "
+puts "  "
+puts "----------------------------------------------------------------------"
+puts "  "
+puts "  "
+puts "Enter following details to start Thread Dump"
+puts "    "
+puts -nonewline  "Enter Server Name   : " ; gets stdin myServer 
+puts -nonewline  "Enter Node   Name   : " ; gets stdin myNode 
+puts "  "
+puts "  "
+puts "  "
+puts "    ****      Please Wait .......!!! *****     "
+set kenServerObject     [ $AdminControl completeObjectName type=Server,node=$myNode,process=$myServer,* ] 
+if {[llength $kenServerObject] < 1} {
+     puts "---------------------------ERROR------------------------------------"
+     puts "  "
+     puts "  "
+     puts "Error -- Server==> $myServer is NOT running on Node==> $myNode !!"
+     puts "Check the serverstatus <was_root>/bin>serverstatus.bat/sh  $myServer"
+     puts "  "
+     puts "  "
+     puts "--------------------------------------------------------------------"
+     puts "  "
+     puts "  "
+     return 
+ }
+set kenCell              [ $AdminControl invoke $kenServerObject getCellName ]   
+set kenNode              [ $AdminControl invoke $kenServerObject getNodeName ] 
+set kenState             [ $AdminControl invoke $kenServerObject getState    ] 
+set kenPID               [ $AdminControl invoke $kenServerObject getPid      ]  
+puts "  "
+puts "  "
+puts "Server $myServer Details: "
+puts "========================="
+puts "CellName        ===> $kenCell"
+puts "NodeName        ===> $kenNode"
+puts "Server Status   ===> $kenState"
+puts "server PID      ===> $kenPID"
+set kenJVMObject        [ $AdminControl completeObjectName type=JVM,node=$myNode,process=$myServer,*] 
+set kenDumpThreads      [ $AdminControl invoke $kenJVMObject dumpThreads ]
+puts "  "
+puts "  "
+puts "  "
+puts "  "
+puts "Thread Dump for $myServer completed successfully !"
+puts "  "
+puts "Javacore  is available in the Install root of Node==>$kenNode"
+puts "Ex: In the WebSphere/AppServer dir for  Node ==> $kenNode"  
+puts "  "
+puts "  "
+puts "--------------------End------------------------------------------"
+puts "  "
+puts "  "
+exit
+#
+#
+#
+#######################################################################################################
+
+
+

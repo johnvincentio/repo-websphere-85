@@ -1,0 +1,140 @@
+
+#------------------------------------------------------------------
+# script to handle Etrieve Server Configuration
+#------------------------------------------------------------------
+
+source ../libs/JVUtils.jacl;
+source ../libs/JVcreateJDBCProviderDB2.jacl;
+source ../libs/JVcreateDatasourceDB2.jacl;
+source ../libs/JVcreateDatasourceAS400DB2.jacl;
+source ../libs/JVaddNSBString.jacl;
+
+proc hercEtrieve {pServerName pNodeName pCellName pRootPath} {
+
+#--------------------------------------------------------------------
+# what to do with:
+#		jdbc/HercWebUpdatedGold
+#		jdbc/HercGoldCorporate
+# do not seem to need these...
+#--------------------------------------------------------------------
+
+#--------------------------------------------------------------------
+# Handle NSBs 
+#--------------------------------------------------------------------
+
+JVaddNSBString $pCellName "WSEmailProtocol" "string/com/hertz/etrieve/emailProtocol" "https://";
+
+JVaddNSBString $pCellName "WSemailDB" "string/com/hertz/etrieve/wsemailDB" "hercdb";
+
+JVaddNSBString $pCellName "WSemailWebService" "string/com/hertz/etrieve/emailWebService" "webservices.hertz.com";
+
+set myValue "";
+append myValue "$pRootPath" "/webservice/emailWebserviceClient.properties";
+JVaddNSBString $pCellName "WSkeystoreFileLocation" "string/com/hertz/etrieve/keystoreFileLocation" $myValue;
+
+#--------------------------------------------------------------------
+# Set JDBC Provider 
+#--------------------------------------------------------------------
+
+set templName    "DB2 Universal JDBC Driver Provider";
+set provName     "iRAC DB2";
+
+#--------------------------------------------------------------------
+# Create Etrieve DB2 Datasource
+#--------------------------------------------------------------------
+
+set templName    "DB2 Universal JDBC Driver DataSource";
+set dsName       "";
+set dsJNDI       "jdbc/DB2DemoData";
+set dsDesc       "";
+set dsAuthMech   "BASIC_PASSWORD";
+set secAuthAlias "iDevDB";
+set dbName       "edevdb";
+set dbSrvName    "edevdb2.dev2.irac.ecom.ad.hertz.com";
+set dbPort       "50000";
+set dbHelper	 "com.ibm.websphere.rsadapter.DB2UniversalDataStoreHelper";
+set rsHold		 "1";
+set dbSchema     "";
+JVcreateDatasourceDB2 $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+#--------------------------------------------------------------------
+# Set JDBC Provider 
+#--------------------------------------------------------------------
+
+set templName    "DB2 Universal JDBC Driver Provider";
+set provName     "iRAC DB2";
+
+#--------------------------------------------------------------------
+# Create Demo Data Datasources
+#--------------------------------------------------------------------
+
+set templName    "DB2 Universal JDBC Driver DataSource";
+set dsName       "";
+set dsJNDI       "jdbc/com/hertz/irac/HercDemoDataDB";
+set dsDesc       "";
+set dsAuthMech   "BASIC_PASSWORD";
+set secAuthAlias "iDevDB";
+set dbName       "edevdb";
+set dbSrvName    "edevdb2.dev2.irac.ecom.ad.hertz.com";
+set dbPort       "50000";
+set dbHelper	 "com.ibm.websphere.rsadapter.DB2UniversalDataStoreHelper";
+set rsHold		 "2";
+set dbSchema     "HERCDB";
+JVcreateDatasourceDB2 $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+
+#--------------------------------------------------------------------
+#  Create RentalMan Server Resources
+#--------------------------------------------------------------------
+
+set templName    "DB2 UDB for iSeries (Toolbox)";
+set provName     "Herc RentalMan";
+
+#--------------------------------------------------------------------
+# Create US Datasources
+#--------------------------------------------------------------------
+
+set templName    "DB2 UDB for iSeries (Toolbox) DataSource";
+set dsName       "";
+set dsJNDI       "jdbc/RentalMan";
+set dsDesc       "";
+set dsAuthMech   "BASIC_PASSWORD";
+set secAuthAlias  "rentalman";
+set dbName       "AS4DEV";
+set dbSrvName    "as4dev.hertz.com";
+set dbHelper	"com.ibm.websphere.rsadapter.DB2AS400DataStoreHelper";
+set dbLibraries	 "RMHCQDATA";
+JVcreateDatasourceAS400DB2 $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbHelper $dbLibraries;
+
+set templName    "DB2 UDB for iSeries (Toolbox) DataSource";
+set dsJNDI       "jdbc/RentalManUPD";
+set dbLibraries	 "RMETQAUT";
+JVcreateDatasourceAS400DB2 $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbHelper $dbLibraries;
+
+set templName    "DB2 UDB for iSeries (Toolbox) DataSource";
+set dsJNDI       "jdbc/RentalManTraining";
+set dbLibraries	 "RMHCQDATA";
+JVcreateDatasourceAS400DB2 $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbHelper $dbLibraries;
+
+#--------------------------------------------------------------------
+# Create CA Datasources
+#--------------------------------------------------------------------
+
+set templName    "DB2 UDB for iSeries (Toolbox) DataSource";
+set dsName       "";
+set dsJNDI       "jdbc/RentalManCanada";
+set dsDesc       "";
+set dsAuthMech   "BASIC_PASSWORD";
+set secAuthAlias  "CArentalman";
+set dbName       "AS4HRCCD";
+set dbSrvName    "AS4HRCCD";
+set dbHelper	"com.ibm.websphere.rsadapter.DB2AS400DataStoreHelper";
+set dbLibraries	 "WSDATA";
+JVcreateDatasourceAS400DB2 $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbHelper $dbLibraries;
+
+set templName    "DB2 UDB for iSeries (Toolbox) DataSource";
+set dsJNDI       "jdbc/RentalManCanadaUPD";
+set dbLibraries	 "RMETQAUTC";
+JVcreateDatasourceAS400DB2 $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbHelper $dbLibraries;
+
+}

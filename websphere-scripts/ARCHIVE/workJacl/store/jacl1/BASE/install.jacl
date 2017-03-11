@@ -1,0 +1,142 @@
+#
+# "This sample program is provided AS IS and may be used, executed, copied and modified without royalty payment by customer(a) for its own 
+# instruction and study, (b) in order to develop applications designed to run with an IBM WebSphere product, either for customer's own internal use 
+# or for redistribution by customer, as part of such an application, in customer's own products."
+#
+# Product 5724i63,  (C) COPYRIGHT International Business Machines Corp., 2004
+# All Rights Reserved * Licensed Materials - Property of IBM
+#
+#----------------------------------------------------------------------
+# install.jacl - JACL procedures for configuring resources and
+#              installing the sample
+#----------------------------------------------------------------------
+#
+#   This script is not intended to be run alone.
+#
+#----------------------------------------------------------------------
+
+source $env(was.install.root)/samples/bin/AdminUtil.jacl
+
+proc configure_WebSphereBank {cellName nodeName serverName} {
+
+  #--------------------------------------------------------------------
+  # Configure the sample
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "************* Configure WebSphereBank Sample ******************"
+
+  #--------------------------------------------------------------------
+  # Create J2C Resource Adapter
+  #--------------------------------------------------------------------
+
+  createJ2CResourceAdapter $nodeName $serverName
+
+  #--------------------------------------------------------------------
+  # Setup security cell
+  #--------------------------------------------------------------------
+
+  set secAuthAlias "$cellName/samples"
+  set secDescript  "JAAS Alias for WebSphere Samples"
+  set secUserID    "samples"
+  set secPassword  "s1amples"
+  createJAASAuthenticationAlias $cellName $secAuthAlias $secDescript $secUserID $secPassword
+
+  #--------------------------------------------------------------------
+  # Create JDBC Provider
+  #--------------------------------------------------------------------
+  
+  set templName    "Cloudscape JDBC Provider (XA)"
+  # All Samples that need JDBC Provider should use/share this one
+  set provName     "Samples Cloudscape JDBC Provider (XA)"
+  createJDBCProvider $nodeName $serverName $templName $provName
+
+  #--------------------------------------------------------------------
+  # Create Datasource
+  #--------------------------------------------------------------------
+  
+  set templName    "Cloudscape JDBC Driver XA DataSource"
+  set dsName       "BANKDS"
+  set dsJNDI       "jdbc/Bank"
+  set dsDesc       "Data source for the WebSphereBank entity beans"
+  set dsAuthMech   "BASIC_PASSWORD"
+  set dbName       "\${APP_INSTALL_ROOT}/\${CELL}/WebSphereBank.ear/Database/BankDB"
+  set secAuthAlias "N_O_N_E"
+  set connAttrs    "upgrade=true"
+  createDatasource $nodeName $serverName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $dbName $secAuthAlias $connAttrs
+  
+  #--------------------------------------------------------------------
+  # Create Connection Factory (use builtin_rra)
+  #--------------------------------------------------------------------
+  
+  set dsName       "BANKDS"
+  set cfName       "BANKDS_CF"
+  set cfAuthMech   "BASIC_PASSWORD"
+  set secAuthAlias "N_O_N_E"
+  set cfi          "javax.resource.cci.ConnectionFactory"
+  createConnectionFactory $nodeName $serverName $provName $dsName $cfName $cfAuthMech $secAuthAlias $cfi
+
+  #--------------------------------------------------------------------
+  # Create SIBus
+  #--------------------------------------------------------------------
+
+  set SIBusName [getSamplesBusName $nodeName]
+  createSIBus $nodeName $serverName $SIBusName
+
+  #--------------------------------------------------------------------
+  # Create SIB JMS Connection Factory
+  #--------------------------------------------------------------------
+  
+  set jmsCFName    "BankJMSConnFactory"
+  set jmsCFJNDI    "jms/BankJMSConnFactory"
+  set jmsCFDesc    "WebSphere Bank Sample JMS ConnectionFactory"
+  set jmsCFType    ""
+  set secAuthAlias "$cellName/samples"
+  createSIBJMSConnectionFactory $nodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName
+
+  #--------------------------------------------------------------------
+  # Create SIB JMS Queue that references a SIB Queue
+  #--------------------------------------------------------------------
+  
+  set jmsQName   "BankJMSQueue"
+  set jmsQJNDI   "jms/BankJMSQueue"
+  set jmsQDesc   "WebSphere Bank Sample Queue (WebSphere Bank receives a message from this Queue)"
+  set SIBQName   "BankJSQueue"
+  createSIBJMSQueue $nodeName $jmsQName $jmsQJNDI $jmsQDesc $SIBQName
+
+  #--------------------------------------------------------------------
+  # Create SIB Queue
+  #--------------------------------------------------------------------
+
+  createSIBQueue $nodeName $serverName $SIBQName $SIBusName
+
+  #--------------------------------------------------------------------
+  # Create a SIB Activation Spec for an MDB Listening to a Queue
+  #--------------------------------------------------------------------
+
+  set activationSpecName     "BankActivationSpec"
+  set activationSpecJndiName "eis/$activationSpecName"
+  set destinationType        "javax.jms.Queue"
+  set secAuthAlias           "$cellName/samples"
+  createSIBJMSActivationSpec $nodeName $activationSpecName $activationSpecJndiName $jmsQJNDI $destinationType $secAuthAlias $SIBusName
+
+}
+
+proc install_WebSphereBank {cellName nodeName serverName} {
+
+  #--------------------------------------------------------------------
+  # Set up globals
+  #--------------------------------------------------------------------
+  
+  global env
+
+  #--------------------------------------------------------------------
+  # Install the sample
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "************* Install WebSphereBank Sample ********************"
+
+  installApp $nodeName $serverName $env(was.install.root)/samples/lib/WebSphereBank/WebSphereBank.ear WebSphereBank {}
+
+}

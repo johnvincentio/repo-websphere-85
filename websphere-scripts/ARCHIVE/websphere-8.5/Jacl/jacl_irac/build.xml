@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE project [
+  <!ENTITY wsAntCommands SYSTEM "../ws-server.xml">
+]>
+
+<project name="irac server configuration" default="all" basedir=".">
+
+	&wsAntCommands;
+	
+	<target name="all">
+		<antcall target="jacl">
+			<param name="jacl.file" value="irac.jacl"/>
+			<param name="jacl.server.port.soap" value="8880"/>
+		</antcall>
+	</target>
+
+	<target name="herc">
+		<antcall target="jacl">
+			<param name="jacl.file" value="herc.jacl"/>
+			<param name="jacl.server.port.soap" value="8880"/>
+		</antcall>
+	</target>
+</project> 

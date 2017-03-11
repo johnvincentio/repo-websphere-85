@@ -1,0 +1,72 @@
+
+#------------------------------------------------------------------
+#  Create JMS Resources
+#------------------------------------------------------------------
+
+proc irac_jmsPresentationCache {NodeName ServerName SIBusName} {
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+   set jmsCFName    "JMSTopicConnectionFactoryPresentationCache";
+   set jmsCFJNDI    "jms/com/hertz/irac/connFactory/PresentationCache";
+   set jmsCFDesc    "JMS Topic Connection Factory for Presentation Cache";
+   set jmsCFType    "topic";
+   set secAuthAlias "iDevDB"
+   JVcreateSIBJMSConnectionFactory $NodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName;
+
+#--------------------------------------------------------------------
+# Create SIB JMS Topic that references a SIB Topic
+#--------------------------------------------------------------------
+  
+   set jmsTName   "JMSTopicDestPresentationCache";
+   set jmsTJNDI   "jms/com/hertz/irac/dest/PresentationCache";
+   set jmsTDesc   "JMS Topic Destination for Presentation Cache";
+   set SIBTName   "SIBiracPresentationCache";
+#   set SIBTopicSpace  "SIBiracPresentationCache";
+   set SIBTopicSpace   "Default.Topic.Space"; 
+   JVcreateSIBJMSTopic $NodeName $jmsTName $jmsTJNDI $jmsTDesc $SIBTName $SIBTopicSpace;
+
+#--------------------------------------------------------------------
+# Create SIB Topic
+#--------------------------------------------------------------------
+
+#   JVcreateSIBTopic $NodeName $ServerName $SIBTName $SIBusName
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Topic
+#--------------------------------------------------------------------
+
+   set activationSpecName     "iracPresentationCacheSpec";
+   set activationSpecJndiName "eis/$activationSpecName";
+   set destinationType        "javax.jms.Topic";
+   JVcreateSIBJMSActivationSpec $NodeName $activationSpecName $activationSpecJndiName $jmsTJNDI $destinationType $secAuthAlias $SIBusName;
+
+#--------------------------------------------------------------------
+# Create SIB JMS Topic that references a SIB Topic
+#--------------------------------------------------------------------
+  
+   set jmsTName   "JMSTopicDestPresentationRespCache";
+   set jmsTJNDI   "jms/com/hertz/irac/dest/PresentationResponseCache";
+   set jmsTDesc   "JMS Topic Destination for PresentationResponseCache";
+   set SIBTName   "SIBiracPresentationResponseCache";
+#   set SIBTopicSpace  "SIBiracPresentationResponseCache";
+   set SIBTopicSpace   "Default.Topic.Space";
+   JVcreateSIBJMSTopic $NodeName $jmsTName $jmsTJNDI $jmsTDesc $SIBTName $SIBTopicSpace;
+
+#--------------------------------------------------------------------
+# Create SIB Topic
+#--------------------------------------------------------------------
+
+#   JVcreateSIBTopic $NodeName $ServerName $SIBTName $SIBusName
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Topic
+#--------------------------------------------------------------------
+
+   set activationSpecName     "iracPresentationResponseCacheSpec";
+   set activationSpecJndiName "eis/$activationSpecName";
+   set destinationType        "javax.jms.Topic";
+   JVcreateSIBJMSActivationSpec $NodeName $activationSpecName $activationSpecJndiName $jmsTJNDI $destinationType $secAuthAlias $SIBusName;
+}

@@ -1,0 +1,16 @@
+source libs/data/JVaddNSBString.jacl;
+
+proc irac_nsbString {cellName} {
+
+   JVaddNSBString $cellName "" "string/com/hertz/irac/AutoShutdownHome" "C:/autoshutdown";
+   JVaddNSBString $cellName "" "string/com/hertz/irac/mappoint/MapPointRenderURL" "http://renderv3.staging.mappoint.net/Render-30/RenderService.asmx";
+   JVaddNSBString $cellName "" "string/com/hertz/irac/mappoint/MapPointFindURL" "http://findv3.staging.mappoint.net/Find-30/FindService.asmx";
+   JVaddNSBString $cellName "" "string/com/hertz/irac/mappoint/MapPointRouteURL" "http://routev3.staging.mappoint.net/Route-30/RouteService.asmx";
+   JVaddNSBString $cellName "" "com/hertz/irac/mappoint/enviroment" "DEV";
+   JVaddNSBString $cellName "" "string/com/hertz/admintool/TranslationContextHome" "C:/irac/wrkspc/iRACSrc3.0_INT/AdminToolWEB/properties/translationContext.xml";
+   JVaddNSBString $cellName "" "string/com/hertz/irac/CachePropertiesHome" "C:/irac/wrkspc/iRACSrc3.0_INT/IracWEB/properties/cache";
+   JVaddNSBString $cellName "" "string/com/hertz/irac/LogHome" "C:/irac/wrkspc/iRACSrc3.0_INT/IracWEB/properties/log";
+   JVaddNSBString $cellName "" "string/com/hertz/irac/PropertiesHome" "C:/irac/wrkspc/iRACSrc3.0_INT/IracWEB/properties";
+   JVaddNSBString $cellName "" "string/com/hertz/irac/Db2ClientVersion" "all";
+}
+# C:/irac/wrkspc/iRACSrc3.0_INT/IracWEB/properties

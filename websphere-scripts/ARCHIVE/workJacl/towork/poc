@@ -1,0 +1,31 @@
+#
+#  script to create the Capstone Project resources
+#
+# AdminConfig can be run without server running
+# AdminControl and AdminApp require the server be running
+#
+JVWSADMIN="jvadmin"
+#
+JVServer="server1"
+JVNode="alphaNode06"
+JVCell="alphaNode06Cell"
+#
+# CapstoneSrv02
+# bootstrap = 2813
+# soap connector = 8884
+# wc_admin = 9064
+# browser = 9084
+#
+JVFILE="capstone.jacl"
+#
+#  do the work
+#
+echo "Before wsadmin"
+./${JVWSADMIN} -f ${JVFILE} -conntype SOAP -port 8885
+echo "After wsadmin"
+
+#
+# failed - which server? - will default .... no good
+#
+# $JVWSADMIN -conntype none -f create.jacl -node $JVNode -cell $JVCell -server $JVServer
+

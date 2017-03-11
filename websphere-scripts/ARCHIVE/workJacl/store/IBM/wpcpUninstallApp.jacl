@@ -1,0 +1,77 @@
+set FileName "wpcpUninstallApp.jacl"
+set FlagDebug {@DebugMode@}
+#set FlagDebug True
+#set FlagDebug False
+
+set hostname [lindex $argv 0]
+set serverName [lindex $argv 1]
+set AppName [lindex $argv 2]
+set WAS_INSTALL_ROOT [lindex $argv 3]
+
+puts ""
+puts "scriptname : wpcpUninstallApp.jacl"
+puts "hostname : $hostname"
+puts "serverName : $serverName"
+puts "applicationName : $AppName"
+puts "WAS root : $WAS_INSTALL_ROOT"
+puts ""
+
+if {$FlagDebug == "True"} {
+	puts stdout " "
+    puts stdout "-------------------------------------------------------------------------------------------------------"
+    puts stdout "---- Start $FileName"
+    puts stdout "----"
+    puts stdout "---- Check if Application: $AppName exists."
+    puts stdout "---- If Application exists remove it and check for success."
+    puts stdout "----"
+    puts stdout "---- Debugmode = $FlagDebug"
+    puts stdout "-------------------------------------------------------------------------------------------------------"
+}
+
+
+set AppCount 0
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+    incr AppCount
+    if {$FlagDebug == "True"} {puts stdout "$AppCount. Application: $TmpAppName"}
+    if {[string compare $TmpAppName $AppName] == 0} {
+        set FlagAppExist "True"
+        #break;
+    }
+}
+
+if {$FlagAppExist == "False"} {
+    puts stdout "Application $AppName does not exist, no Action taken"
+	exit 1
+} else {
+	if {[catch {$AdminApp uninstall $AppName} result]} {
+        puts stdout "ERROR: Application $AppName could not be removed."
+        exit 1
+	}
+}
+
+#check for success
+if {$FlagDebug == "True"} {puts stdout " "}
+set AppCount 0
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+        incr AppCount
+        if {[string compare $TmpAppName $AppName] == 0} {
+            set FlagAppExist "True"
+            break;
+        }
+}
+if {$FlagAppExist == "False"} {
+    puts stdout "Application $AppName successfully removed."
+    $AdminConfig save
+} else {
+    puts stdout "ERROR: Application $AppName could not be removed."
+}
+
+
+if {$FlagDebug == "True"} {
+	puts stdout " "
+	puts stdout "-------------------------------------------------------------------------------------------------------"
+	puts stdout "---- End $FileName"
+	puts stdout "-------------------------------------------------------------------------------------------------------"
+}

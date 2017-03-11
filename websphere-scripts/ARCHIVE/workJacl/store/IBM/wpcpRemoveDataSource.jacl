@@ -1,0 +1,34 @@
+#vars are set in profileXXXDataSource.jacl
+
+# Check if exists
+set DataSourceId [$AdminConfig getid /JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/]
+if {$DataSourceId != ""} {
+    $AdminConfig remove $DataSourceId
+    # Check for success
+	set DataSourceId [$AdminConfig getid /JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/]
+	if {$DataSourceId == ""} {
+		puts stdout "DataSource $DataSourceName successfully removed."
+        } else {
+		puts stdout "ERROR: DataSource $DataSourceName could not be removed."
+		exit 1
+	}
+} else {
+    puts stdout "ERROR: /JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/ does not exist. No action taken"
+}
+
+# Check if CMP Factory exists
+if {$CmpConnectorFactoryName != ""} {
+    set CMPConnectorFactoryId [$AdminConfig getid /CMPConnectorFactory:$CmpConnectorFactoryName/]
+    while {$CMPConnectorFactoryId != ""} {
+        $AdminConfig remove $CMPConnectorFactoryId           
+        # Check for success
+        set CMPConnectorFactoryId [$AdminConfig getid /CMPConnectorFactory:$CmpConnectorFactoryName/]
+        if {$CMPConnectorFactoryId == ""} {
+                puts stdout "CMPConnectorFactory $CmpConnectorFactoryName successfully removed."
+        }
+    }
+} 
+
+$AdminConfig save
+
+

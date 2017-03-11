@@ -1,0 +1,187 @@
+#
+#--------------------------------------------------------------------
+#
+#  Based on {Profile}/config/cells/{cell_name}/nodes/{node}/servers/server1/resources.xml
+#
+# set _prop  [list [list name ] [list value ""] [list type java.lang.String]];
+# set _prop  [list [list name ] [list value ""] [list type java.lang.Integer]];
+# set _prop  [list [list name ] [list value ""] [list type java.lang.Boolean]];
+#
+#	Attributes
+#
+# factories xmi:type="resources.jdbc:DataSource" 
+# xmi:id="DataSource_1122949168622" 
+# name="Nero Pool" 
+# jndiName="jdbc/NeroResource" 
+# description="Nero Pool" 
+# providerType="Oracle JDBC Driver" 
+# authMechanismPreference="BASIC_PASSWORD" 
+# authDataAlias="alphaNode05/OracleNero" 
+# xaRecoveryAuthAlias="" 
+# relationalResourceAdapter="builtin_rra" 
+# statementCacheSize="10" 
+# datasourceHelperClassname="com.ibm.websphere.rsadapter.Oracle10gDataStoreHelper">
+#--------------------------------------------------------------------
+
+proc JVcreateDatasourceOracle {nodeName serverName providerName templateName dsName dsJNDI dsDesc dsAuthMech dbURL authAlias} {
+
+	global AdminConfig;
+
+#--------------------------------------------------------------------
+# Create DataSource
+#--------------------------------------------------------------------
+
+	puts "";
+	puts "---------------------------------------------------------------";
+	puts "              Create data source                               ";
+	puts "---------------------------------------------------------------";
+	puts " Scope:                                                        ";
+	puts "    node                $nodeName                              ";
+	puts "    server              $serverName                            ";
+	puts " JDBC provider:                                                ";
+	puts "    name                $providerName                          ";
+	puts " Datasource:                                                   ";
+	puts "    template            $templateName                          ";
+	puts "    name                $dsName                                ";
+	puts "    JNDI                $dsJNDI                                ";
+	puts "    description         $dsDesc                                ";
+	puts "    dsAuthMech          $dsAuthMech                            ";
+	puts "    database URL        $dbURL                                ";
+	puts "    auth alias          $authAlias                             ";
+	puts "---------------------------------------------------------------";
+	puts "";
+
+	set ds [$AdminConfig getid /Node:$nodeName/Server:$serverName/JDBCProvider:$providerName/DataSource:$dsName]
+#	JVputTrace "***** ds $ds";
+	if {[llength $ds] != 0} {
+		JVputInfo "The $dsName data source already exists.";
+		return;
+	}
+  
+#--------------------------------------------------------------------
+# Get the config id for a DataSource Template
+# Use "lindex" in case there is more than one matching templates (we
+# just get the first one) 
+#--------------------------------------------------------------------
+
+	JVputTrace "Get the $templateName data source template.";
+	set template [lindex [$AdminConfig listTemplates DataSource $templateName] 0];
+#	JVputTrace "***** template $template";
+	if {[llength $template] == 0} {
+		JVthrow "The $templateName data source template could not be found.";
+	}
+
+#--------------------------------------------------------------------
+# Get the config id for the provider 
+#--------------------------------------------------------------------
+  
+	JVputTrace "Get the ID for the $providerName provider.";
+	set providerID [$AdminConfig getid /Node:$nodeName/Server:$serverName/JDBCProvider:$providerName];
+#	JVputTrace "***** providerID $providerID";
+	if {[llength $providerID] == 0} {
+		JVthrow "The ID for the /Node:$nodeName/Server:$serverName/JDBCProvider:$providerName could not be found.";
+	}
+
+#--------------------------------------------------------------------
+# Create a new Datasource using this template 
+# Note: This datasource will use the built in default RRA
+#--------------------------------------------------------------------
+
+	JVputTrace "Create a new data source named $dsName.";
+	set rraID [$AdminConfig getid "/Node:$nodeName/Server:$serverName/J2CResourceAdapter:WebSphere Relational Resource Adapter/"];
+#	JVputTrace "***** rraID $rraID";
+
+#--------------------------------------------------------------------
+#	Create the attributes
+#--------------------------------------------------------------------
+
+	set name_attr         [list name $dsName];
+	set jndiName_attr     [list jndiName $dsJNDI];
+	set desc_attr         [list description $dsDesc];
+	set authMechPref_attr [list authMechanismPreference $dsAuthMech];
+
+	set xaRecoveryAuthAlias_attr [list xaRecoveryAuthAlias ""];
+	set rra [list relationalResourceAdapter $rraID];
+	set oracle10g_attr [list datasourceHelperClassname "com.ibm.websphere.rsadapter.Oracle10gDataStoreHelper"];
+#	JVputTrace "***** name_attr $name_attr";
+#	JVputTrace "***** jndiName_attr $jndiName_attr";
+#	JVputTrace "***** desc_attr $desc_attr";
+#	JVputTrace "***** xaRecoveryAuthAlias_attr $xaRecoveryAuthAlias_attr";
+#	JVputTrace "***** oracle10g_attr $oracle10g_attr";
+#	JVputTrace "***** rra $rra";
+#	JVputTrace "***** authMechPref_attr $authMechPref_attr";
+
+#--------------------------------------------------------------------
+#	Create the properties
+#--------------------------------------------------------------------
+
+	set props_01  [list [list name dataSourceName] [list value ""] [list type java.lang.String]];
+	set props_02  [list [list name driverType] [list value ""] [list type java.lang.String]];
+	set props_03  [list [list name oracleLogFileSizeLimit] [list value "0"] [list type java.lang.Integer]];
+	set props_04  [list [list name oracleLogFileCount] [list value "1"] [list type java.lang.String]];
+	set props_05  [list [list name oracleLogFileName] [list value ""] [list type java.lang.String]];
+	set props_06  [list [list name oracleLogTraceLevel] [list value "INFO"] [list type java.lang.String]];
+	set props_07  [list [list name oracle9iLogTraceLevel] [list value "2"] [list type java.lang.String]];
+	set props_08  [list [list name oracleLogFormat] [list value "SimpleFormat"] [list type java.lang.String]];
+	set props_09  [list [list name oracleLogPackageName] [list value "oracle.jdbc.driver"] [list type java.lang.String]];
+	set props_10  [list [list name TNSEntryName] [list value ""] [list type java.lang.String]];
+	set props_11  [list [list name networkProtocol] [list value ""] [list type java.lang.String]];
+	set props_12  [list [list name databaseName] [list value ""] [list type java.lang.String]];
+	set props_13  [list [list name serverName] [list value ""] [list type java.lang.String]];
+	set props_14  [list [list name portNumber] [list value "1521"] [list type java.lang.Integer]];
+	set props_15  [list [list name dataSourceName] [list value ""] [list type java.lang.String]];
+	set props_16  [list [list name URL] [list value $dbURL] [list type java.lang.String]];
+	set props_17  [list [list name loginTimeout] [list value ""] [list type java.lang.Integer]];
+	set props_18  [list [list name description] [list value $dsDesc] [list type java.lang.String]];
+	set props_19  [list [list name enableMultithreadedAccessDetection] [list value "false"] [list type java.lang.Boolean]];
+	set props_20  [list [list name reauthentication] [list value "false"] [list type java.lang.Boolean]];
+	set props_21  [list [list name jmsOnePhaseOptimization] [list value "false"] [list type java.lang.Boolean]];
+	set props_22  [list [list name preTestSQLString] [list value "SELECT 1 FROM DUAL"] [list type java.lang.String]];
+
+	set newprops  [list $props_01 $props_02 $props_03 $props_04 $props_05 $props_06 $props_07 $props_08 $props_09 $props_10 $props_11 $props_12 $props_13 $props_14 $props_15 $props_16 $props_17 $props_18 $props_19 $props_20 $props_21 $props_22];
+
+	set resprops          [list resourceProperties $newprops];
+	set ps_attr           [list propertySet [list $resprops]];
+#	JVputTrace "***** newprops $newprops ";
+#	JVputTrace "***** resprops $resprops ";
+#	JVputTrace "***** ps_attr $ps_attr";
+
+# check if mapping needed
+
+	if { !($authAlias == "N_O_N_E") } {
+		set map_auth_attr   [list authDataAlias $authAlias];
+		set map_configalias_attr [list mappingConfigAlias "DefaultPrincipalMapping"];
+		set map_attrs       [list $map_auth_attr $map_configalias_attr];
+		set mapping_attr    [list mapping $map_attrs];
+		set attrs           [list $name_attr $jndiName_attr $xaRecoveryAuthAlias_attr $oracle10g_attr $desc_attr $rra $authMechPref_attr $map_auth_attr $ps_attr $mapping_attr];
+	} else {
+		set attrs           [list $name_attr $jndiName_attr $desc_attr $rra $authMechPref_attr $ps_attr];
+	}
+#	JVputTrace "***** attrs $attrs";
+	set newDS [$AdminConfig createUsingTemplate DataSource $providerID $attrs $template];
+}
+
+#<propertySet xmi:id="J2EEResourcePropertySet_1122949168862">
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168862" name="driverType" type="java.lang.String" value="" description="The type of the driver. The possible values are: thin, oci8." required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168863" name="oracleLogFileSizeLimit" type="java.lang.Integer" value="0" description="Oracle10g and beyond: The oracleLogFileSizeLimit specifies the maximum number of bytes to be written to any one file. Property is relevant only if trace file is specified. Default is unlimited" required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168864" name="oracleLogFileCount" type="java.lang.Integer" value="1" description="Oracle10g and beyond: The oracleLogFileCount specifies the number of files to use. Property is relevant only if trace file is specified. Default is 1." required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168865" name="oracleLogFileName" type="java.lang.String" value="" description="Oracle10g and beyond: The oracleLogFileName indicates which file to write the traces to" required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168866" name="oracleLogTraceLevel" type="java.lang.String" value="INFO" description="Oracle10g and beyond: The oracleLogTraceLevel specifies which message levels will be logged .Default is INFO. Property is relevant only if trace file is specified.  Possible values from highest to lowest: SEVERE, WARNING, INFO, CONFIG, FINE, FINER ,FINEST.  Note that each value includes all above it, for example INFO includes SEVERE and WARNING" required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168867" name="oracle9iLogTraceLevel" type="java.lang.String" value="2" description="Oracle9i and prior: The oracle9iLogTraceLevel specifies which message levels will be logged .Default is 2.  Possible values from highest to lowest 3, 2, 1" required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168868" name="oracleLogFormat" type="java.lang.String" value="SimpleFormat" description="Oracle10g and beyond: The trace output format. Property is relevant only if trace file is specified. Default is SimpleFormat.  Possible values (SimpleFormat/ XMLFormat)" required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168869" name="oracleLogPackageName" type="java.lang.String" value="oracle.jdbc.driver" description="Oracle10g and beyond: The Oracle package to trace. Default is oracle.jdbc.driver" required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168870" name="TNSEntryName" type="java.lang.String" value="" description="The entry name which is used for the Oracle OCI driver." required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168871" name="networkProtocol" type="java.lang.String" value="" description="Whether to use TCP/IP or IPC or any other protocol" required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168872" name="databaseName" type="java.lang.String" value="" description="The database name. For example, enter sample to make your Data Source point to sample, used with thin driver" required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168873" name="serverName" type="java.lang.String" value="" description="The name of the server, used with thin driver setup" required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168874" name="portNumber" type="java.lang.Integer" value="1521" description="The TCP/IP port number where the jdbc driver resides. used with thin driver setup" required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168875" name="dataSourceName" type="java.lang.String" value="" description="The name of the Data Source." required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168876" name="URL" type="java.lang.String" value="jdbc:oracle:thin:@alpha:1521:orcl" description="This is a required property. The URL indicating the database from which the Data Source will obtain connections, such as 'jdbc:oracle:thin:@localhost:1521:sample' for thin driver and 'jdbc:oracle:oci8:@sample' for thick driver." required="true"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168877" name="loginTimeout" type="java.lang.Integer" value="" description="The maximum time to attempt to connect a database. If this value is non-zero, attempt to connect to the database will timeout when this specified value is reached." required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168878" name="description" type="java.lang.String" value="" description="The description of this datasource." required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168879" name="enableMultithreadedAccessDetection" type="java.lang.Boolean" value="false" description="Indicates whether or not to detect multithreaded access to a Connection and its corresponding Statements, ResultSets, and MetaDatas." required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168880" name="reauthentication" type="java.lang.Boolean" value="false" description="Specifies whether to allow reauthentication of connections.  This option requires implementation of the doConnectionSetupPerTransaction() method on the DataStoreHelper where the reauthentication is expected to take place." required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168881" name="jmsOnePhaseOptimization" type="java.lang.Boolean" value="false" description="Specifies whether to allow JMS to get optimized connections from this datasource.  This option will prevent JDBC Applications from getting connections from this datasource." required="false"/>
+#<resourceProperties xmi:id="J2EEResourceProperty_1122949168882" name="preTestSQLString" type="java.lang.String" value="SELECT 1 FROM DUAL" description="This SQL statement is used for pre-test connection function. For example, SELECT 1 FROM [TESTTABLE]. If pre-testing of connection is enabled for the connection pool, this SQL statement will be executed to the connection to make sure the connection is good. If you leave this field blank, the default SQL statement, SELECT 1 FROM TABLE1, will be used at runtime. This will slow down the execution because of the exception handling if table TABLE1 is not defined in the database. Users are recommended to provide their own SQL statement to improve the performance." required="false"/>
+
+

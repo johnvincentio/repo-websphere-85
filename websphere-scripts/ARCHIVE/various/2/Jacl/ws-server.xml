@@ -1,0 +1,32 @@
+
+	<target name="tools">
+		<condition property="ws-script-suffix" value=".bat">
+			<os family="windows"/>
+		</condition>
+		<condition property="ws-script-suffix" value="">
+			<not>
+				<os family="windows"/>
+			</not>
+		</condition>
+		<condition property="path.separator" value=";">
+			<os family="windows"/>
+		</condition>
+		<condition property="path.separator" value=":">
+			<not>
+				<os family="windows"/>
+			</not>
+		</condition>
+		<property name="ws.home" value="C:/Program Files/IBM/SDP/runtimes/base_v61" />
+		<property name="ws.admin" value="${ws.home}/bin/wsadmin${ws-script-suffix}"/>
+		<property name="ws.lib" value="${ws.home}/lib"/>
+	</target>
+
+	<target name="jacl" depends="tools">
+	<echo message="Executing ${jacl.file} on soap port ${jacl.server.port.soap}."/>		
+	<exec executable="${ws.admin}">
+		<arg line=" -f ${jacl.file}" />
+		<arg line=" -conntype SOAP -port ${jacl.server.port.soap}" />
+		<arg line=" > ../output/server_jacl.txt" />
+	</exec>
+	<echo message="Task complete"/>
+	</target>

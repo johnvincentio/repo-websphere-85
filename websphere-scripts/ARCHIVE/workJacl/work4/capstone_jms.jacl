@@ -1,0 +1,76 @@
+
+#------------------------------------------------------------------
+#  Create JMS Resources
+#------------------------------------------------------------------
+
+source libs/data/JVcreateConnectionFactory.jacl;
+source libs/data/JVcreateSIBus.jacl;
+source libs/data/JVcreateSIBJMSConnectionFactory.jacl;
+source libs/data/JVcreateSIBJMSQueue.jacl;
+source libs/data/JVcreateSIBQueue.jacl;
+source libs/data/JVcreateSIBJMSActivationSpec.jacl;
+
+proc capstone_jms {NodeName ServerName} {
+
+#--------------------------------------------------------------------
+# Create SIBus
+#--------------------------------------------------------------------
+
+   set BusName "JVBus";
+   set SIBusName "$NodeName$BusName";
+   set SIBusDesc "Messaging bus for capstone";
+#   JVcreateSIBus $NodeName $ServerName $SIBusName $SIBusDesc;
+
+#--------------------------------------------------------------------
+# Create Connection Factory (use builtin_rra)
+#--------------------------------------------------------------------
+
+#   set secAuthAlias "N_O_N_E"
+
+   set dsName       "JMS Pool";
+   set secAuthAlias $NodeName/OracleJms;
+   set provName     "Capstone Oracle JDBC Driver";
+
+   set cfName       "jmsSupplierMdb1QueueConnectionFactory";
+   set cfAuthMech   "BASIC_PASSWORD";
+   set cfi          "javax.resource.cci.ConnectionFactory";
+#   JVcreateConnectionFactory $NodeName $ServerName $provName $dsName $cfName $cfAuthMech $secAuthAlias $cfi;
+
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+   set jmsCFName    "JVJMSConnFactory";
+   set jmsCFJNDI    "jms/CapstoneJMSConnFactory";
+   set jmsCFDesc    "Capstone SIB JMS ConnectionFactory";
+
+   set jmsCFType    "";
+#   JVcreateSIBJMSConnectionFactory $NodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName;
+
+#--------------------------------------------------------------------
+# Create SIB JMS Queue that references a SIB Queue
+#--------------------------------------------------------------------
+  
+   set jmsQName   "JVJMSQueue";
+   set jmsQJNDI   "jms/JVJMSQueue";
+   set jmsQDesc   "Capstone WebSphere JV Queue";
+   set SIBQName   "JVJMSQueue";
+#   JVcreateSIBJMSQueue $NodeName $jmsQName $jmsQJNDI $jmsQDesc $SIBQName;
+
+#--------------------------------------------------------------------
+# Create SIB Queue
+#--------------------------------------------------------------------
+
+#   JVcreateSIBQueue $NodeName $ServerName $SIBQName $SIBusName
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Queue
+#--------------------------------------------------------------------
+
+   set activationSpecName     "MNOPActivationSpec";
+   set activationSpecJndiName "eis/$activationSpecName";
+   set destinationType        "javax.jms.Queue";
+   JVcreateSIBJMSActivationSpec $NodeName $activationSpecName $activationSpecJndiName $jmsQJNDI $destinationType $secAuthAlias $SIBusName;
+}
+

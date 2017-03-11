@@ -1,0 +1,29 @@
+
+source ../libs/JVaddNSBString.jacl;
+
+proc JVaddNSBStringFile {fileName cellName} {
+	puts "filename :$fileName:";
+
+	set jvfile [ open $fileName r ];
+	while {![eof $jvfile]} {
+		set aline [string trim [gets $jvfile]];
+		if { $aline == "" } {
+#			puts "null line";
+			continue;
+		}
+		set cline "";
+#		puts "aline :$aline:";
+		regexp {^#} $aline cline;
+#		puts "cline :$cline:";
+		if { $cline == "#" } {
+#			puts "Comment found";
+			continue;
+		}
+		set first [lindex $aline 0];
+		set second [lindex $aline 1];
+#		puts "first :$first:";
+#		puts "second :$second:";
+		JVaddNSBString $cellName "" $first $second;
+	}
+	close $jvfile;
+}

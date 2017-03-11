@@ -1,0 +1,78 @@
+
+proc JVcreateWorkManager {nodeName serverName wmName wmDesc wmJNDI wmCategory wmNumAlarmThreads wmMinThreads wmMaxThreads wmThreadPriority wmIsGrowable wmServiceNames} {
+
+  #--------------------------------------------------------------------
+  # Set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create work manager info
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Create work manager                              "
+  puts "---------------------------------------------------------------"
+  puts " Scope:                                                        "
+  puts "    node                $nodeName                              "
+  puts "    server              $serverName                            "
+  puts " Work manager:                                                 "
+  puts "    name                $wmName                                "
+  puts "    description         $wmDesc                                "
+  puts "    JNDI                $wmJNDI                                "
+  puts "    category            $wmCategory                            "
+  puts "    num alarm threads   $wmNumAlarmThreads                     "
+  puts "    min threads         $wmMinThreads                          "
+  puts "    max threads         $wmMaxThreads                          "
+  puts "    thread priority     $wmThreadPriority                      "
+  puts "    growable            $wmIsGrowable                          "
+  puts "    service names       $wmServiceNames                        "
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  #--------------------------------------------------------------------
+  # Check if the work manager already exists
+  #--------------------------------------------------------------------
+
+  set server [$AdminConfig getid /Node:$nodeName/Server:$serverName]
+  foreach workManagerInfoEntry [$AdminConfig list WorkManagerInfo $server] {
+    set workManagerNameOfEntry [$AdminConfig showAttribute $workManagerInfoEntry name]
+    if { [string compare $workManagerNameOfEntry $wmName] == 0 } {
+      JVputInfo "The $wmName work manager already exists."
+      return
+    }
+  }
+
+  #--------------------------------------------------------------------
+  # Get the work manager provider
+  #--------------------------------------------------------------------
+
+  JVputTrace "Get the ID for the default work manager provider."
+  set workManagerProvider [$AdminConfig getid /Node:$nodeName/Server:$serverName/WorkManagerProvider:/]
+  if {[llength $workManagerProvider] == 0} {
+    JVthrow "The ID for /Node:$nodeName/Server:$serverName/WorkManagerProvider:/ could not be found."
+  }
+
+  #--------------------------------------------------------------------
+  # Create the work manager
+  #--------------------------------------------------------------------
+
+  JVputTrace "Create a new work manager named $wmName."
+  set name_attr            [list name $wmName]
+  set description_attr     [list description $wmDesc]
+  set jndiName_attr        [list jndiName $wmJNDI]
+  set category_attr        [list category $wmCategory]
+  set numAlarmThreads_attr [list numAlarmThreads $wmNumAlarmThreads]
+  set minThreads_attr      [list minThreads $wmMinThreads]
+  set maxThreads_attr      [list maxThreads $wmMaxThreads]
+  set threadPriority_attr  [list threadPriority $wmThreadPriority]
+  set isGrowable_attr      [list isGrowable $wmIsGrowable]
+  set serviceNames_attr    [list serviceNames $wmServiceNames]
+  set attrs                [list $name_attr $description_attr $jndiName_attr $category_attr $numAlarmThreads_attr $minThreads_attr $maxThreads_attr $threadPriority_attr $isGrowable_attr $serviceNames_attr]
+  set newWorkManager [$AdminConfig create WorkManagerInfo $workManagerProvider $attrs]
+
+}
+
+

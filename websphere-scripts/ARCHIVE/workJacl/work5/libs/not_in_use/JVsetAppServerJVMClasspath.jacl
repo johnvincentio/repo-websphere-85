@@ -1,0 +1,47 @@
+
+#--------------------------------------------------------------------
+# Handle server JVM classpath
+#--------------------------------------------------------------------
+
+proc JVsetAppServerJVMClassPath {NodeName ServerName myParam} {
+	global AdminConfig M_OK M_ERROR;
+
+	JVputTrace ">>> JVsetAppServerJVMClassPath; Node=$NodeName Server=$ServerName Param=$myParam";
+
+    #<classpath>${WPS_HOME}/shared/app/wmm</classpath>
+#	set TmpVar "WPS_HOME"
+#	append Classpath "$" "{" $TmpVar "}/shared/app/wmm"
+	set Classpath $myParam;
+	puts "Create/modify JVM classpath /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:(Attribute classpath = $Classpath)";
+
+	set ServerId [$AdminConfig getid /Node:$NodeName/Server:$ServerName/]
+    set JavaVirtualMachineId [$AdminConfig getid /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/]
+	if {$JavaVirtualMachineId == ""} {
+		puts stdout "ERROR: /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/ does not exist"
+		return $M_ERROR;
+	}
+
+	################ modify / create Attribute #######################################
+	set FlagNoChangeNeccessary "false"
+	set attrs [list [list classpath $Classpath]]
+	puts stdout "Old: JVM Classpath {classpath [$AdminConfig showAttribute $JavaVirtualMachineId classpath]}"
+	set TmpObjectValue [$AdminConfig showAttribute $JavaVirtualMachineId classpath]
+    set PatternClasspath "*$Classpath*"
+    if {[string match $PatternClasspath $TmpObjectValue] != 0} {
+		puts stdout "JVM Classpath is OK, no action taken"
+	} else {
+        $AdminConfig modify $JavaVirtualMachineId $attrs 
+        puts stdout "New: JVM Classpath {classpath [$AdminConfig showAttribute $JavaVirtualMachineId classpath]}"
+        set TmpObjectValue [$AdminConfig showAttribute $JavaVirtualMachineId classpath]
+        if {[string match $PatternClasspath $TmpObjectValue] != 0} {
+            puts stdout "JVM Classpath succesfull created/modified."
+            $AdminConfig save
+		} else {
+			puts stdout "ERROR: JVM Classpath could not be modified."	
+			return $M_ERROR;
+		}
+	}
+	JVputTrace "<<< JVsetAppServerJVMClassPath";
+	return $M_OK;
+}
+

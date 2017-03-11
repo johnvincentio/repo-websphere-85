@@ -1,0 +1,8 @@
+#
+#  script to create the Capstone Project resources
+#
+trap 'echo -e "\nwsadmin has been aborted\n";exit 1' 1 2 15
+#
+jvwsadmin -f nsb.jacl -port 8881
+#
+

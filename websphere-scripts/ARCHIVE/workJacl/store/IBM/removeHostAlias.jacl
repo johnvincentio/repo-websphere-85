@@ -1,0 +1,77 @@
+set ServerName "WebSphere_Portal"
+set HostPort 9081
+set CellName localhost
+set VirtualHostName "default_host"
+
+
+#--------------------------------------------------------------
+# Check if HostAlias for Port "HostPort" in VirtualHost "VirtualHostName" is there
+#--------------------------------------------------------------
+set VirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+set HostAliasList [$AdminConfig show $VirtualHostId aliases]
+set HostAlias {}
+set FlagExist "False"
+if {$HostAliasList != ""} {
+	set HostAliasList [string trim [string trim $HostAliasList "{}"]]
+	set HostAliasList [string range $HostAliasList [string first "(" $HostAliasList] [string length $HostAliasList]]
+	set TmpList [split $HostAliasList ")"]
+	foreach Tmp $TmpList {
+		set Tmp [string trim $Tmp " "]
+		append Tmp ")"
+		if { [string length $Tmp] > 1} {
+			lappend HostAlias $Tmp
+		}
+	}
+	foreach TmpHostAlias $HostAlias {
+		if {[catch {$AdminConfig showAttribute $TmpHostAlias port} TmpPort]} {
+			puts stdout $TmpPort
+			puts stdout "ERROR: In '/VirtualHost:$VirtualHostName/'."
+			puts stdout "This is not a valid HostAlias."
+			puts stdout $TmpHostAlias
+            exit 1
+		} else {
+			if {[string compare $TmpPort $HostPort] == 0} {
+                $AdminConfig remove $TmpHostAlias
+			}
+		}
+	}
+}
+#--------------------------------------------------------------
+# check for success
+#--------------------------------------------------------------
+set HostAliasList [$AdminConfig show $VirtualHostId aliases]
+set HostAlias {}
+set FlagOk true
+if {$HostAliasList != ""} {
+	set HostAliasList [string trim [string trim $HostAliasList "{}"]]
+	set HostAliasList [string range $HostAliasList [string first "(" $HostAliasList] [string length $HostAliasList]]
+	set TmpList [split $HostAliasList ")"]
+	foreach Tmp $TmpList {
+		set Tmp [string trim $Tmp " "]
+		append Tmp ")"
+		if { [string length $Tmp] > 1} {
+			lappend HostAlias $Tmp
+		}
+	}
+	foreach TmpHostAlias $HostAlias {
+		if {[catch {$AdminConfig showAttribute $TmpHostAlias port} TmpPort]} {
+            puts stdout $TmpPort
+			puts stdout "ERROR: In '/VirtualHost:$VirtualHostName/'."
+			puts stdout "This is not a valid HostAlias."
+			puts stdout $TmpHostAlias
+            exit 1
+		} else {
+			if {[string compare $TmpPort $HostPort] == 0} {
+                set FlagOk false
+                puts stdout "ERROR: HostAlias for Port $HostPort could not be removed"
+			}
+		}
+	}
+}
+if {$FlagOk == "true"} {
+    puts stdout "HostAlias for Port $HostPort in '/VirtualHost:$VirtualHostName/' removed/not there."
+	$AdminConfig save
+} else {
+    puts stdout "ERROR: HostAlias for Port $HostPort in '/VirtualHost:$VirtualHostName/' could not be removed."
+	exit 1
+}

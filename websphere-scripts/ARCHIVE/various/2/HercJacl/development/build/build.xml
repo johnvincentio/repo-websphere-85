@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!--
+	Note: 
+		1. You must run this from the same JRE as the workspace
+		2. Modify the classpath tab to include, "\lib\ant-contrib-1.0b3."
+-->
+
+<project name="Create EAR from ZIP" default="all" basedir=".">
+
+	<property environment="env"/>
+
+	<tstamp>
+		<format property="my.datetime" pattern="dd-MMM-yyyy_HH-mm-ss"/>
+	</tstamp>
+
+	<dirname property="jv.1" file="${basedir}"/>
+	<dirname property="development.base.dir" file="${jv.1}"/>
+	<property name="zip.dir" value="${jv.1}/build/zips"/>
+
+	<property name="work.dir" value="c:/work_herc_zip"/>
+	<property name="work.base.dir" value="${work.dir}/${my.datetime}"/>
+	<property name="work.ears.dir" value="${jv.1}/build/ears"/>
+
+	<echo message="jv.1 ${jv.1}" />
+	<echo message="development.base.dir ${development.base.dir}" />
+	<echo message="zip.dir ${zip.dir}" />
+	<echo message="work.ears.dir ${work.ears.dir}" />
+
+	<echo message="work.base.dir ${work.base.dir}" />
+
+	<target name="myUnzip" >
+		<echo message="Unzip ${unzip.ear.file} to ${unzip.dest}" />
+		<unzip src="${unzip.ear.file}" dest="${unzip.dest}" />
+	</target>
+
+	<target name="myEARexport">
+		<echo message="Jar ${export_basedir.name} to ${export_destfile.name}" />
+		<jar destfile="${export_destfile.name}" basedir="${export_basedir.name}" />
+	</target>
+
+	<target name="myEARexport_ear">		<!-- not in use -->
+		<echo message="Ear ${export_basedir.name} to ${export_destfile.name}" />
+		<echo message="appxml is ${export_basedir.name}/META-INF/application.xml "/>
+		<ear destfile="${export_destfile.name}" appxml="${export_basedir.name}/META-INF/application.xml" >
+			<fileset dir="${export_basedir.name}" />
+		</ear>
+	</target>
+
+	<target name="all" depends="AdminToolEAR" />
+
+	<target name="AdminToolEAR" depends="" description="AdminToolEAR">
+		<antcall target="myUnzip">
+			<param name="unzip.ear.file" value="${zip.dir}/AdminToolEAR.ear.zip"/>
+			<param name="unzip.dest" value="${work.base.dir}/AdminToolEAR"/>
+		</antcall>
+
+		<antcall target="myEARexport">
+			<param name="export_basedir.name" value="${work.base.dir}/AdminToolEAR"/>
+			<param name="export_destfile.name" value="${work.ears.dir}/AdminToolEAR.ear"/>
+		</antcall>
+	</target>
+
+	<target name="DatabaseAuditToolEAR" depends="" description="DatabaseAuditToolEAR">
+		<antcall target="myUnzip">
+			<param name="unzip.ear.file" value="${zip.dir}/DatabaseAuditToolEAR.ear.zip"/>
+			<param name="unzip.dest" value="${work.base.dir}/DatabaseAuditToolEAR"/>
+		</antcall>
+
+		<antcall target="myEARexport">
+			<param name="export_basedir.name" value="${work.base.dir}/DatabaseAuditToolEAR"/>
+			<param name="export_destfile.name" value="${work.ears.dir}/DatabaseAuditToolEAR.ear"/>
+		</antcall>
+	</target>
+
+</project>

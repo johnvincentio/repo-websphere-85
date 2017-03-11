@@ -1,0 +1,42 @@
+#--------------------------------------------------------------
+# Remove the WorkManager with the name specified.
+#
+# slaertz
+#--------------------------------------------------------------
+set wmName                  "wpsWorkManager"
+
+# check if WorkManager is a valid config type
+if {[catch {$AdminConfig list WorkManagerInfo} TmpWorkManagerList]} {
+    puts stdout "It appers that 'IBM WebSphere Application Server Enterprise' (PME) is not installed."
+    puts stdout "No need to remove a WorkManager"
+    exit
+}
+
+set foundWM ""
+foreach TmpWM [$AdminConfig list WorkManagerInfo] {
+        set WorkManagerName [$AdminConfig showAttribute $TmpWM name]
+        if {[string compare $WorkManagerName $wmName] == 0} {
+                set foundWM "true"                
+                puts stdout "Removing WorkManager with name '$wmName'."
+                $AdminConfig remove $TmpWM                
+                break;
+        }
+}
+if {$foundWM != ""} {        
+        $AdminConfig save
+        
+        # lets see if workmanager is still there
+        foreach TmpWMan [$AdminConfig list WorkManagerInfo] {
+                set WorkManagerNameStr [$AdminConfig showAttribute $TmpWMan name]
+                if {[string compare $WorkManagerNameStr $wmName] == 0} {
+                        puts stdout "ERROR: WorkManager with name '$wmName' could not be removed."
+                        exit 1
+                }
+        }
+        
+        puts stdout "Successfully removed WorkManager with name '$wmName'."
+        exit
+} else {
+        
+        puts stdout "ERROR: WorkManager with name '$wmName' does not exist."
+}

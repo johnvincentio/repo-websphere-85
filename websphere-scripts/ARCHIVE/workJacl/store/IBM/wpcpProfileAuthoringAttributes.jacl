@@ -1,0 +1,7 @@
+global AppName
+global AppWeight
+global ClassLoaderMode
+
+set AppName {WPCP_Authoring}
+set AppWeight {12}
+set ClassLoaderMode PARENT_LAST

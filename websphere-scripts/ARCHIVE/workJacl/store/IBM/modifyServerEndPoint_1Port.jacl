@@ -1,0 +1,55 @@
+source C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1/config/work/was/msglog.jacl
+set logger [getLogger]
+set FileName "modifyInternalHttpTransport.jacl"
+
+set CellName [lindex $argv 0]
+set NodeName [lindex $argv 1]
+set ServerName [lindex $argv 2]
+set PortNew [lindex $argv 3]
+
+puts "CellName : $CellName"
+puts "NodeName : $NodeName"
+puts "ServerName : $ServerName"
+puts "PortNew : $PortNew"
+puts " "
+
+
+#--------------------------------------------------------------
+# Modify HTTPTransport for EndPoint_1
+# associated with the WebContainer for server "ServerName".
+#--------------------------------------------------------------
+set FlagEndPoint_1Exist false
+foreach TmpHttpTransportId [$AdminConfig getid /Cell:$CellName/Node:$NodeName/Server:$ServerName/ApplicationServer:/WebContainer:/HTTPTransport:/] {
+    set TmpEndPointId [$AdminConfig showAttribute $TmpHttpTransportId address]
+    if {[string match "*EndPoint_1" [string trim $TmpEndPointId ")"]] == 1} {
+        set FlagEndPoint_1Exist true
+        set EndPointId $TmpEndPointId
+        break
+    }
+}
+if {$FlagEndPoint_1Exist == "true"} {
+    set PortCurrent [$AdminConfig showAttribute $EndPointId port]
+   	puts stdout "Modify Port /Cell:$CellName/Node:$NodeName/Server:$ServerName/ApplicationServer:/WebContainer:/HTTPTransport:/(EndPoint_1)"
+    puts stdout "Old: $PortCurrent"
+    if {[string compare $PortCurrent $PortNew] != 0} {
+        # modify EndPoint_1 Port
+        set attrs [subst {{port $PortNew}}]
+        $AdminConfig modify $EndPointId $attrs
+
+        # check for success
+        set PortTmp [$AdminConfig showAttribute $EndPointId port]
+        if {[string compare $PortTmp $PortNew] == 0} {
+    	    puts stdout "New: $PortNew"
+            puts stdout "HTTPTransport with EndPoint_1 modified."
+            $AdminConfig save
+        } else {
+	        puts stdout "ERROR: HTTPTransport with EndPoint_1 Port $PortNew could not be modified."
+            exit 1
+        }
+    } else {
+        puts stdout "INFO: HTTPTransport with EndPoint_1 Port no need to modify. Old: $PortCurrent same as New: $PortNew"
+    }
+} else {
+    puts stdout "ERROR: HTTPTransport with EndPoint_1 could not be found."
+    exit 1
+}

@@ -1,0 +1,46 @@
+global DsName
+global DbName
+global DbUser
+global DbPassword
+global DatasourceHelperClassname
+global JaasAuthDataAlias
+global DatabaseUrl
+global DbContext
+
+set DataSourceName {wps50DS}
+set DbName {wps50}
+set DbType cloudscape
+set DbUser {db2admin}
+set DbPassword {db2admin}
+set JaasAuthDataAlias "wpsDBAuth"
+set DatabaseUrl {}
+set DbContext "wps"
+
+#Use the same settings for db2, db2_zos and db2_iseries
+if {[string compare [string range $DbType 0 2] "db2"] == 0} { set DbType "db2" }
+
+switch -exact -- $DbType {
+	cloudscape {
+        set DbName {C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1/cloudscape/wps50}
+        set DatasourceHelperClassname "com.ibm.websphere.rsadapter.CloudscapeDataStoreHelper"
+	}
+	db2 {
+		set DatasourceHelperClassname "com.ibm.websphere.rsadapter.DB2DataStoreHelper"
+	}
+	oracle {
+		set DatabaseUrl {jdbc:db2j:wps50;create=true}
+		set DatasourceHelperClassname "com.ibm.websphere.rsadapter.OracleDataStoreHelper"
+	}
+	informix {
+		set DatabaseUrl {jdbc:db2j:wps50;create=true}
+		set DatasourceHelperClassname "com.ibm.websphere.rsadapter.InformixDataStoreHelper"
+	}
+	sqlserver {
+	        set DatabaseUrl {jdbc:db2j:wps50;create=true}
+		set DatasourceHelperClassname " com.ibm.websphere.rsadapter.ConnectJDBCDataStoreHelper "
+	}
+	default {
+		puts stdout "ERROR: DataBase Format '$DbType' is not supported"
+		exit 1
+	}
+}

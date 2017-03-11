@@ -1,0 +1,61 @@
+global FlagWasProvider
+global DataSourceName
+global JNDIName
+global DbName
+global DbUser
+global DbPassword
+global DbHostName
+global DbUrl
+global DbServerName
+global DbPort
+global DatasourceHelperClassname
+global JDBCProviderName
+global JaasAuthDataAlias
+global CmpConnectorFactoryName
+
+set FlagWasProvider "False"
+set DataSourceName {feedbackDS}
+set JNDIName {feedback}
+set DbName {@FeedbackDbName@}
+set DbType {@DbType@}
+set DbUser {@FeedbackDbUser@}
+set DbPassword {@FeedbackDbPassword@}
+set DbHostName {@FeedbackDbHostName@}
+set DbUrl  {@FeedbackDbUrl@}
+set DbServerName {@FeedbackDbInstanceName@}
+set DbPort {@FeedbackDbPort@}
+set JDBCProviderName {wpcp50JDBC}
+set JaasAuthDataAlias "fbkDBAuth"
+set CmpConnectorFactoryName ""
+
+#Use the same settings for db2, db2_zos and db2_iseries
+if {[string compare [string range $DbType 0 2] "db2"] == 0} { set DbType "db2" }
+
+switch -exact -- $DbType {
+	cloudscape {       
+                set DbName {@WpsInstallLocation@/cloudscape/@FeedbackDbName@}
+                set DatasourceHelperClassname "com.ibm.websphere.rsadapter.CloudscapeDataStoreHelper"
+	}
+        db2 {
+		set DatasourceHelperClassname "com.ibm.websphere.rsadapter.DB2DataStoreHelper"
+	}
+        oracle {
+                set DbUser "FEEDBACK"
+                set DbPassword {@FeedbackDbPassword@}
+                set DatasourceHelperClassname "com.ibm.websphere.rsadapter.OracleDataStoreHelper"
+	}
+        informix {
+                set DatasourceHelperClassname "com.ibm.websphere.rsadapter.InformixDataStoreHelper"
+	}
+        sqlserver {
+                set DbUser "FEEDBACK"
+                set DbPassword {@FeedbackDbPassword@}
+                set DatasourceHelperClassname "com.ibm.websphere.rsadapter.ConnectJDBCDataStoreHelper"
+                # PZN Runtime requires useage of WAS embedded SQLJDBC driver.
+                set FlagWasProvider "True"
+	}
+        default {
+                puts stdout "ERROR: DataBase Format '$DbType' is not supported"
+                exit 1
+	}
+}

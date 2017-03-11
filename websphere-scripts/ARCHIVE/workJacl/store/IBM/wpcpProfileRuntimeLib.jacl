@@ -1,0 +1,7 @@
+global cp1
+global AppName
+global LibraryName
+
+set AppName {WPCP_Runtime}
+set LibraryName {WpcpRuntimeLib}
+set cp1 [list classPath {@WpsInstallLocation@/wpcp/v5.0/runtime/lib}]

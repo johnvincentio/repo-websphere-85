@@ -1,0 +1,194 @@
+set NodeName {localhost}
+set ServerName {WebSphere_Portal}
+set JDBCProviderName {wps50JDBC}
+
+#vars are set in profileXXXDataSource.jacl
+#set DataSourceName {wmmDS}
+#set DbName {wps50}
+#set JaasAuthDataAlias {wmmDBAuth}
+#set DatasourceHelperClassname "com.ibm.websphere.rsadapter.CloudscapeDataStoreHelper"
+#global DataSourceAttrs02
+#global MappingModuleAttrs
+
+
+append JndiName "jdbc/" $DataSourceName
+
+set ParentJDBCProviderId [$AdminConfig getid /JDBCProvider:$JDBCProviderName/]
+if {$ParentJDBCProviderId == ""} {
+    puts stdout "ERROR: /JDBCProvider:$JDBCProviderName/ is missing."
+    exit 1
+}
+
+#Create the data source
+set DataSourceId [$AdminConfig getid /JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/]
+if {$DataSourceId != ""} {
+    puts stdout "/JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/ is already there. No action taken"
+    exit
+}
+set DataSourceAttrs01 [subst {{name $DataSourceName} {jndiName "$JndiName"} {description "JDBC DataSource for $DbName"}}]
+set DataSourceId [$AdminConfig create DataSource $ParentJDBCProviderId $DataSourceAttrs01]
+puts stdout "DataSource $DataSourceName for '$DbType' created: $DataSourceId"
+
+#Create the propertySet object
+set J2EEResourcePropertySetId [$AdminConfig create J2EEResourcePropertySet $DataSourceId {}]
+puts "J2EEResourcePropertySet created: $J2EEResourcePropertySetId"
+
+#Create the J2EEResourceProperty objects
+switch -exact -- $DbType {
+	cloudscape {
+        set attrs01 [subst {{name databaseName} {type java.lang.String} {value "$DbName"} {required "true"} {description "This is a required property. This property must be set and it identifies which database to access. For example, g:/db/wombat."}}]
+        set attrs02 [subst {{name description} {type java.lang.String} {value ""} {required "false"} {description "Description of the Data Source. Not used by the Data Source object. Used for informational purpose only."}}]
+        set attrs03 [subst {{name connectionAttributes} {type java.lang.String} {value ""} {required "false"} {description "Connection attributes specific to Cloudscape. Please see Cloudscape documentation for a complete list of features."}}]
+        set attrs04 [subst {{name enableMultithreadedAccessDetection} {type java.lang.Boolean} {value "false"} {required "false"} {description "Indicates whether or not to detect multithreaded access to a Connection and its corresponding Statements, ResultSets, and MetaDatas."}}]
+        set attrs05 [subst {{name remoteDataSourceProtocol} {type java.lang.String} {value ""} {required "false"} {description "If the database is remote and the Data Source accesses the database via client server, set this property to specify what client/server protocol to use. Currently, the only protocol supported is 'rmi'."}}]
+        set attrs06 [subst {{name shutdownDatabase} {type java.lang.String} {value ""} {required "false"} {description "If set to the string 'shutdown', this will cause the database to shutdown when a java.sql.Connection object is obtained from the Data Source. E.g., If the Data Source is an XADataSource, a getXAConnection().getConnection() is necessary to cause the database to shutdown"}}]
+        set attrs07 [subst {{name dataSourceName} {type java.lang.String} {value ""} {required "false"} {description "Name for ConnectionPooledDataSource or XADataSource. Not used by the data source object. Used for informational purpose only."}}]
+        set attrs08 [subst {{name createDatabase} {type java.lang.String} {value ""} {required "false"} {description "If set to the string 'create', this will cause a new database of DatabaseName if that database does not already exist. The database is created when a connection object is obtained from the Data Source."}}]
+        set NoOfJ2eeObjects 8
+	}
+	db2 {
+        set attrs01 [subst {{name databaseName} {type java.lang.String} {value $DbName} {required "true"} {description "This is a required property. The database name. For example, enter sample to make your Data Source point to jdbc:db2:sample."}}]
+        set attrs02 [subst {{name description} {type java.lang.String} {value ""} {required "false"} {description "The description of this datasource."}}]
+        set attrs03 [subst {{name connectionAttribute} {type java.lang.String} {value cursorhold=0} {required "false"} {description "The connection attributes. Refer to the DB2 reference for the list of connection attributes."}}]
+        set attrs04 [subst {{name enableMultithreadedAccessDetection} {type java.lang.Boolean} {value "false"} {required "false"} {description "Indicates whether or not to detect multithreaded access to a Connection and its corresponding Statements, ResultSets, and MetaDatas."}}]
+        set attrs05 [subst {{name enableSQLJ} {type java.lang.Boolean} {value "false"} {required "false"} {description "This value is used to indicate whether SQLJ operations may be performed with this data source. If enabled, this data source can be used for both JDBC and SQLJ calls. Otherwise, only JDBC usage is permitted. This flag should always be set to false for DB2 v7.2, which does not support SQLJ."}}]
+        set attrs06 [subst {{name loginTimeout} {type java.lang.Integer} {value "0"} {required "false"} {description "The maximum time to attempt to connect a database. If this value is non-zero, attempt to connect to the database will timeout when this specified value is reached."}}]
+        set attrs07 [subst {{name portNumber} {type java.lang.Integer} {value ""} {required "false"} {description "The TCP/IP port number where the jdbc Provider resides."}}]
+        set NoOfJ2eeObjects 7
+	}
+	oracle {
+		if {$DatabaseUrl == "" } {puts stdout "ERROR: Database URL 'DbUrl' not specified in wpconfig.properties"; exit 1}
+		if {$DbName == "" } {puts stdout "ERROR: Database Name 'WpsDbName'/'WmmDbName' not specified in wpconfig.properties"; exit 1}
+        set attrs01 [subst {{name URL} {type java.lang.String} {value $DatabaseUrl} {required "true"} {description "This is a required property. The URL indicating the database from which the Data Source will obtain connections, such as 'jdbc:oracle:thin:@localhost:1521:sample'."}}]
+        set attrs02 [subst {{name description} {type java.lang.String} {value ""} {required "false"} {description "The description of this datasource."}}]
+        set attrs03 [subst {{name enableMultithreadedAccessDetection} {type java.lang.Boolean} {value "false"} {required "false"} {description "Indicates whether or not to detect multithreaded access to a Connection and its corresponding Statements, ResultSets, and MetaDatas."}}]
+        set attrs04 [subst {{name driverType} {type java.lang.String} {value ""} {required "false"} {description "The type of the driver. The possible values are: thin, oci8."}}]
+        set attrs05 [subst {{name dataSourceName} {type java.lang.String} {value ""} {required "false"} {description "The name of the Data Source."}}]
+		set attrs06 [subst {{name oraclelogPrintMask} {type java.lang.Integer} {value ""} {required "false"} {description "The oraclelogPrintMask controls which information is printed with each trace message. Oracle9i requires the use of classes12_g.zip.  Default is 62 which is (OracleLog.FIELD_OBJECT for 9i / OracleLog.FIELD_CONN for 8i] 32 | OracleLog.FIELD_CATEGORY 16 | OracleLog.FIELD_SUBMOD 8 | OracleLog.FIELD_MODULE 4 | OracleLog.FIELD_TIME  2).  Possible values:  OracleLog.FIELD_TIME  2, OracleLog.FIELD_MODULE  4, OracleLog.FIELD_SUBMOD  8, OracleLog.FIELD_CATEGORY  16, OracleLog.FIELD_OBJECT  32, OracleLog.FIELD_THREAD  64"}}]
+		set attrs07 [subst {{name oraclelogModuleMask} {type java.lang.Integer} {value ""} {required "false"} {description "The oraclelogModuleMask controls which modules write debug output. Oracle9i requires the use of classes12_g.zip.  Default is 1 which is ( OracleLog.MODULE_DRIVER  1).  Possible values (OracleLog.MODULE_DRIVER  1, OracleLog.MODULE_DBACCESS  2)"}}]
+        set attrs08 [subst {{name oraclelogCategoryMask} {type java.lang.Integer} {value ""} {required "false"} {description "The oraclelogCategoryMask controls which category to be output. Oracle9i requires the use of classes12_g.zip.  Default is 47 which is ( OracleLog.USER_OPER  1 | OracleLog.PROG_ERROR  2 | OracleLog.ERROR  4 | OracleLog.WARNING  8 | OracleLog.DEBUG1  32).  Possible values (OracleLog.USER_OPER  1, OracleLog.PROG_ERROR  2, OracleLog.ERROR  4, OracleLog.WARNING  8, OracleLog.FUNCTION  16, OracleLog.DEBUG1  32, OracleLog.SQL_STR  128)"}}]
+        set attrs09 [subst {{name TNSEntryName} {type java.lang.String} {value ""} {required "false"} {description "The entry name which is used for the Oracle OCI driver."}}]
+        set attrs10 [subst {{name networkProtocol} {type java.lang.String} {value ""} {required "false"} {description "Whether to use TCP/IP or IPC or any other protocol"}}]
+        set attrs11 [subst {{name databaseName} {type java.lang.String} {value $DbName} {required "false"} {description "The database name. For example, enter sample to make your Data Source point to sample"}}]
+        set attrs12 [subst {{name serverName} {type java.lang.String} {value $ServerName} {required "false"} {description "The name of the server"}}]
+        set attrs13 [subst {{name portNumber} {type java.lang.Integer} {value "0"} {required "false"} {description "The TCP/IP port number where the jdbc driver resides."}}]
+        set attrs14 [subst {{name loginTimeout} {type java.lang.Integer} {value "0"} {required "false"} {description "The maximum time to attempt to connect a database. If this value is non-zero, attempt to connect to the database will timeout when this specified value is reached."}}]
+        set attrs15 [subst {{name transactionBranchesLooselyCoupled} {type java.lang.Boolean} {value ""} {required "false"} {description "This property is introduced as a result of Oraclebug 2511780, Oracle Patch for 2511780 must be installed before setting this property to true, failure to do that would cause a program error.  Please check the WebSphere readme file for more info ."}}]
+        set NoOfJ2eeObjects 15
+	}
+	informix {
+		if {$DatabaseUrl == "" } {puts stdout "ERROR: Database URL 'DbUrl' not specified in wpconfig.properties"; exit 1}
+		if {$DbName == "" } {puts stdout "ERROR: Database Name 'WpsDbName'/'WmmDbName' not specified in wpconfig.properties"; exit 1}
+		set Remainder [string range $DatabaseUrl [expr [string first "//" $DatabaseUrl]+2] [expr [string last "/" $DatabaseUrl]-1]]
+		set IfxHost [string range $Remainder 0 [expr [string first ":" $Remainder]-1]]
+		set DbPort [string range $Remainder [expr [string first ":" $Remainder]+1] [string length $Remainder]]
+		set DbServerName [string range $DatabaseUrl [expr [string first "=" $DatabaseUrl]+1] [string length $DatabaseUrl]]
+        set attrs01 [subst {{name databaseName} {type java.lang.String} {value $DbName} {required "true"} {description "This is a required property. The database name. For example, enter sample to make your Data Source point to sample"}}]
+        set attrs02 [subst {{name serverName} {type java.lang.String} {value $DbServerName} {required "true"} {description "This is a required property. The name of the Informix instance on the physical machine"}}]
+        set attrs03 [subst {{name portNumber} {type java.lang.Integer} {value $DbPort} {required "true"} {description "This is a required property. The TCP/IP port number of the Informix instance"}}]
+        set attrs04 [subst {{name ifxIFXHOST} {type java.lang.String} {value $IfxHost} {required "true"} {description "This is a required property. The physical machine name."}}]
+        set attrs05 [subst {{name informixLockModeWait} {type java.lang.Integer} {value 2} {required "true"} {description "This is a required property.By default, Informix throws an exception when it cannot acquire a lock, rather than waiting for the current owner of the lock to release it. To modify this behavior, set this property to the number of seconds to wait for a lock. The default is 2 seconds. Any negative value means to wait forever"}}]
+        set NoOfJ2eeObjects 5
+	}
+	sqlserver {
+		set Remainder [string range $DatabaseUrl [expr [string first "//" $DatabaseUrl]+2] [expr [string first ";" $DatabaseUrl]-1]]
+		set DbServerName [string range $Remainder 0 [expr [string first ":" $Remainder]-1]]
+		set DbPort [string range $Remainder [expr [string first ":" $Remainder]+1] [string length $Remainder]]
+        set attrs01 [subst {{name databaseName} {type java.lang.String} {value $DbName} {required "true"} {description "This is a required property. The database name. For example, enter sample to make your Data Source point to sample"}}]
+        set attrs02 [subst {{name serverName} {type java.lang.String} {value $DbServerName} {required "true"} {description "This is a required property. The TCP/IP address of the SequeLink server in dotted format or host name format."}}]
+        set attrs03 [subst {{name portNumber} {type java.lang.Integer} {value $DbPort} {required "true"} {description "This is a required property. The TCP/IP port number where MS SQL Server resides."}}]
+        set attrs04 [subst {{name description} {type java.lang.String} {value ""} {required "false"} {description "The description of this datasource."}}]
+        set attrs05 [subst {{name enable2Phase} {type java.lang.Boolean} {value "true"} {required "false"} {description "When true, two phase connections are used. When false, one phase connections are used. Do not change this value because this value is set for with this provider"}}]
+        set attrs06 [subst {{name enableMultithreadedAccessDetection} {type java.lang.Boolean} {value "false"} {required "false"} {description "Indicates whether or not to detect multithreaded access to a Connection and its corresponding Statements, ResultSets, and MetaDatas."}}]
+        set attrs07 [subst {{name selectMethod} {type java.lang.String} {value "cursor"} {required "false"} {description "Determine whether or not Microsoft SQL Server 'server cursors' are used for  SQL queries. Default value is cursor. Direct mode is more efficient, but it limits applications to a single active Statement while in a transaction. See the Microsoft driver documentation for more information."}}]
+        set attrs08 [subst {{name dataSourceName} {type java.lang.String} {value ""} {required "false"} {description "The name of the Data Source."}}]
+        set attrs09 [subst {{name spyAttributes} {type java.lang.String} {value ""} {required "false"} {description "The SPY attributes. See the ConnectJDBC documentation for a list of attributes."}}]
+        set attrs10 [subst {{name loginTimeout} {type java.lang.Integer} {value ""} {required "false"} {description "The maximum time to attempt to connect a database. If this value is non-zero, attempt to connect to the database will timeout when this specified value is reached."}}]
+        set NoOfJ2eeObjects 10
+	}
+	default {
+		puts stdout "ERROR: DataBase Format '$DbType' is not supported"
+		exit 1
+	}
+}
+for {set i 1} {$i <= $NoOfJ2eeObjects} {incr i} {
+    set VarAttrs ""
+    if {$i < 10} {append VarAttrs $ "attrs0" $i} else {append VarAttrs $ "attrs" $i}
+	set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId [subst $VarAttrs]]
+	#puts "J2EEResourceProperty for '$DbType' created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+	puts "$DbType J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name] : [$AdminConfig showAttribute $J2EEResourcePropertyId value]"
+}
+
+#Finding the Resource Adapter
+set ParentServerId [$AdminConfig getid /Server:$ServerName/]
+set J2CResourceAdapterId [$AdminConfig list J2CResourceAdapter $ParentServerId]
+
+#Modify the properties for the data source.
+switch -exact -- $DbType {
+	oracle {
+		if {$DbContext == "wmm"} {
+			#Change authDataAlias from $JaasAuthDataAlias to authDataAlias ""; Input from Andy Zhuang/Toronto/IBM 28.04.2003
+			set DataSourceAttrs02 [subst {{authMechanismPreference "BASIC_PASSWORD"} {statementCacheSize 10} {datasourceHelperClassname $DatasourceHelperClassname} {relationalResourceAdapter $J2CResourceAdapterId}}]
+		} else {
+			set DataSourceAttrs02 [subst {{authMechanismPreference "BASIC_PASSWORD"} {authDataAlias $JaasAuthDataAlias} {statementCacheSize 10} {datasourceHelperClassname $DatasourceHelperClassname} {relationalResourceAdapter $J2CResourceAdapterId}}]
+		}
+	}                                                                                                                                        
+	default {
+		set DataSourceAttrs02 [subst {{authMechanismPreference "BASIC_PASSWORD"} {authDataAlias $JaasAuthDataAlias} {statementCacheSize 10} {datasourceHelperClassname $DatasourceHelperClassname} {relationalResourceAdapter $J2CResourceAdapterId}}]
+	}
+}
+$AdminConfig modify $DataSourceId $DataSourceAttrs02
+puts "DataSource modified: $DataSourceId"
+
+#Create the connection pool object...
+set ConnectionPoolId [$AdminConfig create ConnectionPool $DataSourceId {{connectionTimeout 1800} {maxConnections 10} {minConnections 1} {reapTime 180} {unusedTimeout 1800} {agedTimeout 0} {purgePolicy "EntirePool"}}]
+puts "ConnectionPool created: $ConnectionPoolId"
+
+
+
+#Create the mapping object... 
+#2003/05/16 START delete
+#switch -exact -- $DbType {
+#	oracle {
+#		if {$DbContext == "wmm"} {
+#			#Change authDataAlias from "" to authDataAlias $JaasAuthDataAlias; Input from Andy Zhuang/Toronto/IBM 28.04.2003
+#			set MappingModuleAttrs [subst {{mappingConfigAlias "DefaultPrincipalMapping"} {authDataAlias $JaasAuthDataAlias}}]
+#		} else {
+#			set MappingModuleAttrs [subst {{mappingConfigAlias "DefaultPrincipalMapping"} {authDataAlias ""}}]
+#		}
+#	}                                                                                                                                        
+#	default {
+#		set MappingModuleAttrs [subst {{mappingConfigAlias "DefaultPrincipalMapping"} {authDataAlias ""}}]
+#	}
+#}
+#2003/05/16 END delete
+
+#2003/05/16 START add
+if {$DbContext == "wmm"} {
+	set MappingModuleAttrs [subst {{mappingConfigAlias "DefaultPrincipalMapping"} {authDataAlias $JaasAuthDataAlias}}]
+} else {
+	set MappingModuleAttrs [subst {{mappingConfigAlias "DefaultPrincipalMapping"} {authDataAlias ""}}]
+}
+#2003/05/16 END add
+
+set MappingModuleId [$AdminConfig create MappingModule $DataSourceId $MappingModuleAttrs]
+puts "MappingModule for '$DbType' created: $MappingModuleId"
+
+
+
+
+set FlagExist "False"
+foreach TmpDataSource [$AdminConfig list DataSource] {
+	set TmpDataSourceName [$AdminConfig showAttribute $TmpDataSource name]
+	if {[string compare $TmpDataSourceName $DataSourceName] == 0} {
+		set FlagExist "True"
+        break;
+	}
+}
+if {$FlagExist == "True"} {
+	puts stdout "DataSource $DataSourceName for '$DbType' and all required attributes successfully created."
+    $AdminConfig save
+} else {
+	puts stdout "ERROR: DataSource $DataSourceName for '$DbType' could not be created."
+	exit 1
+}

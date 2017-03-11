@@ -1,0 +1,41 @@
+
+proc JVcreateSIBTopic {NodeName ServerName SIBQName SIBusName} {
+
+   global AdminConfig;
+   global AdminTask;
+
+#--------------------------------------------------------------------
+# Create SIB topic
+#--------------------------------------------------------------------
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create SIB TopicSpace                            ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts "    server              $ServerName                            ";
+   puts " SIB topic space:                                                    ";
+   puts "    name                $SIBQName                              ";
+   puts " SI bus:                                                       ";
+   puts "    name                $SIBusName                             ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   foreach entry [$AdminConfig list SIBTopicSpace] {
+      set identifier [$AdminConfig showAttribute $entry identifier];
+      if { $identifier == $SIBQName } {
+         JVputInfo "The $SIBQName SIB topic already exists.";
+         return;
+      }
+   }
+
+#--------------------------------------------------------------------
+# Create SIB topic
+#--------------------------------------------------------------------
+
+   JVputTrace "Create a new SIB topicspace named $SIBQName.";
+   set params [list -bus $SIBusName -name $SIBQName -type TopicSpace -node $NodeName -server $ServerName];
+   $AdminTask createSIBTopicSpace $params;
+}
+

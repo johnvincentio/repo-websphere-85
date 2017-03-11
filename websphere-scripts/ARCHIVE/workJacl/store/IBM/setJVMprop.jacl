@@ -1,0 +1,152 @@
+#--------------------------------------------------------------------
+# Procedure:   getConfigObject
+# Description: 
+# Parameters: 
+# Returns:     
+#--------------------------------------------------------------------
+proc getConfigObject {objectName objectType} {
+  global AdminConfig 
+
+  if {[catch {$AdminConfig getid "/$objectType:$objectName/"} objID]} {
+    puts "Error getting object ID of Config Object"
+    puts "Error Message = $objID"
+    return
+  }
+  return $objID
+}
+
+#--------------------------------------------------------------------
+# Procedure:   getConfigObjectScoped
+# Description: 
+# Parameters: 
+# Returns:     
+#--------------------------------------------------------------------
+proc getConfigObjectScoped {scopeObjectID objectType} {
+  global AdminConfig
+
+  if {[catch {$AdminConfig list $objectType $scopeObjectID} obj]} {
+    global errorInfo
+    puts "Error getting $objectType object"
+    puts "Error Message = $obj"
+    puts $errorInfo
+    return
+  }
+  return $obj
+}
+
+#--------------------------------------------------------------------
+# Procedure:   setConfigObjectValues
+# Description: 
+# Parameters: 
+#--------------------------------------------------------------------
+proc setConfigObjectValues {objectNameList objectType args} {
+  global AdminConfig
+
+  foreach objectName $objectNameList {
+    foreach {name value} $args {
+      switch [string tolower $objectType] {
+        "javavirtualmachine" {
+          # Get the parent object of the JVM since JVM's are not named objects
+          set scopingID [getConfigObject $objectName Server]
+          # Get the JVM object of the specified server
+          set jvm [getConfigObjectScoped $scopingID JavaVirtualMachine]
+
+          switch [string tolower $name] {
+            "heapmin" {
+              if {[catch {$AdminConfig modify $jvm [list [list initialHeapSize $value]]} error]} {
+                puts "Error setting JVM Minimum Heap Size"
+                puts "Error Message = $error"
+                return
+              } else {
+                puts "$objectName JVM Minimum Heap Size set to $value"
+              }
+            }
+            "heapmax" {
+              if {[catch {$AdminConfig modify $jvm [list [list maximumHeapSize $value]]} error]} {
+                puts "Error setting JVM Maximum Heap Size"
+                puts "Error Message = $error"
+                return
+              } else {
+                puts "$objectName JVM Maximum Heap Size set to $value"
+              }
+            }
+            "classpath" {
+              if {[catch {$AdminConfig modify $jvm [list [list classpath $value]]} error]} {
+                puts "Error setting JVM Classpath"
+                puts "Error Message = $error"
+                return
+              } else {
+                puts "$objectName JVM Classpath set to $value"
+              }
+            }
+            default {
+              if {[catch {$AdminConfig modify $jvm [list [list $name $value]]} error]} {
+                puts "Error setting $name to $value"
+                puts "Error Message = $error"
+                return
+              }
+            }
+          }
+        }
+        "webcontainer" {
+          # Get a parent/scoping object of the Web Container since 
+          # Web Containers are not named objects
+          set scopingID [getConfigObject $objectName Server]
+          # Get the Web Container of the specified Server
+          set webContainer [getConfigObjectScoped $scopingID WebContainer]
+
+          switch [string tolower $name] {
+            "threadpoolmin" {
+              # FIXME: The following line I believe is correct but it does not
+              # seem to scope the results correctly
+              #set threadPool [getConfigObjectScoped $webContainer ThreadPool]
+              # FIXME: Workaround...
+              set threadPool [$AdminConfig showAttribute $webContainer threadPool]
+              if {[catch {$AdminConfig modify $threadPool [list [list minimumSize $value]]} error]} {
+                puts "Error setting Web Container Minimum Thread Pool Size"
+                puts "Error Message = $error"
+                return
+              } else {
+                puts "$objectName Web Container Minimum Thread Pool Size set to $value"
+              }
+            }
+            "threadpoolmax" {
+              set threadPool [$AdminConfig showAttribute $webContainer threadPool]
+              if {[catch {$AdminConfig modify $threadPool [list [list maximumSize $value]]} error]} {
+                puts "Error setting Web Container Maximum Thread Pool Size"
+                puts "Error Message = $error"
+                return
+              } else {
+                puts "$objectName Web Container Maximum Thread Pool Size set to $value"
+              }
+            }
+          }
+        }
+        default {
+        }
+      }
+    }
+  }
+}
+
+
+set ServerName {@ServerName@}
+puts "Setting ServerName to $ServerName "
+set GenericJVMArguments {-Dcom.ibm.transform.installpath=@WpsInstallLocation@/IBMTrans}
+puts "Setting GenericJVMArguments to $GenericJVMArguments"
+setConfigObjectValues $ServerName JavaVirtualMachine genericJvmArguments $GenericJVMArguments
+
+set bootclasspath1 {@WpsInstallLocation@/IBMTrans}
+puts "Setting JVMBootClassPath to $bootclasspath1"
+setConfigObjectValues $ServerName JavaVirtualMachine bootClasspath $bootclasspath1
+
+set bootclasspath2 {@WpsInstallLocation@/IBMTrans/lib/log.jar}
+puts "Setting JVMBootClassPath to $bootclasspath2"
+setConfigObjectValues $ServerName JavaVirtualMachine bootClasspath $bootclasspath2
+
+set bootclasspath3 {@WpsInstallLocation@/IBMTrans/lib/logSupport.jar}
+puts "Setting JVMBootClassPath to $bootclasspath3"
+setConfigObjectValues $ServerName JavaVirtualMachine bootClasspath $bootclasspath3
+
+$AdminConfig save
+

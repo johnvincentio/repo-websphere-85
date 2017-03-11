@@ -1,0 +1,45 @@
+source @WpsInstallLocation@/config/work/was/msglog.jacl
+set logger [getLogger]
+set FileName "retrieveServerEndPoint_1Port.jacl"
+
+set CellName [lindex $argv 0]
+set NodeName [lindex $argv 1]
+set ServerName [lindex $argv 2]
+
+puts stdout "CellName : $CellName"
+puts stdout "NodeName : $NodeName"
+puts stdout "ServerName : $ServerName"
+
+set NodeId [$AdminConfig getid /Node:$NodeName/]
+if {$NodeId == ""} {
+    logMsgOneParm $logger "SEVERE" "$FileName" "Config.object.notexist.failure" "Node: /Node:$NodeName/"
+	exit 1
+}
+set ServerId [$AdminConfig getid /Node:$NodeName/Server:$ServerName/]
+if {$ServerId == ""} {
+    logMsgOneParm $logger "SEVERE" "$FileName" "Config.object.notexist.failure" "Server: /Node:$NodeName/Server:$ServerName/"
+	exit 1
+}
+
+set PropertyFileSpec "@WpsInstallLocation@/config/props.tmp"
+set fpWrite [open $PropertyFileSpec w]
+
+set FlagEndPoint_1Exist false
+foreach TmpHttpTransportId [$AdminConfig getid /Cell:$CellName/Node:$NodeName/Server:$ServerName/ApplicationServer:/WebContainer:/HTTPTransport:/] {
+    set TmpEndPointId [$AdminConfig showAttribute $TmpHttpTransportId address]
+    if {[string match "*EndPoint_1" [string trim $TmpEndPointId ")"]] == 1} {
+        set TmpPort [$AdminConfig showAttribute $TmpEndPointId port]
+        set LineData "PortCurrent = $TmpPort"
+        puts $fpWrite $LineData
+        set FlagEndPoint_1Exist true
+        break
+    }
+}
+close $fpWrite
+
+if {$FlagEndPoint_1Exist == "true"} {
+    puts stdout "INFO: HTTPTransport with EndPoint_1 (Port $TmpPort) retrieved."
+} else {
+    puts stdout "ERROR: HTTPTransport with EndPoint_1 could not be found."
+    exit 1
+}

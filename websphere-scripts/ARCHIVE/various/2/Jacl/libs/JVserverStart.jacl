@@ -1,0 +1,24 @@
+
+#--------------------------------------------------------------------
+# Start the Server
+#--------------------------------------------------------------------
+
+proc JVserverStart {NodeName ServerName} {
+	global AdminControl;
+
+	puts "";
+	puts "---------------------------------------------------------------";
+	puts "              Start Server                                     ";
+	puts "---------------------------------------------------------------";
+	puts " Scope:                                                        ";
+	puts "    node                $NodeName                              ";
+	puts "    server              $ServerName                            ";
+	puts "---------------------------------------------------------------";
+	puts "";
+
+	if {[JVserverIsStarted $NodeName $ServerName]} {
+		puts "Server is already running";
+		return;
+	}
+	$AdminControl startServer $ServerName $NodeName;
+}

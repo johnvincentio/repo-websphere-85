@@ -1,0 +1,148 @@
+#############################################################################################
+#     
+#   Author:  Ganesan Karuppaiah  (Ken) 
+#            IBM WebSphere Support
+#   This script is used to set startupTrace for any Servers(dmgr,nodeagent and Server)
+#   
+#   It can be used both "Base Only","ND Only" and "Federated Cell environment (Base/ND)"   
+#
+#############################################################################################
+#
+#  How to use:
+#  -----------
+#  1.Copy and paste this "startupTrace.jacl"  <was_root>/bin dir
+#  2.Start wsadmin from command line with -f 
+#
+#   <was_root>/bin>wsadmin -f startupTrace.jacl -conntype NONE  
+# 
+#  3.If you choose to place this "startupTrace.jacl" in some other dir 
+#    Please provide fully qualified name
+#    Ex: I am placing this in C:\myDir\startupTrace.jacl
+#   <was_root>/bin>wsadmin  -f  C:\myDir\initialTrace.jacl" -conntype NONE  
+#   
+#
+#         
+#     PLEASE NOTE    !!!!! 
+#     ==============
+#
+#     This script uses $AdminConfig option to set traces before starting Server
+#     This does not required any Server start !!!!!
+#     For Example you can set the traces before starting dmgr,nodeagnet and any servers (Like Server1)
+#
+#     This can be used without  mentioning   -conntype NONE  but ...
+#     This may give error WASX7070E: The configuration service is not available
+#     When......
+#       You Connect wsadmin directly to particular Server's SOAP Port using -port 
+#       (or) 
+#       your wsadmin.properties is edited to have particular SOAP port
+#       and
+#       That Server is not running ..!!!
+#    
+#          
+#          
+#         
+#         
+#
+#         
+#
+#  
+#############################################################################################
+set kenAvailableServer [$AdminConfig list Server]
+puts "  "
+puts "  "
+puts "-----------------------Start----------------------------------------------"
+puts "  "
+puts "  "
+puts "Only following Server(s) are available for This wsadmin connection"
+puts "=================================================================="
+puts "  "
+puts "  "
+puts "$kenAvailableServer"
+puts "  "
+puts "  "
+puts "----------------------------------------------------------------------"
+puts "  "
+puts "  "
+puts "Enter following details for startupTrace"
+puts "    "
+puts -nonewline  "Enter Server Name   : " ; gets stdin myServer 
+puts -nonewline  "Enter Node   Name   : " ; gets stdin myNode
+puts "  "
+puts "  "
+puts "  "
+set kenServerObject [$AdminConfig getid /Node:$myNode/Server:$myServer/]
+if {[llength $kenServerObject] < 1} {
+     puts "---------------------------ERROR------------------------------------"
+     puts "  "
+     puts "  "
+     puts "Error--Server==>$myServer is ***NOT*** available in Node==>$myNode !!"
+     puts "Please select the server from available server list...!!"
+     puts "  "
+     puts "  "
+     puts "--------------------------------------------------------------------"
+     puts "  "
+     puts "  "
+     return 
+ }
+set kenTraceObject [$AdminConfig list TraceService $kenServerObject]
+set currentTrace [$AdminConfig showAttribute $kenTraceObject startupTraceSpecification]
+puts "   " 
+puts "Current Startup Trace settings for $myServer "
+puts "---------------------------------------------"
+puts "   " 
+puts "===> $currentTrace"
+puts "   "
+puts "   "
+puts "   " 
+puts "Enter New Trace  String as per IBM Support recommendations !!!" 
+puts "Example: com.ibm.ejs.*=all=enabled "
+puts "   " 
+puts -nonewline "===> " ; gets stdin myTrace
+puts "   "
+puts "   " 
+if {[llength $myTrace] < 1} {
+     puts "---------------------------ERROR------------------------------------"
+     puts "  "
+     puts "  "
+     puts "Error---Trace Specification is NOT Valid  !!"
+     puts "  "
+     puts "  "
+     puts "--------------------------------------------------------------------"
+     puts "  "
+     puts "  "
+     return 
+ }
+lappend kenAtt [list startupTraceSpecification $myTrace]
+puts "Setting new Startup Trace for  $myServer in Node $myNode ................"
+$AdminConfig modify $kenTraceObject $kenAtt
+puts "   " 
+puts "   "  
+puts "Saving the new changes to config. files !!!!!!   " 
+puts "    " 
+puts "   "  
+$AdminConfig save
+puts "Trace setting for $myServer Completed successfully ....!"
+puts "    " 
+puts "   "  
+puts "New Startup Trace settings for $myServer "
+puts "---------------------------------------------"
+set newTrace [$AdminConfig showAttribute $kenTraceObject startupTraceSpecification]
+puts "   "
+puts "   " 
+puts "===>      $newTrace"
+puts "   "
+puts "Please Note: "
+puts "============"
+puts "Enabling Startup Trace creates following informations during next start:"
+puts "   " 
+puts "1.tracefile called ==> trace.log  "
+puts "in <Installed root of $myNode>/logs/$myServer/trace.log  "
+puts "   "
+puts "2.SystemOut.log gets updated with new Trace settings !!!"
+puts " <Installed root of $myNode>/logs/$myServer/SystemOut.log "
+puts "   "
+puts "   " 
+puts "-----------------------End---------------------------------------------"
+puts "   "
+puts "   " 
+exit

@@ -1,0 +1,13 @@
+#
+#  script to create the Capstone Project resources
+#
+trap 'echo -e "\nwsadmin has been aborted\n";exit 1' 1 2 15
+#
+echo " "
+echo " Starting wsadmin for Jacl Capstone work"
+echo " "
+JVADMIN="/opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/bin/wsadmin.sh"
+#
+${JVADMIN} -f capstone.jacl -conntype SOAP -port 8887
+#
+

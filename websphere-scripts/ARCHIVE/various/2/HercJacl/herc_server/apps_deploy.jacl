@@ -1,0 +1,113 @@
+
+#------------------------------------------------------------------
+# script to deploy WS 6 Apps to a WS 6 Server
+#------------------------------------------------------------------
+
+#------------------------------------------------------------------
+# handle included scripts
+#------------------------------------------------------------------
+
+source ../../../../Framework/Jacl/libs/JVUtils.jacl;
+source ../../../../Framework/Jacl/libs/JVdeployApp.jacl;
+source ../../../../Framework/Jacl/libs/JVlistDeployedApps.jacl;
+source ../../../../Framework/Jacl/libs/JVisAppDeployed.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "Starting";
+
+#--------------------------------------------------------------------
+#  load properties file
+#--------------------------------------------------------------------
+
+set myPropertiesFile "apps.properties";
+JVputInfo "Loading Properties file $myPropertiesFile";
+set fileprops [JVloadProperties $myPropertiesFile];
+JVputTrace "JVloadProperties.jacl; code $fileprops";
+if {$fileprops == 0} {
+	JVputError "Load Properties failed";
+	exit 1;
+}
+JVputInfo "Loaded Properties file";
+
+#--------------------------------------------------------------------
+# get properties
+#--------------------------------------------------------------------
+
+set myNodeName [JVgetProperty $fileprops "JVNode"];
+set myServerName [JVgetProperty $fileprops "JVServer"];
+
+JVputInfo "---------------------------------------------------------------";
+JVputInfo " ";
+JVputInfo " Scope:                                                        ";
+JVputInfo "    node                $myNodeName                            ";
+JVputInfo "    server              $myServerName                          ";
+JVputInfo "---------------------------------------------------------------";
+
+#--------------------------------------------------------------------
+# Deploy the apps
+#--------------------------------------------------------------------
+
+JVputInfo "Deploy Apps";
+
+set myEarDir "../herc_export/ears";
+set myOptions "";
+
+set myEar "DynamicNavigationEAR.ear";
+set myApp "DynamicNavigationEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+set myEar "EmailEAR.ear";
+set myApp "EmailEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+set myEar "ErrorFrameworkEAR.ear";
+set myApp "ErrorFrameworkEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+set myEar "HercAdminToolWebEAR.ear";
+set myApp "HercAdminToolWebEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+set myEar "HercDataEJBEAR.ear";
+set myApp "HercDataEJBEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+set myEar "HercWebEAR.ear";
+set myApp "HercWebEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+set myEar "InternationalizationEAR.ear";
+set myApp "InternationalizationEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+set myEar "IracAppMonitorEAR.ear";
+set myApp "IracAppMonitorEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+set myEar "MapPointEAR.ear";
+set myApp "MapPointEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+set myEar "RentalManEJBEAR.ear";
+set myApp "RentalManEJBEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+set myEar "ServicePumpsWebEAR.ear";
+set myApp "ServicePumpsWebEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+set myEar "WebsiteAutoShutdownEAR.ear";
+set myApp "WebsiteAutoShutdownEAR";
+JVdeployApp $myNodeName $myServerName $myEar $myEarDir $myApp $myOptions;
+
+JVputInfo "Save configuration";
+JVsave;
+	
+JVlistDeployedApps;
+
+JVputInfo "Script completed";
+exit 0;

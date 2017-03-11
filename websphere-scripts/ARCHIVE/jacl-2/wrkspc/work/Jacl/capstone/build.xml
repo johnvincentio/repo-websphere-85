@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE project [
+  <!ENTITY wsAntCommands SYSTEM "../ws-server.xml">
+]>
+
+<project name="capstone jacl" default="all" basedir="."> 
+
+	&wsAntCommands;
+
+	<property name="my.jacl.file" value="capstone.jacl"/>
+	<property name="my.server.soap" value="8880"/>
+	
+	<target name="all">
+		<antcall target="jacl">
+			<param name="jacl.file" value="${my.jacl.file}"/>
+			<param name="jacl.server.port.soap" value="{my.server.soap}"/>
+		</antcall>
+	</target>
+</project>

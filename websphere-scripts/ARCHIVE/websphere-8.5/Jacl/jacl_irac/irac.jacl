@@ -1,0 +1,85 @@
+
+#------------------------------------------------------------------
+# script to handle iRAC Server Configuration
+#------------------------------------------------------------------
+
+source ../libs/JVUtils.jacl;
+
+#------------------------------------------------------------------
+# handle other irac scripts
+#------------------------------------------------------------------
+
+source irac_config.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "irac.jacl; Starting";
+
+#--------------------------------------------------------------------
+#  load properties file or use parameters
+#--------------------------------------------------------------------
+
+if {$argc > 1} {
+	set pServerName 				[lindex $argv 1];
+	set pNodeName 					[lindex $argv 2];
+	set pCellName 					[lindex $argv 3];
+	set pBindingLocation 			[lindex $argv 4];
+
+	set pRootPath 					[lindex $argv 5];
+	set pWorkspaceServerPath 		[lindex $argv 6];
+	set pSqlserverLibPath 			[lindex $argv 7];
+	set pDb2JavaPath				[lindex $argv 8];
+	set pDb2LibPath 				[lindex $argv 9];
+	set pDb2UniversalDriverLibPath	[lindex $argv 10];
+	set pMQJMSLibRoot				[lindex $argv 11];
+	
+} else {
+	set myPropertiesFile "irac.properties";
+	if {$argc == 1} {
+		set myPropertiesFile [lindex $argv 0];
+	}
+	JVputInfo "Loading Properties file $myPropertiesFile";
+	set fileprops [JVloadProperties $myPropertiesFile];
+	JVputTrace "JVloadProperties.jacl; code $fileprops";
+	if {$fileprops == 0} {
+    	JVputError "Load Properties failed";
+	    exit 1;
+	}
+	JVputInfo "Loaded Properties file";
+
+#--------------------------------------------------------------------
+# get properties
+#--------------------------------------------------------------------
+
+	set pServerName [JVgetProperty $fileprops "server_instance"];
+	set pNodeName [JVgetProperty $fileprops "server_node"];
+	set pCellName [JVgetProperty $fileprops "server_cell"];
+	set pBindingLocation [JVgetProperty $fileprops "bindingLocation"];
+
+	set pRootPath [JVgetProperty $fileprops "root_path"];
+	set pWorkspaceServerPath [JVgetProperty $fileprops "workspace_server_path"];
+	set pSqlserverLibPath [JVgetProperty $fileprops "sqlserver_lib_path"];
+	set pDb2JavaPath [JVgetProperty $fileprops "db2_java_path"];
+	set pDb2LibPath [JVgetProperty $fileprops "db2_lib_path"];
+	set pDb2UniversalDriverLibPath [JVgetProperty $fileprops "db2_universal_driver_lib_path"];
+	set pMQJMSLibRoot [JVgetProperty $fileprops "mq_jms_lib_root"];
+}
+
+#
+#  perform server configuration
+#
+irac_config $pServerName $pNodeName $pCellName $pBindingLocation $pRootPath $pWorkspaceServerPath $pSqlserverLibPath $pDb2JavaPath $pDb2LibPath $pDb2UniversalDriverLibPath $pMQJMSLibRoot;
+
+#
+#  save server changes
+#
+JVsave;
+
+#
+#  notify user
+#
+JVputInfo "Complete";
+exit 0;

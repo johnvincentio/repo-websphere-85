@@ -1,0 +1,26 @@
+
+#------------------------------------------------------------------
+#  Create Connection Factory
+#------------------------------------------------------------------
+
+source libs/data/JVcreateConnectionFactory.jacl;
+
+proc irac_cf {NodeName ServerName} {
+
+#--------------------------------------------------------------------
+# Create Connection Factory (use builtin_rra)
+#--------------------------------------------------------------------
+
+#   set secAuthAlias "N_O_N_E"
+#   set dsName       "JMS Pool";
+#   set secAuthAlias $NodeName/OracleJms;
+#   set provName     "Oracle JDBC Driver";
+#   set cfName       "jmsSupplierMdb1QueueConnectionFactory";
+#   set cfAuthMech   "BASIC_PASSWORD";
+#   set cfi          "javax.resource.cci.ConnectionFactory";
+#
+#  do not use for the moment
+#
+#   JVcreateConnectionFactory $NodeName $ServerName $provName $dsName $cfName $cfAuthMech $secAuthAlias $cfi;
+
+}

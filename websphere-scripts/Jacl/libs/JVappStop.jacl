@@ -1,0 +1,25 @@
+
+#--------------------------------------------------------------------
+# Stop an Application
+#--------------------------------------------------------------------
+
+proc JVappStop {pNodeName pServerName pCellName pAppName} {
+	global AdminControl;
+
+	puts "";
+	puts "---------------------------------------------------------------";
+	puts "              Stop Application                                ";
+	puts "---------------------------------------------------------------";
+	puts " Scope:                                                        ";
+	puts "    node                $pNodeName                             ";
+	puts "    server              $pServerName                           ";
+	puts "    cell                $pCellName                             ";
+	puts "    application         $pAppName                              ";
+	puts "---------------------------------------------------------------";
+	puts "";
+
+	set appManager [$AdminControl queryNames cell=$pCellName,node=$pNodeName,type=ApplicationManager,process=$pServerName,*];
+	if {[catch "$AdminControl invoke $appManager stopApplication $pAppName"]} {
+		puts "Error: Exception is thrown while stopping application $pAppName";
+	}
+}

@@ -1,0 +1,22 @@
+
+#--------------------------------------------------------------------
+# List JMS Servers
+#--------------------------------------------------------------------
+
+proc JVlistJMSServers {} {
+
+   global AdminConfig;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              List JMS Servers                     ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   set jmss [$AdminConfig list JMSServer];
+   foreach entry $jmss {
+      puts " ";
+      puts "    Name: $entry";
+      puts " ";
+   }
+} 

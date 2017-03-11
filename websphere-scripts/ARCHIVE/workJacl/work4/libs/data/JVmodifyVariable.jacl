@@ -1,0 +1,43 @@
+
+#------------------------------------------------------------------
+#  Modify Variable
+#------------------------------------------------------------------
+
+proc JVmodifyVariable {varName varValue} {
+
+   global AdminConfig;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Modify Variable                                  ";
+   puts "---------------------------------------------------------------";
+   puts "    Variable Name:   $varName                                  ";
+   puts "     Variable Value:   $varValue                               ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+# Check if variable already exists
+
+   set variableCount 0;
+   set FlagVariableExist "False";
+   foreach TmpVariable [$AdminConfig list VariableSubstitutionEntry] {
+      incr variableCount;
+      set TmpVariableName [$AdminConfig showAttribute $TmpVariable symbolicName];
+#      JVputInfo "$variableCount. VariableSubstitutionEntry $TmpVariableName";
+      if {[string compare $TmpVariableName $varName] == 0} {
+         set FlagVariableExist "True";
+         break;
+      }
+   }
+
+# if variable exists set value
+
+   if {$FlagVariableExist == "True"} {
+      JVputInfo "VariableSubstitutionEntry $varName does exist, will set value.";
+      set attrs "{value {$varValue}}";
+      $AdminConfig modify $TmpVariable $attrs;
+   } else {
+      JVputError "VariableSubstitutionEntry $varName does not exist.";
+   }
+}
+

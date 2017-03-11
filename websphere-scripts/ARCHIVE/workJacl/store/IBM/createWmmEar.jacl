@@ -1,0 +1,49 @@
+set EarFile {C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1/installableApps/wmm.ear}
+set NodeName {"localhost"}
+set AppName {"wmmApp"}
+set ServerName {"WebSphere_Portal"}
+set DataSourceName {wmmDS}
+append JndiName "jdbc/" $DataSourceName
+set ReferenzBindingName "jdbc/wmmDS"
+
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+	if {[string compare $TmpAppName [string trim $AppName \"]] == 0} {
+		set FlagAppExist "True"
+		break;
+	}
+}
+
+if {$FlagAppExist == "True"} {
+    puts stdout "Enterprise Application Resource '$AppName' does exist, no Action taken"
+	exit
+} else {
+    set WmmEjb [subst {wmm.ejb MemberService wmm.ejb.jar,META-INF/ejb-jar.xml $ReferenzBindingName javax.sql.DataSource "$JndiName" }]
+	set WmmInternalEjb 	[subst {wmm.internal.ejb JDBCHelper wmm.internal.ejb.jar,META-INF/ejb-jar.xml $ReferenzBindingName javax.sql.DataSource "$JndiName" }]
+    set EjbAttrs [list [list $WmmEjb $WmmInternalEjb]]
+	set Attrs [subst {-usedefaultbindings -node $NodeName -server $ServerName -appname $AppName -MapResRefToEJB $EjbAttrs}]
+    puts stdout "File: $EarFile"
+    puts stdout " "
+    puts stdout "Options: $Attrs"
+    puts stdout " "
+    $AdminApp install $EarFile $Attrs
+    
+	#$AdminApp install $Earfile "-usedefaultbindings -node $NodeName -server $ServerName -appname $AppName"
+	#$AdminApp install d:/websphere/portalserver/installableapps/wmm.ear {-usedefaultbindings -node "55603G5" -server "WebSphere_Portal" -appname wmmApp"}
+	#$AdminApp install d:/websphere/portalserver/installableapps/wmm.ear {-usedefaultbindings -node "55603G5" -server "WebSphere_Portal" -appname "wmmApp"   -MapResRefToEJB {{wmm.ejb MemberService wmm.ejb.jar,META-INF/ejb-jar.xml jdbc/wmmDS javax.sql.DataSource "jdbc/wmmDSjndi" } {wmm.internal.ejb JDBCHelper wmm.internal.ejb.jar,META-INF/ejb-jar.xml jdbc/wmmDS javax.sql.DataSource "jdbc/wmmDSjndi" }}}
+}
+
+#check for success
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+	if {[string compare $TmpAppName [string trim $AppName \"]] == 0} {
+		set FlagAppExist "True"
+		break;
+	}
+}
+if {$FlagAppExist == "True"} {
+    puts stdout "Enterprise Application Resource '$AppName' successfully installed."
+    $AdminConfig save
+} else {
+    puts stdout "ERROR: Enterprise Application Resource '$AppName' could not be installed."
+}

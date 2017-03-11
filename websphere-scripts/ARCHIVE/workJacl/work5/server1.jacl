@@ -1,0 +1,64 @@
+
+source jv.jacl;		# include procedures script
+
+JVscript_trace_enable;	# set script tracing on
+JVputInfo "server1.jacl; Starting";
+
+#--------------------------------------------------------------------
+# get server, node and cell info from the command line
+#--------------------------------------------------------------------
+
+#JVputTrace "server1.jacl; before processArguments";
+set returnCode [JVprocessArguments $argc $argv];
+#JVputTrace "server1.jacl; code $returnCode";
+if {$returnCode != 1} {
+	JVputError "JVprocessArguments failed";
+	exit 1;
+}
+JVshowServer;
+#JVputTrace "server1.jacl; after processArguments";
+
+#-------------------------------------------------------------------
+# turn on tracing; server must be running
+#-------------------------------------------------------------------
+
+#JVputTrace "server1.jacl; before trace_on";
+set returnCode [JVtrace_on];
+#JVputTrace "server1.jacl; code $returnCode";
+if {$returnCode != 1} {
+	JVputError "JVtrace_on failed";
+	exit 1;
+}
+#JVputTrace "server1.jacl; after trace_on";
+
+#-------------------------------------------------------------------
+# turn off tracing; server must be running
+#-------------------------------------------------------------------
+
+#JVputTrace "server1.jacl; before trace_off";
+set returnCode [JVtrace_off];
+#JVputTrace "server1.jacl; code $returnCode";
+if {$returnCode != 1} {
+	JVputError "JVtrace_off failed";
+	exit 1;
+}
+#JVputTrace "server1.jacl; after trace_off";
+
+#-------------------------------------------------------------------
+# dump threads info; server must be running
+#-------------------------------------------------------------------
+
+#JVputTrace "server1.jacl; before dump_threads";
+set returnCode [JVdump_threads];
+#JVputTrace "server1.jacl; code $returnCode";
+if {$returnCode != 1} {
+	JVputError "JVtrace_off failed";
+	exit 1;
+}
+#JVputTrace "server1.jacl; after dump_threads";
+
+#------------------------------------------------------------------
+# all done
+#------------------------------------------------------------------
+
+JVputInfo "server1.jacl; Complete";

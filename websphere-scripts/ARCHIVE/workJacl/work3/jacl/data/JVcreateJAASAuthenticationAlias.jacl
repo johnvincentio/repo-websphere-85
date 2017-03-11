@@ -1,0 +1,59 @@
+
+proc JVcreateJAASAuthenticationAlias {cellName authAlias descript uid password} {
+
+  #--------------------------------------------------------------------
+  # Set up globals  
+  #--------------------------------------------------------------------
+
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create JAAS Authenication Alias
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Create JAAS authentication alias                  "
+  puts "---------------------------------------------------------------"
+  puts " Scope:                                                        "
+  puts "    cell                $cellName                              "
+  puts " Authentication alias:                                         "
+  puts "    alias               $authAlias                             "
+  puts "    description         $descript                              "
+  puts "    user ID             $uid                                   "
+  puts "    password            $password                              "
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  #--------------------------------------------------------------------
+  # Get the config id for the cell's security object
+  #--------------------------------------------------------------------
+
+  JVputTrace "Get the cell's security object."
+
+  set sec [$AdminConfig getid /Cell:$cellName/Security:/]
+
+  #--------------------------------------------------------------------
+  # Create the JAASAuthData object
+  #--------------------------------------------------------------------
+
+  set authAliasTest "alias $authAlias"
+  foreach authDataEntry [$AdminConfig list JAASAuthData] {
+    foreach authAliasEntry [$AdminConfig show $authDataEntry alias] {
+      if { $authAliasTest == $authAliasEntry } {
+        JVputInfo "The $authAlias alias already exists."
+        return
+      }     
+    }
+  }
+
+  JVputTrace "Create the $authAlias JAASAuthData object."
+  set alias_attr    [list alias $authAlias]
+  set desc_attr     [list description $descript]
+  set userid_attr   [list userId $uid]
+  set password_attr [list password $password]
+  set attrs [list $alias_attr $desc_attr $userid_attr $password_attr]
+  set contauthdata [$AdminConfig create JAASAuthData $sec $attrs]
+
+}
+

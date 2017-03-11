@@ -1,0 +1,40 @@
+set WmmAppName {wmmApp}
+
+
+set DeploymentId [$AdminConfig getid /Deployment:$WmmAppName/]
+if {$DeploymentId == ""} {
+    puts stdout "ERROR: $WmmAppName.ear is not installed, no Action taken"
+	exit 1
+} else {
+
+    #Check
+    set ApplicationDeploymentId [$AdminConfig getid /Deployment:$WmmAppName/ApplicationDeployment:/]
+    if {[llength $ApplicationDeploymentId] != 1} {
+        puts stdout $ApplicationDeploymentId
+        puts stdout "ERROR: Wrong No Of ApplicationDeployments for Deployment:$WmmAppName"
+        puts stdout "expected: 1; actual: [llength $ApplicationDeploymentId]"
+        exit 1
+    }
+
+#    #####################################################################################
+#	#  modify Deployment -> ApplicationDeployment attribute startingWeight
+#	#####################################################################################
+#    puts stdout "Old: [$AdminConfig show $ApplicationDeploymentId startingWeight]"
+#    set attrs [list [list startingWeight 10]]
+#	$AdminConfig modify $ApplicationDeploymentId $attrs 
+#	puts stdout "New: [$AdminConfig show $ApplicationDeploymentId startingWeight]"
+#	puts stdout "Deployment:$WmmAppName Attribute startingWeight modified."
+
+
+    #####################################################################################
+    #  modify Deployment -> ApplicationDeployment -> Classloader attribute Mode
+    #####################################################################################
+    set ClassloaderId [$AdminConfig getid /Deployment:$WmmAppName/ApplicationDeployment:/Classloader:/]
+    puts stdout "Old: [$AdminConfig show $ClassloaderId mode]"
+    set attrs [list [list mode PARENT_FIRST]]
+    $AdminConfig modify $ClassloaderId $attrs 
+    puts stdout "New: [$AdminConfig show $ClassloaderId mode]"
+    puts stdout "Deployment:$WmmAppName Attribute Classloader Mode modified."
+
+    $AdminConfig save
+}

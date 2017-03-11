@@ -1,0 +1,44 @@
+
+#------------------------------------------------------------------
+#  Create JMS Resources
+#------------------------------------------------------------------
+
+source ../libs/JVcreateSIBus.jacl;
+source ../libs/JVcreateSIBJMSConnectionFactory.jacl;
+source ../libs/JVcreateSIBJMSQueue.jacl;
+source ../libs/JVcreateSIBQueue.jacl;
+source ../libs/JVcreateSIBJMSTopic.jacl;
+source ../libs/JVcreateSIBJMSActivationSpec.jacl;
+source ../libs/JVcreateListenerPort.jacl;
+source ../libs/JVaddQueueName.jacl;
+source ../libs/JVlistJMSServers.jacl;
+
+source irac_jmsIracAutoShutdown.jacl;
+source irac_jmsPresentationCache.jacl;
+source irac_jmsDataCollection.jacl;
+
+proc irac_jms {NodeName ServerName} {
+
+#--------------------------------------------------------------------
+# List JMS Servers
+#--------------------------------------------------------------------
+
+#   JVlistJMSServers;
+
+#--------------------------------------------------------------------
+# Create SIBus
+#--------------------------------------------------------------------
+
+   set SIBusName "iRACBus";
+   set SIBusDesc "Messaging bus for iRAC";
+   JVcreateSIBus $NodeName $ServerName $SIBusName $SIBusDesc "false";
+
+   JVputInfo "Handle iracAutoShutdown JMS";
+   irac_jmsIracAutoShutdown $NodeName $ServerName $SIBusName;
+
+   JVputInfo "Handle PresentationCache JMS";
+   irac_jmsPresentationCache $NodeName $ServerName $SIBusName;
+
+   JVputInfo "Handle DataCollection JMS";
+   irac_jmsDataCollection $NodeName $ServerName $SIBusName;
+}

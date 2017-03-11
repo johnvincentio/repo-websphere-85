@@ -1,0 +1,44 @@
+
+proc JVcreateJDBCProviderMySQL {NodeName ServerName providerName MySQLLibPath} {
+
+   global AdminConfig;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create JDBC Provider                             ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts "    server              $ServerName                            ";
+   puts "    Provider Name       $providerName                          ";
+   puts "    MySQL Lib Path      $MySQLLibPath                          ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+# set node [$AdminConfig  getid  /Cell:mycell/Node:mynode/]
+
+#--------------------------------------------------------------------
+#	Create the attributes
+#--------------------------------------------------------------------
+
+   set myNodeID [$AdminConfig getid "/Node:$NodeName/Server:$ServerName"];
+   JVputTrace "Node id: $myNodeID";
+
+   set providerType  "User-defined JDBC Provider";
+   set impl_class    "com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource";
+   set native_path   "";
+
+   set name_attr       [list name $providerName];
+   set desc_attr       [list description $providerName];
+   set c1_attr         [list providerType $providerType];
+   set c2_attr         [list isolatedClassLoader false];
+   set c2a_attr        [list xa false];
+   set c3_attr         [list implementationClassName $impl_class];
+   set c4_attr         [list classpath $MySQLLibPath];
+   set c5_attr         [list nativepath $native_path];
+   set jdbcAttrs [list $name_attr $desc_attr $c1_attr $c2_attr $c2a_attr $c3_attr $c4_attr $c5_attr];
+
+   JVputTrace "Create JDBC Provider";
+   $AdminConfig create JDBCProvider $myNodeID $jdbcAttrs;
+   JVputTrace "Created JDBC Provider";
+}

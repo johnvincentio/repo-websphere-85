@@ -1,0 +1,28 @@
+set NodeName {localhost}
+set ServerName {WebSphere_Portal}
+
+set NodeId [$AdminConfig getid /Node:$NodeName/]
+if {$NodeId == ""} {
+    puts stdout "ERROR: Node $NodeName does not exist, no Action taken"
+	exit
+}
+
+set ServerId [$AdminConfig getid /Node:$NodeName/Server:$ServerName]
+if {$ServerId != ""} {
+    puts stdout "Server $ServerName does exist, no Action taken"
+	exit
+} else {
+   	set ServerNameList [list name $ServerName]
+	set serverAttrs [list $ServerNameList]
+    $AdminConfig create Server $NodeId $serverAttrs
+
+	#check for success
+	set ServerId [$AdminConfig getid /Node:$NodeName/Server:$ServerName]
+	if {$ServerId != ""} {
+		puts stdout "Server $ServerName successfully created."
+		$AdminConfig save
+	} else {
+		puts stdout "ERROR: Server $ServerName could not be created."
+		exit 1
+	}
+}

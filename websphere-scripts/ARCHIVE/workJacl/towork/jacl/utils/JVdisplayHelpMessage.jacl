@@ -1,0 +1,18 @@
+
+proc JVdisplayHelpMessage {} {
+  puts " ";
+  puts "#---------------------------HELP-----------------------------------";
+  puts " ";
+  puts "  OPTIONAL PARAMETERS";
+  puts " ";
+  puts "  -cell        Specifies the cell name of your server.";
+  puts " ";
+  puts "  -node        Specifies the node name of your server.";
+  puts " ";
+  puts "  -server      Specifies the server name. The default is server1.";
+  puts " ";
+  puts "  -man         Brings up this help dialog";
+  puts " ";
+  puts "#------------------------------------------------------------------";
+}
+

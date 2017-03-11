@@ -1,0 +1,54 @@
+#################################################
+#Java Authentication and Authorization Service
+#################################################
+
+set CellName {@CellName@}
+
+set NodeName {@NodeName@}
+
+#vars are set in profileXXXDataSource.jacl
+
+set JaasAuthDataAliasList [list alias $JaasAuthDataAlias]
+set DbUserList [list userId $DbUser]
+set DbPasswordList [list password $DbPassword]
+set JaasDescriptionList [list description "JAAS Alias for $DbName"]
+set Attrs [list $JaasAuthDataAliasList $DbUserList $DbPasswordList $JaasDescriptionList]
+
+# Check if exists
+set FlagExist "False"
+foreach TmpJaasAuthDataId [$AdminConfig getid /JAASAuthData:/] {
+	set TmpJaasAuthDataAlias [$AdminConfig showAttribute $TmpJaasAuthDataId alias]
+	if {[string compare $TmpJaasAuthDataAlias $JaasAuthDataAlias] == 0} {
+		set FlagExist "True"
+        break;
+	}
+}
+if {$FlagExist == "True"} {
+	puts stdout "JAASAuthData $JaasAuthDataAlias does exist, no Action taken"
+	exit 
+} else {
+	########### create JAASAuthData ####################################
+	set ParentSecurityId [$AdminConfig getid /Cell:$CellName/Security:/]
+    if {$ParentSecurityId == ""} {
+        puts stdout "ERROR: /Cell:$CellName/Security:/ is missing."
+        exit 1
+    }
+	$AdminConfig create JAASAuthData $ParentSecurityId $Attrs
+}
+
+# Check for success
+set FlagExist "False"
+foreach TmpJaasAuthData [$AdminConfig list JAASAuthData] {
+	set TmpJaasAuthDataAlias [$AdminConfig showAttribute $TmpJaasAuthData alias]
+	if {[string compare $TmpJaasAuthDataAlias $JaasAuthDataAlias] == 0} {
+		set FlagExist "True"
+        break;
+	}
+}
+if {$FlagExist == "True"} {
+	puts stdout "JAASAuthData $JaasAuthDataAlias successfully created."
+    $AdminConfig save
+} else {
+	puts stdout "ERROR: JAASAuthData $JaasAuthDataAlias could not be created."
+	exit 1
+}

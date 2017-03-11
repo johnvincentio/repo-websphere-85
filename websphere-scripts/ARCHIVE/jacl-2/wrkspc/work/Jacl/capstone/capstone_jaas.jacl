@@ -1,0 +1,45 @@
+
+#------------------------------------------------------------------
+# Create JAAS Resources
+#------------------------------------------------------------------
+
+proc capstone_jaas {CellName NodeName} {
+
+   set secAuthAlias $NodeName/JVSupplier;
+   set secDescript  "Capstone Supplier Oracle Database User";
+   set secUserID    "JVSUPPLIER";
+   set secPassword  "capstone";
+   JVcreateJAASAuthenticationAlias $CellName $secAuthAlias $secUserID $secPassword $secDescript;
+
+   set secAuthAlias $NodeName/JVDistributor;
+   set secDescript  "Capstone Distributor Oracle Database User";
+   set secUserID    "JVDISTRIBUTOR";
+   set secPassword  "capstone";
+   JVcreateJAASAuthenticationAlias $CellName $secAuthAlias $secUserID $secPassword $secDescript;
+
+   set secAuthAlias $NodeName/JVRetailer;
+   set secDescript  "Capstone Retailer Oracle Database User";
+   set secUserID    "JVRETAILER";
+   set secPassword  "capstone";
+   JVcreateJAASAuthenticationAlias $CellName $secAuthAlias $secUserID $secPassword $secDescript;
+
+   set secAuthAlias $NodeName/JVManufacturer;
+   set secDescript  "Capstone Manufacturer Oracle Database User";
+   set secUserID    "JVMANUFACTURER";
+   set secPassword  "capstone";
+   JVcreateJAASAuthenticationAlias $CellName $secAuthAlias $secUserID $secPassword $secDescript;
+
+   set secAuthAlias $NodeName/JVNero;
+   set secDescript  "Capstone Nero Oracle Database User";
+   set secUserID    "JVNERO";
+   set secPassword  "capstone";
+   JVcreateJAASAuthenticationAlias $CellName $secAuthAlias $secUserID $secPassword $secDescript;
+
+   set secAuthAlias $NodeName/JVJms;
+   set secDescript  "Capstone JMS Oracle Database User";
+   set secUserID    "JVJMS";
+   set secPassword  "capstone";
+   JVcreateJAASAuthenticationAlias $CellName $secAuthAlias $secUserID $secPassword $secDescript;
+
+}
+

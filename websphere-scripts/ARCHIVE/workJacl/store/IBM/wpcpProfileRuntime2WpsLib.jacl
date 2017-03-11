@@ -1,0 +1,5 @@
+global AppName
+global LibraryName
+
+set AppName {WPCP_Runtime}
+set LibraryName {WPSlib}

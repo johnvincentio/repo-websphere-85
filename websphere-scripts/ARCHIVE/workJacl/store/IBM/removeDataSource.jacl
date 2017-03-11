@@ -1,0 +1,23 @@
+set JDBCProviderName {wps50JDBC}
+
+#vars are set in profileXXXDataSource.jacl
+#set DataSourceName {wmmDS}
+
+
+# Check if exists
+set DataSourceId [$AdminConfig getid /JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/]
+if {$DataSourceId != ""} {
+    $AdminConfig remove $DataSourceId
+	
+	# Check for success
+	set DataSourceId [$AdminConfig getid /JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/]
+	if {$DataSourceId != ""} {
+		puts stdout "ERROR: /JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/ could not be removed."
+		exit 1
+	} else {
+		puts stdout "/JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/ successfully removed."
+		$AdminConfig save
+	}
+} else {
+    puts stdout "/JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/ does not exist. No action taken"
+}

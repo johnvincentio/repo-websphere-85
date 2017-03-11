@@ -1,0 +1,28 @@
+
+#------------------------------------------------------------------
+# script to deploy WS 5 Apps to a WS 6 Server
+#------------------------------------------------------------------
+
+#------------------------------------------------------------------
+# handle included scripts
+#------------------------------------------------------------------
+
+source ../../../../Framework/Jacl/libs/JVUtils.jacl;
+source ../../../../Framework/Jacl/libs/JVlistDeployedApps.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "Starting";
+
+#--------------------------------------------------------------------
+# List Deployed apps
+#--------------------------------------------------------------------
+
+JVputInfo "List Deployed Apps";
+JVlistDeployedApps;
+
+JVputInfo "Script completed";
+exit 0;

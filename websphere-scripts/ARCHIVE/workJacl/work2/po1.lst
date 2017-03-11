@@ -1,0 +1,45 @@
+Before wsadmin
+ 
+ Starting wsadmin for Jacl development work
+ 
+WASX7209I: Connected to process "server1" on node alphaNode04 using SOAP connector;  The type of process is: UnManagedProcess
+WASX7303I: The following unrecognized options are passed to the scripting environment and are available as argv: "[-node, alphaNode04, -cell, alphaNode04Cell, -server, server1]"
+INFO: create.jacl; Starting
+TRACE: >>> processArguments; 6 -node
+alphaNode04
+-cell
+alphaNode04Cell
+-server
+server1
+TRACE: Check cell name alphaNode04Cell
+TRACE: Check node name alphaNode04
+TRACE: Check node name server1
+TRACE: <<< processArguments
+INFO: ---------------------------------------------------------------
+INFO:  
+INFO:  Scope:                                                        
+INFO:     cell                alphaNode04Cell                                
+INFO:     node                alphaNode04                                
+INFO:     server              server1                              
+INFO: ---------------------------------------------------------------
+TRACE: >>> JVsetAppServerWebSphereClasspath; Node=alphaNode04 Server=server1 Param=/opt/IBM/db2/V8.1/java/db2java.zip
+INFO: Create/modify JVM systemProperties /Server:server1/JavaProcessDef:/JavaVirtualMachine:/Property:ws.ext.dirs/
+stage A1
+stage A2
+stage A3
+stage A4
+stage A5
+FlagObjectExist True
+stage A6
+stage B1
+INFO: Old: JVM SystemProperty {name ws.ext.dirs} {value /opt/IBM/db2/V8.1/java}
+New: JVM SystemProperty {name ws.ext.dirs} {value /opt/IBM/db2/V8.1/java/db2java.zip}
+INFO: JVM Property successfully created/modified.
+TRACE: <<< JVsetAppServerWebSphereClasspath
+
+---------------------------------------------------------------
+              Save                                             
+---------------------------------------------------------------
+
+after save
+After wsadmin

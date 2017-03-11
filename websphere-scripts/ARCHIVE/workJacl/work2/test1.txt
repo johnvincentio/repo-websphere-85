@@ -1,0 +1,95 @@
+Before wsadmin
+ 
+ Starting wsadmin for Jacl development work
+ 
+WASX7209I: Connected to process "server1" on node alphaNode04 using SOAP connector;  The type of process is: UnManagedProcess
+WASX7303I: The following unrecognized options are passed to the scripting environment and are available as argv: "[-node, alphaNode04, -cell, alphaNode04Cell, -server, server1]"
+>>> test1; Node=alphaNode04 Server=server1
+serverInfo {components {(cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#NameServer_1121736571950) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#ApplicationServer_1121736571951)}}
+{customServices {}}
+{developmentMode false}
+{errorStreamRedirect (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#StreamRedirect_1121736571950)}
+{name server1}
+{outputStreamRedirect (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#StreamRedirect_1121736571951)}
+{parallelStartEnabled true}
+{processDefinitions {(cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#JavaProcessDef_1121736571952)}}
+{serverType APPLICATION_SERVER}
+{services {(cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#PMIService_1121736571936) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#AdminService_1121736571936) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#TraceService_1121736571936) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#RASLoggingService_1121736571936) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#CoreGroupBridgeService_1121736571936) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#TPVService_1121736571936) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#ObjectRequestBroker_1121736571936) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#TransportChannelService_1121736571943) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#ThreadPoolManager_1121736571950) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#HTTPAccessLoggingService_1121736571950)}}
+{stateManagement (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#StateManageable_1121736571935)}
+{statisticsProvider (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#StatisticsProvider_1121736571935)}
+appServerInfo {applicationClassLoaderPolicy MULTIPLE}
+{applicationClassLoadingMode PARENT_FIRST}
+{classloaders {}}
+{components {(cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#WebContainer_1121736571951) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#EJBContainer_1121736571952)}}
+{id -1}
+{properties {}}
+{server server1(cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#Server_1121736571909)}
+{services {(cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#TransactionService_1121736571951) (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#DynamicCache_1121736571951)}}
+{stateManagement (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#StateManageable_1121736571951)}
+{webserverPluginSettings (cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|server.xml#WebserverPluginSettings_1121736571952)}
+------AdminConfig list DataSource
+DataSource "Default Datasource(cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|resources.xml#DataSource_1121736624485)"
+DefaultEJBTimerDataSource(cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|resources.xml#DataSource_1000001)
+------AdminConfig list JDBCProvider
+JDBCProvider "Cloudscape JDBC Provider (XA)(cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|resources.xml#builtin_jdbcprovider)"
+"Cloudscape JDBC Provider (XA)(cells/alphaNode04Cell|resources.xml#builtin_jdbcprovider)"
+"Cloudscape JDBC Provider(cells/alphaNode04Cell/nodes/alphaNode04/servers/server1|resources.xml#JDBCProvider_1121736623378)"
+------AdminConfig listTemplates DataSource
+listTemplates DataSource "Cloudscape JDBC Provider (XA)(templates/servertypes/APPLICATION_SERVER/servers/defaultZOS|resources.xml#builtin_jdbcprovider)"
+"Cloudscape JDBC Provider (XA)(templates/servertypes/APPLICATION_SERVER/servers/default|resources.xml#builtin_jdbcprovider)"
+"Cloudscape JDBC Provider (XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_db2j_4)"
+"Cloudscape JDBC Provider Only (XA)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_db2j_4)"
+"Cloudscape JDBC Provider Only(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_db2j_3)"
+"Cloudscape JDBC Provider(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_db2j_3)"
+"Cloudscape Network Server Using Universal JDBC Driver Provider Only(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_db2jN_1)"
+"Cloudscape Network Server Using Universal JDBC Driver(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_db2jN_1)"
+"DB2 Legacy CLI-based Type 2 JDBC Driver (XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_4)"
+"DB2 Legacy CLI-based Type 2 JDBC Driver Provider Only (XA)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_4)"
+"DB2 Legacy CLI-based Type 2 JDBC Driver Provider Only(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_3)"
+"DB2 Legacy CLI-based Type 2 JDBC Driver(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_3)"
+"DB2 UDB for iSeries (Native - V5R1 and earlier)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_db2400_5)"
+"DB2 UDB for iSeries (Native - V5R2 and later)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_db2400_3)"
+"DB2 UDB for iSeries (Native XA - V5R1 and earlier)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_db2400_6)"
+"DB2 UDB for iSeries (Native XA - V5R2 and later)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_db2400_4)"
+"DB2 UDB for iSeries (Native XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_db2400_2)"
+"DB2 UDB for iSeries (Native)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_db2400_1)"
+"DB2 UDB for iSeries (Toolbox XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_db2400_8)"
+"DB2 UDB for iSeries (Toolbox)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_db2400_7)"
+"DB2 UDB for iSeries Provider Only (Native XA)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_db2400_2)"
+"DB2 UDB for iSeries Provider Only (Native)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_db2400_1)"
+"DB2 UDB for iSeries Provider Only (Toolbox XA)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_db2400_8)"
+"DB2 UDB for iSeries Provider Only (Toolbox)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_db2400_7)"
+"DB2 Universal JDBC Driver Provider (XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_DB2_UNI_2)"
+"DB2 Universal JDBC Driver Provider Only (XA)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_DB2_UNI_2)"
+"DB2 Universal JDBC Driver Provider Only(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_DB2_UNI_1)"
+"DB2 Universal JDBC Driver Provider(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_DB2_UNI_1)"
+"DB2 for zOS Local JDBC Provider (RRS)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_DB2_RRS_zOS)"
+"DB2 for zOS Local JDBC Provider Only (RRS)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_DB2_RRS_zOS)"
+"DataDirect ConnectJDBC type 4 driver for MS SQL Server (XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_DataDirect_2)"
+"DataDirect ConnectJDBC type 4 driver for MS SQL Server Provider Only (XA)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_DataDirect_2)"
+"DataDirect ConnectJDBC type 4 driver for MS SQL Server Provider Only(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_DataDirect_1)"
+"DataDirect ConnectJDBC type 4 driver for MS SQL Server(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_DataDirect_1)"
+"DataDirect SequeLink type 3 JDBC driver for MS SQL Server (XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_DataDirect_4a)"
+"DataDirect SequeLink type 3 JDBC driver for MS SQL Server (templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_DataDirect_3a)"
+"Informix JDBC Driver (XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_Informix_2)"
+"Informix JDBC Driver Provider Only (XA)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_Informix_2)"
+"Informix JDBC Driver Provider Only(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_Informix_1)"
+"Informix JDBC Driver(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_Informix_1)"
+"Microsoft JDBC driver for MSSQLServer 2000 (XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_MS_2)"
+"Microsoft JDBC driver for MSSQLServer 2000(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_MS_1)"
+"Oracle JDBC Driver (XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_Oracle_6)"
+"Oracle JDBC Driver Provider Only (XA)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_Oracle_6)"
+"Oracle JDBC Driver Provider Only(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_Oracle_5)"
+"Oracle JDBC Driver(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_Oracle_5)"
+"Sybase JDBC Driver (XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_Sybase_4)"
+"Sybase JDBC Driver Provider Only (XA)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_Sybase_4)"
+"Sybase JDBC Driver Provider Only(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_Sybase_3)"
+"Sybase JDBC Driver(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_Sybase_3)"
+"User-defined JDBC Provider Only(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_0)"
+"User-defined JDBC Provider(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_0)"
+"WebSphere embedded ConnectJDBC driver for MS SQL Server (XA)(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_DataDirect_2a)"
+"WebSphere embedded ConnectJDBC driver for MS SQL Server Provider Only (XA)(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_DataDirect_2a)"
+"WebSphere embedded ConnectJDBC driver for MS SQL Server Provider Only(templates/system|jdbc-resource-provider-only-templates.xml#JDBCProvider_DataDirect_1a)"
+"WebSphere embedded ConnectJDBC driver for MS SQL Server(templates/system|jdbc-resource-provider-templates.xml#JDBCProvider_DataDirect_1a)"
+<<< test1
+After wsadmin

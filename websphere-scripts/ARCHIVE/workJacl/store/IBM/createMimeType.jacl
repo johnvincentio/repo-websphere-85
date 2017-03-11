@@ -1,0 +1,103 @@
+set ServerName "WebSphere_Portal"
+set CellName localhost
+set VirtualHostName "default_host"
+
+#vars are set in profileMimeTye.jacl
+#set TypeList {application/msword application/vnd.ms-excel application/vnd.ms-powerpoint}
+#set ExtensionList {doc xls ppt}
+
+for {set i 0} {$i < [llength $TypeList]} {incr i} { 
+	set Type [lindex $TypeList $i]
+	set Extension [lindex $ExtensionList $i]
+
+	#--------------------------------------------------------------
+	# Check if MimeType under VirtualHost "VirtualHostName" is there
+	#--------------------------------------------------------------
+	set VirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+	set MimeTypesList [$AdminConfig show $VirtualHostId mimeTypes]
+	set MimeTypes {}
+	set FlagExist "False"
+	if {$MimeTypesList != ""} {
+		set MimeTypesList [string trim [string trim $MimeTypesList "{}"]]
+		set MimeTypesList [string range $MimeTypesList [string first "(" $MimeTypesList] [string length $MimeTypesList]]
+		set TmpList [split $MimeTypesList ")"]
+		foreach Tmp $TmpList {
+			set Tmp [string trim $Tmp " "]
+			append Tmp ")"
+			if { [string length $Tmp] > 1} {
+				lappend MimeTypes $Tmp
+			}
+		}
+		foreach TmpMimeTypes $MimeTypes {
+			if {[catch {$AdminConfig showAttribute $TmpMimeTypes type} TmpType]} {
+				puts stdout $TmpType
+				puts stdout "ERROR: In '/VirtualHost:$VirtualHostName/'."
+				puts stdout "This is not a valid MimeType."
+				puts stdout $TmpMimeTypes
+				exit 1
+			} else {
+				if {[string compare $TmpType $Type] == 0} {
+					set FlagExist "True"
+					break
+				}
+			}
+		}
+	}
+
+
+	if {$FlagExist == "True"} {
+		puts stdout "MimeType $Type for extension $Extension in '/VirtualHost:$VirtualHostName/' already there, no Action taken"
+	} else {
+		#--------------------------------------------------------------
+		# Create MimeType for "Type"
+		#--------------------------------------------------------------
+		set attrs [subst {{type $Type} {extensions $Extension}}]
+		set MimeTypesList [$AdminConfig create MimeEntry $VirtualHostId $attrs]
+		if {$MimeTypesList == ""} {
+			puts stdout "ERROR: MimeType $Type with Extension $Extension in '/VirtualHost:$VirtualHostName/' could not be created."
+			exit 1
+		} else {
+			#--------------------------------------------------------------
+			# check for success
+			#--------------------------------------------------------------
+			set VirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+			set MimeTypesList [$AdminConfig show $VirtualHostId mimeTypes]
+			set MimeTypes {}
+			set FlagExist "False"
+			if {$MimeTypesList != ""} {
+				set MimeTypesList [string trim [string trim $MimeTypesList "{}"]]
+				set MimeTypesList [string range $MimeTypesList [string first "(" $MimeTypesList] [string length $MimeTypesList]]
+				set TmpList [split $MimeTypesList ")"]
+				foreach Tmp $TmpList {
+					set Tmp [string trim $Tmp " "]
+					append Tmp ")"
+					if { [string length $Tmp] > 1} {
+						lappend MimeTypes $Tmp
+					}
+				}
+				foreach TmpMimeTypes $MimeTypes {
+					if {[catch {$AdminConfig showAttribute $TmpMimeTypes type} TmpType]} {
+						puts stdout $TmpType
+						puts stdout "ERROR: In '/VirtualHost:$VirtualHostName/'."
+						puts stdout "This is not a valid MimeType."
+						puts stdout $TmpMimeTypes
+						exit 1
+					} else {
+						if {[string compare $TmpType $Type] == 0} {
+							set FlagExist "True"
+							break
+						}
+					}
+				}
+			}
+		}
+
+		if {$FlagExist == "True"} {
+			puts stdout "MimeType $Type with Extension $Extension in '/VirtualHost:$VirtualHostName/' successfully created."
+			$AdminConfig save
+		} else {
+			puts stdout "ERROR: MimeType $Type with Extension $Extension in '/VirtualHost:$VirtualHostName/' could not be created."
+			exit 1
+		}
+	}
+}

@@ -1,0 +1,37 @@
+
+#------------------------------------------------------------------
+#  Create JMS Resources
+#------------------------------------------------------------------
+
+source libs/data/JVcreateSIBus.jacl;
+source libs/data/JVcreateSIBJMSConnectionFactory.jacl;
+source libs/data/JVcreateSIBJMSQueue.jacl;
+source libs/data/JVcreateSIBQueue.jacl;
+source libs/data/JVcreateSIBJMSTopic.jacl;
+source libs/data/JVcreateSIBJMSActivationSpec.jacl;
+source libs/data/JVcreateListenerPort.jacl;
+source libs/data/JVaddQueueName.jacl;
+source libs/data/JVlistJMSServers.jacl;
+
+source mdb_jmsSimpleMessage.jacl;
+
+proc mdb_jms {NodeName ServerName} {
+
+#--------------------------------------------------------------------
+# List JMS Servers
+#--------------------------------------------------------------------
+
+#   JVlistJMSServers;
+
+#--------------------------------------------------------------------
+# Create SIBus
+#--------------------------------------------------------------------
+
+   set SIBusName "SimpleMessageBus";
+   set SIBusDesc "Messaging bus for SimpleMessage";
+   JVcreateSIBus $NodeName $ServerName $SIBusName $SIBusDesc "false";
+
+   JVputInfo "Handle SimpleMessage JMS";
+   mdb_jmsSimpleMessage $NodeName $ServerName $SIBusName;
+
+}

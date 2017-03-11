@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+#  script to run wsadmin
+#
+trap 'echo -e "\nwsadmin has been aborted\n";exit 1' 1 2 15
+#
+echo " "
+echo " Starting wsadmin for Jacl development work"
+echo " "
+JVADMIN="/opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/JaclSrv01/bin/wsadmin.sh"
+$JVADMIN "$@"
+

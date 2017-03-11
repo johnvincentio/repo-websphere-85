@@ -1,0 +1,44 @@
+source @WpsInstallLocation@/config/work/was/msglog.jacl
+set logger [getLogger]
+set FileName "retrieveServerPort.jacl"
+
+set NodeName [lindex $argv 0]
+set ServerName [lindex $argv 1]
+set StartNo [lindex $argv 2]
+set Count [lindex $argv 3]
+
+puts stdout "NodeName : $NodeName"
+puts stdout "ServerName : $ServerName"
+puts stdout "Start with Port No: $StartNo"
+puts stdout "Retrieve: $Count Port(s)"
+puts stdout " "
+
+set NodeId [$AdminConfig getid /Node:$NodeName/]
+if {$NodeId == ""} {
+    logMsgOneParm $logger "SEVERE" "$FileName" "Config.object.notexist.failure" "Node: /Node:$NodeName/"
+	exit 1
+}
+set ServerId [$AdminConfig getid /Node:$NodeName/Server:$ServerName/]
+if {$ServerId == ""} {
+    logMsgOneParm $logger "SEVERE" "$FileName" "Config.object.notexist.failure" "Server: /Node:$NodeName/Server:$ServerName/"
+	exit 1
+}
+
+set PropertyFileSpec "@WpsInstallLocation@/config/props.tmp"
+set fpWrite [open $PropertyFileSpec w]
+
+set FlagHttpTransportFound "false"
+set TmpHttpTransportIdList [$AdminConfig list HTTPTransport $ServerId]
+for {set i 1} {$i<=$Count} {incr i} {
+    set TmpHttpTransportId [lindex $TmpHttpTransportIdList [expr $i - 1 + $StartNo -1]]
+    set EndPointId [$AdminConfig showAttribute $TmpHttpTransportId address]
+    set TmpPort [$AdminConfig showAttribute $EndPointId port]
+    set LineData "TempPort0$i = $TmpPort"
+    puts $fpWrite $LineData
+    if {$i == 1} {
+        puts stdout "The WebSphere Portal Admin Console can now be accessed using the URL http://localhost:$TmpPort/Admin"
+        puts stdout " "
+    }
+}
+
+close $fpWrite

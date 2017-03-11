@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<!DOCTYPE project [
+	<!ENTITY wsAntCommands1 SYSTEM "build_ears.xml">
+	<!ENTITY wsAntCommands2 SYSTEM "build_properties.xml">
+	<!ENTITY wsAntCommands3 SYSTEM "build_apache_apps.xml">
+]>
+<!--
+	Note: 
+		1. You must run this from the same JRE as the workspace
+		2. Modify the classpath tab to include "Ant\lib\ant-contrib-1.0b3.jar".
+		2a. Select Ant Home
+		2b. Add Jars
+		2c. Ant\lib\ant-contrib-1.0b3.jar
+		2d. Apply
+		2e. Run
+
+	Fortify Notes:
+		An EAR has been Fortified if:
+			1. Added APP-INF
+			2. Added META-INF/appdefense.properties
+			3. Open WebApp; 
+				a. find appdefense in WEB-INF
+				b. WEB-INF/lib; appdefensert.jar, aspectjrt.jar, fortify-commons-lang-2.1.jar
+				c. WEB-INF/web.xml; add various filters and servlets
+				d. WEB-INF/appdefense/debugConfig.properties; ensure DisableCSRF=true
+-->
+
+<project name="Create Herc deployables" default="all" basedir=".">
+
+	&wsAntCommands1;
+	&wsAntCommands2;
+	&wsAntCommands3;
+
+	<property environment="env"/>
+
+	<property name="ws.home" value="C:/Program Files/IBM/SDP" />
+
+	<path id="earexport.classpath">	<!-- this list gags the validator. -->
+		<pathelement location="${ws.home}/configuration/org.eclipse.osgi/bundles/514/1/.cp/runtime/antj2ee.jar"/>
+		<pathelement location="${ws.home}/runtimes/base_v61/deploytool/itp/plugins/com.ibm.etools.j2ee.core.ws.ext_6.1.2.v200803090003/runtime/runtime.jar"/>
+	</path>
+	<property name="show.earexport.classpath" refid="earexport.classpath" />
+
+	<tstamp>
+		<format property="my.datetime" pattern="dd-MMM-yyyy_HH-mm-ss"/>
+	</tstamp>
+
+	<dirname property="jv.1" file="${basedir}"/>
+	<dirname property="development.base.dir" file="${jv.1}"/>
+
+	<property name="deploy.dir" value="c:/deploy_herc"/>
+	<property name="deploy.base.dir" value="${deploy.dir}/${my.datetime}"/>
+	
+	<property name="deploy.control.dir" value="${deploy.base.dir}/control"/>
+	<property name="deploy.control.dir.files" value="${deploy.control.dir}/files/com/hertz/herc/resources/version"/>
+	<property name="deploy.control.file" value="${deploy.control.dir.files}/creator.txt"/>
+	<property name="deploy.control.dir.jar" value="${deploy.control.dir}/jar"/>
+	<property name="deploy.control.jar" value="${deploy.control.dir.jar}/control.jar"/>
+
+	<property name="deploy.ears.work.dir" value="${deploy.base.dir}/work_ears"/>
+	<property name="deploy.ears.work.ears.dir" value="${deploy.ears.work.dir}/ears"/>
+	<property name="deploy.ears.work.unjar.dir" value="${deploy.ears.work.dir}/unjar"/>
+	<property name="deploy.ears.dir" value="${deploy.base.dir}/ears"/>
+
+	<property name="deploy.fortified.ears.dir" value="${deploy.base.dir}/fortified"/>
+
+	<property name="source.properties.dir" value="../../Properties"/>
+	<property name="deploy.properties.dir" value="${deploy.base.dir}/properties"/>
+	<property name="deploy.properties.work.base.dir" value="${deploy.base.dir}/work_properties"/>
+	<property name="deploy.properties.work.dir" value="${deploy.properties.work.base.dir}/com/hertz/www"/>
+	<property name="deploy.properties.zip.file" value="${deploy.base.dir}/herc_properties.zip"/>
+
+	<property name="apache.apps.work.dir" value="${deploy.base.dir}/apache_work_apps"/>
+	<property name="apache.apps.dir" value="${deploy.base.dir}/apache_apps"/>
+
+	<target name="dm" depends="init_build, create_herc_properties_zip, create_herc_dm_ears"
+		description="For the DataMigration servers"/>
+
+	<target name="all" depends="init_build, create_herc_properties_zip, create_herc_only_ears, all_apache_apps"
+		description="All for the Herc servers"/>
+
+	<target name="all_apache_apps" depends="init_build, create_herc_apache_apps_zip"
+		description="All Apps for the Apache servers"/>
+
+	<target name="etrieve" depends="init_build, create_herc_properties_zip, EtrieveEAR"
+		description="Etrieve for the Herc servers"/>
+
+	<target name="JVHercWebEar" depends="init_build, create_herc_properties_zip, HercWebEAR"
+		description="Etrieve for the Herc servers"/>
+
+	<target name="superSet" depends="init_build, create_herc_properties_zip, create_herc_ears"
+		description="Every Ear that Herc could ever need - be careful with this"/>
+
+	<target name="jvTest" depends="init_build, create_herc_properties_zip, HercFranchiseWebEAR"
+		description="Testing purposes; be careful, this is not for production use"/>
+
+	<target name="jvTest2" description="not for production use">
+		<echo message="ws.home is ${ws.home}"/>
+		<echo message="show.earexport.classpath is ${show.earexport.classpath}"/>
+	</target>
+
+	<target name="init_build" description="Create the control file used for all the EARs and the properties zip">
+		<mkdir dir="${deploy.control.dir.files}"/>
+		<mkdir dir="${deploy.control.dir.jar}"/>
+		<mkdir dir="${deploy.ears.dir}"/>
+
+		<echo file="${deploy.control.file}">
+			Development dir: ${development.base.dir} 
+			Deploy dir: ${deploy.base.dir} 
+			Build date/time: ${my.datetime}		
+			COMPUTERNAME: ${env.COMPUTERNAME}
+			USERNAME: ${env.USERNAME}
+			USERDOMAIN: ${env.USERDOMAIN}
+			USERDNSDOMAIN: ${env.USERDNSDOMAIN}
+
+			Path: ${env.Path}
+			Earexport Classpath: ${show.earexport.classpath}
+		</echo>
+		<jar destfile="${deploy.control.jar}" basedir="${deploy.control.dir}/files" />
+	</target>
+</project>

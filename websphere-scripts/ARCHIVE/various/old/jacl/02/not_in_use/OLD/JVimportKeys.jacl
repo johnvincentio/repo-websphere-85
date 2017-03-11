@@ -1,0 +1,11 @@
+
+proc JVimportKeys {filename} {
+	global myUser;
+
+	puts "importKeys; filename $filename";
+	set props [JVloadProperties $filename]
+	
+	set myUser [$props getProperty username]
+	puts "User $myUser";
+}
+

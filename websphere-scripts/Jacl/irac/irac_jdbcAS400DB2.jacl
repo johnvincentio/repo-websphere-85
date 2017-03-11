@@ -1,0 +1,37 @@
+
+#------------------------------------------------------------------
+# Create JDBC Resources
+#------------------------------------------------------------------
+
+source ../libs/JVmodifyVariable.jacl;
+source ../libs/JVcreateJDBCProviderDB2.jacl;
+source ../libs/JVcreateJDBCProviderByTemplate.jacl;
+source ../libs/JVcreateDatasourceDB2.jacl;
+source ../libs/JVcreateJAASAuthenticationAlias.jacl;
+
+proc irac_jdbcAS400DB2 {CellName NodeName ServerName} {
+
+#--------------------------------------------------------------------
+# Create JAAS
+#--------------------------------------------------------------------
+
+	set myDB "AS400DB";
+	set myUser "prcXYZ";
+	set myPassword "you_need_to_enter_your_own";
+	set myDs "Access AS400 DB2 Database";
+	JVcreateJAASAuthenticationAlias $CellName $myDB $myUser $myPassword $myDs;
+
+#
+#  Create AS400 Server Resources
+#
+
+   set templName    "DB2 UDB for iSeries (Toolbox)";
+   set provName     "Hcm AS400";
+   set nativePath	"RMHCQDATA";
+   JVcreateJDBCProviderDB2 $NodeName $ServerName $templName $provName $nativePath;
+
+#--------------------------------------------------------------------
+# Create Datasources
+#--------------------------------------------------------------------
+
+}

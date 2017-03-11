@@ -1,0 +1,44 @@
+
+#------------------------------------------------------------------
+#  Create JMS Resources
+#------------------------------------------------------------------
+
+proc mdb_jmsSimpleMessage {NodeName ServerName SIBusName} {
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+   set jmsCFName    "SimpleMessageConnectionFactory";
+   set jmsCFJNDI    "jms/com/idc/mdb/SimpleMessageConnectionFactory";
+   set jmsCFDesc    "SimpleMessageConnectionFactory";
+   set jmsCFType    "queue";
+#   set secAuthAlias "N_O_N_E";
+   set secAuthAlias "";
+   JVcreateSIBJMSConnectionFactory $NodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName;
+
+#--------------------------------------------------------------------
+# Create SIB JMS Queue that references a SIB Queue
+#--------------------------------------------------------------------
+  
+   set jmsQName   "SimpleMessageQueue";
+   set jmsQJNDI   "jms/com/idc/mdb/SimpleMessageQueue";
+   set jmsQDesc   "SimpleMessageQueue";
+   set SIBQName   "SIBSimpleMessageQueue";
+   JVcreateSIBJMSQueue $NodeName $jmsQName $jmsQJNDI $jmsQDesc $SIBQName;
+
+#--------------------------------------------------------------------
+# Create SIB Queue
+#--------------------------------------------------------------------
+
+   JVcreateSIBQueue $NodeName $ServerName $SIBQName $SIBusName;
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Queue
+#--------------------------------------------------------------------
+
+   set activationSpecName     "SimpleMessageActivationSpec";
+   set activationSpecJndiName "eis/$activationSpecName";
+   set destinationType        "javax.jms.Queue";
+   JVcreateSIBJMSActivationSpec $NodeName $activationSpecName $activationSpecJndiName $jmsQJNDI $destinationType $secAuthAlias $SIBusName;
+}

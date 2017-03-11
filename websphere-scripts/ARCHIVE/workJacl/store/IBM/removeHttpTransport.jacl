@@ -1,0 +1,45 @@
+set ServerName "WebSphere_Portal"
+set HostPort 9081
+
+#--------------------------------------------------------------
+# Remove HTTPTransport for Port "HostPort" from the list of transports 
+# associated with the WebContainer for server "ServerName".
+#--------------------------------------------------------------
+set ServerId [$AdminConfig getid /Server:$ServerName/]
+if {$ServerId == ""} {
+    puts stdout "/Server:$ServerName/ not there, nothing to remove"
+    exit
+}
+set FlagHttpTransportFound "false"
+foreach TmpHttpTransportId [$AdminConfig list HTTPTransport $ServerId] {
+	set EndPointId [$AdminConfig showAttribute $TmpHttpTransportId address]
+	set TmpPort [$AdminConfig showAttribute $EndPointId port]
+	if {$HostPort == $TmpPort} {
+		puts stdout $TmpHttpTransportId
+		puts stdout [$AdminConfig showall $TmpHttpTransportId]
+		set FlagHttpTransportFound "true"
+		$AdminConfig remove $TmpHttpTransportId
+	}
+}
+
+# check for success
+if {$FlagHttpTransportFound == "false"} {
+	puts stdout "No HTTPTransport for Port $HostPort configured, nothing to remove."
+	exit
+} else {
+	set FlagHttpTransportFound "false"
+	foreach TmpHttpTransportId [$AdminConfig list HTTPTransport $ServerId] {
+		set EndPointId [$AdminConfig showAttribute $TmpHttpTransportId address]
+		set TmpPort [$AdminConfig showAttribute $EndPointId port]
+		if {$HostPort == $TmpPort} {
+			set FlagHttpTransportFound "true"
+		}
+	}
+}
+if {$FlagHttpTransportFound == "false"} {
+	puts stdout "HTTPTransport for Port $HostPort successfull removed."
+	$AdminConfig save
+} else {
+	puts stdout "ERROR: HTTPTransport for Port $HostPort could not be removed."
+	exit 1
+}

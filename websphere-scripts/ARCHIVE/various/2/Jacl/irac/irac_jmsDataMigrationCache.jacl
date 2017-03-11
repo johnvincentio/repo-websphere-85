@@ -1,0 +1,44 @@
+
+#------------------------------------------------------------------
+#  Create JMS Resources
+#------------------------------------------------------------------
+
+proc irac_jmsDataMigrationCache {NodeName ServerName SIBusName} {
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+   set jmsCFName    "JMSTopicConnectionFactoryDataMigration";
+   set jmsCFJNDI    "jms/com/hertz/irac/connFactory/dataMigrationCache";
+   set jmsCFDesc    "JMS Topic Connection Factory for Data Migration";
+   set jmsCFType    "topic";
+   set secAuthAlias "iDevDB"
+   JVcreateSIBJMSConnectionFactory $NodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName;
+
+#--------------------------------------------------------------------
+# Create SIB JMS Topic that references a SIB Topic
+#--------------------------------------------------------------------
+  
+   set jmsTName   "JMSTopicDestDataMigrationCache";
+   set jmsTJNDI   "jms/com/hertz/irac/dest/dataMigrationCache";
+   set jmsTDesc   "JMS Topic Destination for Data Migration";
+   set SIBTName   "SIBiracDataMigration";
+   set SIBTopicSpace   "Default.Topic.Space";
+   JVcreateSIBJMSTopic $NodeName $jmsTName $jmsTJNDI $jmsTDesc $SIBTName $SIBTopicSpace;
+
+#--------------------------------------------------------------------
+# Create SIB Topic
+#--------------------------------------------------------------------
+
+#   JVcreateSIBTopic $NodeName $ServerName $SIBTName $SIBusName
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Topic
+#--------------------------------------------------------------------
+
+   set activationSpecName     "iracDataMigrationCacheSpec";
+   set activationSpecJndiName "eis/$activationSpecName";
+   set destinationType        "javax.jms.Topic";
+   JVcreateSIBJMSActivationSpec $NodeName $activationSpecName $activationSpecJndiName $jmsTJNDI $destinationType $secAuthAlias $SIBusName;
+}

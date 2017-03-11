@@ -1,0 +1,20 @@
+
+proc JVlistJDBCDatasourceTemplates {} {
+
+   global AdminConfig;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              List JDBC JDBC Templates                     ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   set templates [$AdminConfig listTemplates DataSource];
+   foreach templateEntry $templates {
+      set name [$AdminConfig showAttribute $templateEntry name];
+      puts " ";
+      puts "Template: $templateEntry";
+      puts "    Name: $name";
+      puts " ";
+   }
+} 

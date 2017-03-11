@@ -1,0 +1,59 @@
+
+<!-- 
+
+WARNING.... WARNING.... WARNING....
+
+If you have a Herc only properties file, you need also to change 
+the Irac properties.zip build.xml in Ant\zip\build.xml
+
+Failure to do so will result in unstable Production Servers
+
+WARNING.... WARNING.... WARNING....
+
+-->
+	<target name="create_herc_properties_zip" description="Create properties.zip for Herc">
+
+		<echo message="Copying Herc properties files to ${deploy.properties.work.dir}"/>
+		<copy todir="${deploy.properties.work.dir}">
+			<fileset dir="${source.properties.dir}">
+				<include name="hercMigration.xml"/>
+			</fileset>
+		</copy>
+		<copy todir="${deploy.properties.work.dir}/error/enUS">
+			<fileset dir="${source.properties.dir}/error/enUS">
+				<include name="HX.properties"/>
+			</fileset>
+		</copy>
+		<copy todir="${deploy.properties.work.dir}/herc">
+			<fileset dir="${source.properties.dir}/herc"/>
+		</copy>
+
+		<copy file="${deploy.control.file}" todir="${deploy.properties.work.dir}/herc" />
+
+		<copy todir="${deploy.properties.work.dir}/ldap">
+			<fileset dir="${source.properties.dir}/ldap">
+				<include name="ImplProperties_herc.xml"/>
+			</fileset>
+		</copy>
+		<copy todir="${deploy.properties.work.dir}/jasper">
+			<fileset dir="${source.properties.dir}/jasper"/>
+		</copy>
+		<copy todir="${deploy.properties.work.dir}/sql">
+			<fileset dir="${source.properties.dir}/sql">
+				<include name="herc_rentalman_ca.xml"/>
+				<include name="herc_rentalman_ca.xml"/>
+				<include name="herc_rentalman_ca_entire.xml"/>
+				<include name="herc_rentalman_demo_us.xml"/>
+				<include name="herc_rentalman_demo_us_entire.xml"/>
+				<include name="herc_rentalman_us.xml"/>
+				<include name="herc_rentalman_us_entire.xml"/>
+				<include name="herc_select.xml"/>
+				<include name="herc_select_entire.xml"/>
+			</fileset>
+		</copy>
+		<echo message="Copy complete"/>
+
+		<echo message="Creating Herc properties zip file ${deploy.properties.zip.file}"/>
+		<zip destfile="${deploy.properties.zip.file}" basedir="${deploy.properties.work.base.dir}"/>
+		<echo message="Created zip file ${deploy.properties.zip.file}"/>
+	</target>

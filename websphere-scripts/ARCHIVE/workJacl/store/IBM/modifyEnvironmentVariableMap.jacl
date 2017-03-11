@@ -1,0 +1,135 @@
+set ServerName "WebSphere_Portal"
+set CellName localhost
+set NodeName localhost
+set WpsHome "C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1"
+set TmpVar "WPS_HOME"
+append ServerLogRoot "$" "{" $TmpVar "}/log"
+
+#--------------------------------------------------------------
+# WebSphere Environment Variables:
+# Create / Change on Server Level: SERVER_LOG_ROOT
+#--------------------------------------------------------------                 
+set NodeId [$AdminConfig getid /Cell:$CellName/Node:$NodeName/]
+set ServerId [$AdminConfig getid /Cell:$CellName/Node:$NodeName/Server:$ServerName]
+set VariableMapNodeId [$AdminConfig getid /Cell:$CellName/Node:$NodeName/VariableMap:/]
+set VariableMapServerId [$AdminConfig getid /Cell:$CellName/Node:$NodeName/Server:$ServerName/VariableMap:/]
+
+set ServerLogRootDescription [subst {description "The log root directory for server $ServerName."}]
+set ServerLogRootSymbolicName {symbolicName "SERVER_LOG_ROOT"}
+set ServerLogRootValue [subst {value "$ServerLogRoot"}]
+set ServerLogRootAttrs [list $ServerLogRootDescription $ServerLogRootSymbolicName $ServerLogRootValue]
+set FlagServerLogRootThere false
+set FlagModified false
+puts stdout "------ WebSphere Environment Variables for /Cell:$CellName/Node:$NodeName/Server:$ServerName ---------------"
+foreach TmpVariableSubstitutionEntryId [$AdminConfig list VariableSubstitutionEntry $ServerId] {
+    set Name  [$AdminConfig showAttribute $TmpVariableSubstitutionEntryId symbolicName]
+	set Value [$AdminConfig showAttribute $TmpVariableSubstitutionEntryId value]
+	puts stdout [format "%35s :  %-50s" $Name $Value]
+	if {$Name == "SERVER_LOG_ROOT"} {
+		set FlagServerLogRootThere true
+		if {$Value != $ServerLogRoot} {
+			puts stdout "Needs to be changed to:"
+			$AdminConfig modify $TmpVariableSubstitutionEntryId $ServerLogRootAttrs
+			set Value [$AdminConfig showAttribute $TmpVariableSubstitutionEntryId value]
+			puts stdout [format "%35s :  %-50s" $Name $Value]
+			set FlagModified true
+		}
+	}
+}
+if {$FlagModified == "false"} {
+	if {$FlagServerLogRootThere == "true"} {
+		puts stdout "SERVER_LOG_ROOT with the correct value is already there, no action taken."
+	} else {
+		set VariableSubstitutionEntryId [$AdminConfig create VariableSubstitutionEntry $VariableMapServerId $ServerLogRootAttrs]
+		set Name  [$AdminConfig showAttribute $VariableSubstitutionEntryId symbolicName]
+		set Value [$AdminConfig showAttribute $VariableSubstitutionEntryId value]
+		puts stdout [format "%35s :  %-50s" $Name $Value]
+	}
+}
+
+
+# Check for success
+if {$FlagModified == "true" || $FlagServerLogRootThere == "false"} {
+	set FlagOk false
+	foreach TmpVariableSubstitutionEntryId [$AdminConfig list VariableSubstitutionEntry $ServerId] {
+		set Name  [$AdminConfig showAttribute $TmpVariableSubstitutionEntryId symbolicName]
+		set Value [$AdminConfig showAttribute $TmpVariableSubstitutionEntryId value]
+		if {$Name == "SERVER_LOG_ROOT"} {
+			if {$Value == $ServerLogRoot} {
+				set FlagOk true
+			}		
+		}
+	}
+	if {$FlagOk == "true"} {
+		$AdminConfig save
+		puts stdout "SERVER_LOG_ROOT successfully created/modified."
+	} else {
+		puts stdout "ERROR: WebSphere Environment Variable SERVER_LOG_ROOT could not be created/modified."
+		exit 1
+	}
+}
+
+
+puts stdout " "
+
+
+#--------------------------------------------------------------
+# WebSphere Environment Variables:
+# Create / Change on Node Level:   WPS_HOME 
+#--------------------------------------------------------------                 
+set WpsHomeDescription [subst {description "The filesystem path to WebSphere Portal Server $ServerName."}]
+set WpsHomeSymbolicName {symbolicName "WPS_HOME"}
+set WpsHomeValue [subst {value $WpsHome}]
+set WpsHomeAttrs [list $WpsHomeDescription $WpsHomeSymbolicName $WpsHomeValue]
+set FlagWpsHomeThere false
+set FlagModified false
+puts stdout "------ WebSphere Environment Variables for /Cell:$CellName/Node:$NodeName/ ---------------------------------"
+foreach TmpVariableSubstitutionEntryId [$AdminConfig list VariableSubstitutionEntry $NodeId] {
+    set Name  [$AdminConfig showAttribute $TmpVariableSubstitutionEntryId symbolicName]
+	set Value [$AdminConfig showAttribute $TmpVariableSubstitutionEntryId value]
+	if {$Value != ""} {puts stdout [format "%35s :  %-50s" $Name $Value]}
+	if {$Name == "WPS_HOME"} {
+		set FlagWpsHomeThere true
+		if {$Value != $WpsHome} {
+			puts stdout "Needs to be changed to:"
+			$AdminConfig modify $TmpVariableSubstitutionEntryId $WpsHomeAttrs
+			set Value [$AdminConfig showAttribute $TmpVariableSubstitutionEntryId value]
+			puts stdout [format "%35s :  %-50s" $Name $Value]
+			set FlagModified true
+		}
+	}
+}
+if {$FlagModified == "false"} {
+	if {$FlagWpsHomeThere == "true"} {
+		puts stdout "WPS_HOME with the correct value is already there, no action taken."
+	} else {
+		set VariableSubstitutionEntryId [$AdminConfig create VariableSubstitutionEntry $VariableMapNodeId $WpsHomeAttrs]
+		set Name  [$AdminConfig showAttribute $VariableSubstitutionEntryId symbolicName]
+		set Value [$AdminConfig showAttribute $VariableSubstitutionEntryId value]
+		puts stdout [format "%35s :  %-50s" $Name $Value]
+	}
+}
+
+
+# Check for success
+if {$FlagModified == "true" || $FlagWpsHomeThere == "false"} {
+	set FlagOk false
+	foreach TmpVariableSubstitutionEntryId [$AdminConfig list VariableSubstitutionEntry $NodeId] {
+		set Name  [$AdminConfig showAttribute $TmpVariableSubstitutionEntryId symbolicName]
+		set Value [$AdminConfig showAttribute $TmpVariableSubstitutionEntryId value]
+		if {$Name == "WPS_HOME"} {
+			if {$Value == $WpsHome} {
+				set FlagOk true
+			}
+		}
+	}
+	if {$FlagOk == "true"} {
+		$AdminConfig save
+		puts stdout "WPS_HOME successfully created/modified."
+	} else {
+		puts stdout "ERROR: WebSphere Environment Variable WPS_HOME could not be created/modified."
+		exit 1
+	}
+}
+puts stdout " "
+

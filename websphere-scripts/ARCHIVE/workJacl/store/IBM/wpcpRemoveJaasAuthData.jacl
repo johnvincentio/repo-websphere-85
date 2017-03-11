@@ -1,0 +1,40 @@
+set CellName {@CellName@}
+set NodeName {@NodeName@}
+
+#vars are set in profileXXXDataSource.jacl
+
+# Check if exists
+set FlagExist "False"
+foreach TmpJaasAuthDataId [$AdminConfig getid /JAASAuthData:/] {
+	set TmpJaasAuthDataAlias [$AdminConfig showAttribute $TmpJaasAuthDataId alias]
+	if {[string compare $TmpJaasAuthDataAlias $JaasAuthDataAlias] == 0} {
+		set FlagExist "True"
+        break;
+	}
+}
+if {$FlagExist == "False"} {
+	puts stdout "JAASAuthData $JaasAuthDataAlias does not exist, no Action taken"
+	exit
+} else {
+	########### remove JAASAuthData ####################################
+	$AdminConfig remove $TmpJaasAuthDataId
+	
+	# Check for success
+	set FlagExist "False"
+	foreach TmpJaasAuthDataId [$AdminConfig getid /JAASAuthData:/] {
+		set TmpJaasAuthDataAlias [$AdminConfig showAttribute $TmpJaasAuthDataId alias]
+		if {[string compare $TmpJaasAuthDataAlias $JaasAuthDataAlias] == 0} {
+			set FlagExist "True"
+			break;
+		}
+	}
+	if {$FlagExist == "True"} {
+		puts stdout "ERROR: JAASAuthData $JaasAuthDataAlias could not be removed."
+		exit 1
+	} else {
+		puts stdout "JAASAuthData $JaasAuthDataAlias successfully removed."
+		$AdminConfig save
+	}
+}
+
+

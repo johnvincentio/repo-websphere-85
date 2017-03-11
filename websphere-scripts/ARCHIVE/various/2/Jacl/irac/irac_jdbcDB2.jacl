@@ -1,0 +1,198 @@
+
+source ../libs/JVcreateJDBCProviderByTemplate.jacl;
+source ../libs/JVmodifyVariable.jacl;
+source ../libs/JVcreateDatasourceDB2.jacl;
+
+proc irac_jdbcDB2 {NodeName ServerName} {
+
+   set templName    "DB2 Universal JDBC Driver Provider";
+   set provName     "iRAC DB2";
+   JVcreateJDBCProviderByTemplate $NodeName $ServerName $templName $provName;
+
+#--------------------------------------------------------------------
+# Create Datasources
+#--------------------------------------------------------------------
+
+   set templName    "DB2 Universal JDBC Driver DataSource";
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/iHertzDB";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "ecomdev";
+   set dbSrvName    "db2dev.dev.irac.ecom.ad.hertz.com";
+   set dbPort       "60100";
+   set dbHelper		"com.ibm.websphere.rsadapter.DB2UniversalDataStoreHelper";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/DB2DevDB01";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "devdb01";
+   set dbSrvName    "edevdb2.dev2.irac.ecom.ad.hertz.com";
+   set dbPort       "50000";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/DB2ProdDataDB01";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "db27alias";
+   set dbName       "sample";
+   set dbSrvName    "idevdb2.dev.irac.ecom.ad.hertz.com";
+   set dbPort       "60000";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/DB2ProdResDB01";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "db27alias";
+   set dbName       "devdb01";
+   set dbSrvName    "idevdb2.dev.irac.ecom.ad.hertz.com";
+   set dbPort       "60000";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/DB2QualDB01";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "db27alias";
+   set dbName       "sample";
+   set dbSrvName    "idevdb2.dev.irac.ecom.ad.hertz.com";
+   set dbPort       "60000";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/DB2iDevDB";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "edevdb";
+   set dbSrvName    "edevdb2.dev2.irac.ecom.ad.hertz.com";
+   set dbPort       "50000";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/DB2iPreProdDB";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "sample";
+   set dbSrvName    "idevdb2.dev.irac.ecom.ad.hertz.com";
+   set dbPort       "60000";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/DB2iProdData2DB";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "sample";
+   set dbSrvName    "idevdb2.dev.irac.ecom.ad.hertz.com";
+   set dbPort       "60000";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/DB2iProdDataDB";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "sample";
+   set dbSrvName    "idevdb2.dev.irac.ecom.ad.hertz.com";
+   set dbPort       "60000";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/DB2iProdResDB";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "sample";
+   set dbSrvName    "idevdb2.dev.irac.ecom.ad.hertz.com";
+   set dbPort       "60000";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/DB2iQualDB";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "iqualdb";
+   set dbSrvName    "idevdb2.dev.irac.ecom.ad.hertz.com";
+   set dbPort       "60000";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+   
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/fortify/DB2FortifyQualDB";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "FORT_QA";
+   set dbSrvName    "equaldb2.qual2.irac.ecom.ad.hertz.com";
+   set dbPort       "50001";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+   
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/fortify/DB2FortifyProdResDB";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "FORT_RC";
+   set dbSrvName    "db205.rc.irac.ecom.ad.hertz.com";
+   set dbPort       "60009";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+   
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/fortify/DB2FortifyProdDataDB";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "FORT_DC";
+   set dbSrvName    "db204.dc.irac.ecom.ad.hertz.com";
+   set dbPort       "60009";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+   
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/fortify/DB2FortifyProdData2DB";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "iDevDB";
+   set dbName       "FORT_DC2";
+   set dbSrvName    "db206.dc2.irac.ecom.ad.hertz.com";
+   set dbPort       "60009";
+   set rsHold		"2";
+   set dbSchema     "";
+   JVcreateDatasourceDB2 $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbHelper $rsHold $dbSchema;
+   
+}

@@ -1,0 +1,4 @@
+# invoke with wsadmin -f a1.jacl
+
+set apps [$AdminApp list]
+puts $apps

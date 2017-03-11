@@ -1,0 +1,48 @@
+set ServerName "WebSphere_Portal"
+set HostPort 9081
+
+#--------------------------------------------------------------
+# Check if HTTPTransport for Port "HostPort" is in the list of transports 
+# associated with the WebContainer for server "ServerName".
+#--------------------------------------------------------------
+set ServerId [$AdminConfig getid /Server:$ServerName/]
+set FlagHttpTransportFound "false"
+foreach TmpHttpTransportId [$AdminConfig list HTTPTransport $ServerId] {
+	set EndPointId [$AdminConfig showAttribute $TmpHttpTransportId address]
+	set TmpPort [$AdminConfig showAttribute $EndPointId port]
+	if {$HostPort == $TmpPort} {
+		puts stdout $TmpHttpTransportId
+		puts stdout [$AdminConfig showall $TmpHttpTransportId]
+		puts stdout "ERROR: HTTPTransport for Port $HostPort is already there."
+		exit
+	}
+}
+
+#--------------------------------------------------------------
+# Add HTTPTransport for Port "HostPort" to the list of transports 
+# associated with the WebContainer for server "ServerName".
+#--------------------------------------------------------------
+set HttpNonsecureAddressAttr [list [list sslEnabled false] [list address [list [list host {}] [list port $HostPort]]]] 
+set TransportsAttr [list transports:HTTPTransport [list $HttpNonsecureAddressAttr]]
+set WebContainerId [$AdminConfig list WebContainer $ServerId]
+$AdminConfig modify $WebContainerId [list $TransportsAttr]
+
+# check for success
+set FlagHttpTransportFound "false"
+foreach TmpHttpTransportId [$AdminConfig list HTTPTransport $ServerId] {
+	set EndPointId [$AdminConfig showAttribute $TmpHttpTransportId address]
+	set TmpPort [$AdminConfig showAttribute $EndPointId port]
+	if {$HostPort == $TmpPort} {
+		set FlagHttpTransportFound "true"
+		break
+	}
+}
+if {$FlagHttpTransportFound == "true"} {
+	puts stdout $TmpHttpTransportId
+	puts stdout [$AdminConfig showall $TmpHttpTransportId]
+	puts stdout "HTTPTransport for Port $HostPort successfull created."
+	$AdminConfig save
+} else {
+	puts stdout "HTTPTransport for Port $HostPort could not be created."
+	exit 1
+}

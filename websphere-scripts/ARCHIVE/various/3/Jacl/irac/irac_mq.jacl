@@ -1,0 +1,30 @@
+
+#------------------------------------------------------------------
+#  Create MQ Resources
+#------------------------------------------------------------------
+
+source ../libs/JVcreateMQQueueConnectionFactory.jacl;
+source ../libs/JVcreateMQQueue.jacl;
+source ../libs/JVcreateMQTopicConnectionFactory.jacl;
+source ../libs/JVcreateMQTopic.jacl;
+source ../libs/JVlistMQQueue.jacl;
+
+source irac_mqIrac.jacl;
+source irac_mqCache.jacl;
+source irac_mqDirectLink.jacl;
+source irac_mqCommercialReceipts.jacl;
+
+proc irac_mq {NodeName} {
+
+#--------------------------------------------------------------------
+# List MQ Servers
+#--------------------------------------------------------------------
+
+#   JVlistMQQueue;
+
+#	JVputInfo "Handle MQ";
+	irac_mqIrac $NodeName;
+	irac_mqCache $NodeName;
+	irac_mqDirectLink $NodeName;
+	irac_mqCommercialReceipts $NodeName;
+}

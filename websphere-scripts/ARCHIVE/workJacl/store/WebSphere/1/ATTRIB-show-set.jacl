@@ -1,0 +1,81 @@
+# Author: Barry Searle
+#
+# (C) Copyright IBM Corp. 2004 - All Rights Reserved.
+# DISCLAIMER:
+# The following source code is sample code created by IBM Corporation.
+# This sample code is not part of any standard IBM product and is provided
+# to you solely for the purpose of assisting you in the development of your
+# applications. The code is provided 'AS IS', without warranty or condition
+# of any kind. IBM shall not be liable for any damages arising out of your
+# use of the sample code, even if IBM has been advised of the possibility of
+# such damages.
+#
+# Change History:
+# 1.1 (17nov2004) initial shipped version
+#
+
+
+proc getModuleID { appName moduleName } {
+	source Definitions.jacl
+	#log $DEBUG_ "getModuleID: wsadminGetModuleID.jacl appName=$appName moduleName=$moduleName"
+
+	#set appID   [$AdminConfig  getid  /Deployment:$appName/]
+	#set objID   [$AdminConfig  showAttribute $appID deployedObject]
+	#set modules [lindex [$AdminConfig  showAttribute  $objID  modules] 0]
+	set modules [lindex [$AdminConfig  showAttribute  [$AdminConfig  showAttribute [$AdminConfig  getid  /Deployment:$appName/] deployedObject]  modules] 0]
+	foreach module $modules {
+		#log $DEBUG_ "getModuleID: module=$modules"
+		if {[regexp WebModuleDeployment $module] == 1} {
+			set id [$AdminConfig showAttribute $module uri]
+			if {$id==$moduleName} {
+				set moduleID $id
+				#log $DEBUG_ "getModuleID: $module"
+				return $module
+			}
+		}
+	}
+	return ""
+}
+
+proc showAttribute { objName objType attName appName} {
+	source Definitions.jacl
+	#log $DEBUG_ "showAttribute: Type=$objType  Name=$objName  Attribute=$attName"
+
+	if { "Application" == $objType } {
+		set objID  "[$AdminConfig  showAttribute [$AdminConfig  getid  /Deployment:$objName/] deployedObject]"
+	} else {
+		set objID [getModuleID $appName $objName]
+		#log $DEBUG_ "showAttribute: moduleID=$objID"
+	}
+
+	if {$attName=="ALL" || $attName=="all" || $attName=="*" || $attName==""} {
+		#log $DEBUG_ "showAttribute: objID=$objID"
+		set att [$AdminConfig show $objID]
+	} else {
+		#log $DEBUG_ "showAttribute: attName=$attName objID=$objID"
+		set att [$AdminConfig showAttribute $objID $attName]
+	}
+	log $INFO_ "showAtribute: $objName $attName=$att"
+}
+
+proc setAttribute { objName objType attName attValue appName showSetResult } {
+	source Definitions.jacl
+	log $INFO_ "setAttribute: Type=$objType  Name=$objName  Attribute=$attName Value=$attValue"
+
+	if { "Application" == $objType } {
+		set objID  [$AdminConfig  showAttribute [$AdminConfig  getid  /Deployment:$objName/] deployedObject]
+	} else {
+		set objID [getModuleID $appName $objName]
+		#log $DEBUG_ "setAttribute: moduleID=$objID"
+	}
+	#log $DEBUG_ "setAttribute: attName=$attName attValue=$attValue objID=$objID"
+	set settings [list [list $attName $attValue]]
+	set modified [$AdminConfig  modify $objID $settings]
+	if { [llength $modified] >0 } {
+		log $INFO_ $modified
+	}
+       
+	if { $showSetResult } {
+		showAttribute $objName $objType $attName $appName
+	}
+}

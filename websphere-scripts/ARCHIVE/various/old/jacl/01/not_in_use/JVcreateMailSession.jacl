@@ -1,0 +1,59 @@
+
+proc JVcreateMailSession {cellName nodeName providerName msName jndiName mailTransportHost mailFrom} {
+
+  #--------------------------------------------------------------------
+  # Set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Create mail session                              "
+  puts "---------------------------------------------------------------"
+  puts " Scope:                                                        "
+  puts "    cell                $cellName                              "
+  puts "    node                $nodeName                              "
+  puts " Mail provider:                                                "
+  puts "    name                $providerName                          "
+  puts " Mail session:                                                 "
+  puts "    name                $msName                                "
+  puts "    JNDI                $jndiName                              "
+  puts "    transport host      $mailTransportHost                     "
+  puts "    mail from           $mailFrom                              "
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  #--------------------------------------------------------------------
+  # Set mail provider
+  #--------------------------------------------------------------------
+
+  set mailProvider [$AdminConfig getid /Node:$nodeName/MailProvider:$providerName]
+  if {[llength $mailProvider] == 0} {
+    JVthrow "The ID for /Node:$nodeName/MailProvider:$providerName could not be found."
+  } 
+
+  #--------------------------------------------------------------------
+  # Create mail session
+  #--------------------------------------------------------------------
+
+  set newMS [$AdminConfig getid /MailSession:$msName]
+  if {[llength $newMS] == 0} {
+    JVputTrace "Create a new mail session named $msName."
+    set name_attr                   [list name $msName]
+    set jndiName_attr               [list jndiName $jndiName]
+    set mailTransportHost_attr      [list mailTransportHost $mailTransportHost]
+    set mailFrom_attr               [list mailFrom $mailFrom]
+    set debug_attr                  [list debug "false"]
+    set mailTransportProtocol       "(cells/$cellName/nodes/$nodeName|resources.xml#builtin_smtp)"
+    set mailTransportProtocol_attr  [list mailTransportProtocol $mailTransportProtocol]
+    set mailStoreProtocol           "(cells/$cellName/nodes/$nodeName|resources.xml#builtin_pop3)"
+    set mailStoreProtocol_attr      [list mailStoreProtocol $mailStoreProtocol]
+    set attrs [list $name_attr $jndiName_attr $mailTransportHost_attr $mailFrom_attr $debug_attr $mailTransportProtocol_attr $mailStoreProtocol_attr]
+    set newMS [$AdminConfig create MailSession $mailProvider $attrs]
+  } else {
+    JVputInfo "The $msName mail session already exists."
+  }
+
+}
+

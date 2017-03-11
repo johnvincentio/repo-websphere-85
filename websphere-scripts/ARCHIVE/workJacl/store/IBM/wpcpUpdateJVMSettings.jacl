@@ -1,0 +1,38 @@
+set FileName "wpcpUpdateJVMSettings.jacl"
+set FlagDebug {@DebugMode@}
+set hostname [lindex $argv 0]
+set serverName [lindex $argv 1]
+set WAS_INSTALL_ROOT [lindex $argv 2]
+
+puts ""
+puts "scriptname : $FileName"
+puts "hostname : $hostname"
+puts "serverName : $serverName"
+puts "WAS root : $WAS_INSTALL_ROOT"
+puts ""
+
+# set node 
+set node [$AdminConfig getid /Node:$hostname/]
+
+# modify JVM settings 
+set wcpJVM [$AdminConfig getid /Server:$serverName/JavaProcessDef:/JavaVirtualMachine:/]
+if {$wcpJVM == ""} {
+        puts stdout "ERROR: /Server:$serverName/JavaProcessDef:/JavaVirtualMachine:/ does not exist"
+        exit 1
+}
+if {[llength $wcpJVM] != 1} {
+        puts stdout "ERROR: more then one /Server:$serverName/JavaProcessDef:/JavaVirtualMachine:/"
+        exit 1
+}
+
+set runtime "{systemProperties {{{name pzn.root.dir} {value $WAS_INSTALL_ROOT/wpcp/config/$hostname/$serverName/runtime}}}}"
+
+set author "{systemProperties {{{name wcm.root.dir} {value $WAS_INSTALL_ROOT/wpcp/config/$hostname/$serverName/author}}}}"
+
+puts "author : $author"
+puts "runtime : $runtime"
+
+$AdminConfig modify $wcpJVM $author
+$AdminConfig modify $wcpJVM $runtime
+
+$AdminConfig save

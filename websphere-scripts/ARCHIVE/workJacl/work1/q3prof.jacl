@@ -1,0 +1,24 @@
+
+proc JV_create_resource_provider { JVNode JVCell JVProvider } {
+	global AdminConfig
+	puts ">>> JV_create_resource_provider"
+	set node [$AdminConfig getid /Cell:$JVCell/Node:$JVNode/]
+	puts "node $node"
+	set wax [$AdminConfig required ResourceEnvironmentProvider]
+	puts "wax $wax"
+	puts "stage 2"
+	set n1 [list name $JVProvider]
+	puts "stage 3"
+	puts "n1 $n1"
+	set repAttrs [list $n1]
+	puts "repAttrs $repAttrs"
+	puts "stage 4"
+	set listall [$AdminConfig list ResourceEnvironmentProvider]
+	puts "listall $listall"
+	puts "stage 5"
+	set newrep [$AdminConfig create ResourceEnvironmentProvider $node $repAttrs]
+	puts "stage 6"
+	$AdminConfig save
+	puts "stage 100"
+}
+

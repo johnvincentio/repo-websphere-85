@@ -1,0 +1,120 @@
+
+#------------------------------------------------------------------
+#  Create MQ Resources for DirectLink
+#------------------------------------------------------------------
+
+proc irac_mqDirectLink {NodeName} {
+
+#--------------------------------------------------------------------
+# Create MQ Queue Connection Factory
+#--------------------------------------------------------------------
+  
+   set MQJMSProvider      "WebSphere MQ JMS Provider";
+   set qcfChannel         "SYSTEM.DEF.SVRCONN";
+   set qcfName            "MQConnectionFactoryDirectLink";
+   set qcfDesc            "MQ Queue Connection Factory for DirectLink";
+   set qcfHost            "mq01.dev.irac.ecom.ad.hertz.com";
+   set qcfPort            "1414";
+   set qcfMgr             "ISQMQIRT01";
+   set qcfJNDI            "jms/com/hertz/directlink/seamless/connFactory/MQ";
+   JVcreateMQQueueConnectionFactory $NodeName $MQJMSProvider $qcfChannel $qcfName $qcfDesc $qcfHost $qcfPort $qcfMgr $qcfJNDI;
+   
+#--------------------------------------------------------------------
+# Create MQ Queue MQQueueDestDirectLinkOpodoRequest
+#--------------------------------------------------------------------
+
+   set mqQname            "MQQueueDestDirectLinkOpodoRequest";
+   set mqqDesc            "MQRequestQueue for DirectLink - Opodo";
+   set mqqJNDI            "jms/com/hertz/directlink/seamless/request/MQ_opodo";
+   set mqqPersistence     "QUEUE_DEFINED";
+   set mqqExpiry          "APPLICATION_DEFINED";
+   set mqqBname           "ISTIQOPO01";
+   set mqqUser            "";
+   JVcreateMQQueue $NodeName $MQJMSProvider $qcfName $qcfMgr $qcfHost $qcfPort $qcfChannel $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname $mqqUser;   
+
+#--------------------------------------------------------------------
+# Create MQ Queue MQQueueDestDirectLinkHTTPSRequest
+#--------------------------------------------------------------------
+
+   set mqQname            "MQQueueDestDirectLinkHTTPSRequest";
+   set mqqDesc            "MQRequestQueue for DirectLink - Standard Https";
+   set mqqJNDI            "jms/com/hertz/directlink/seamless/request/MQ_https";
+   set mqqPersistence     "QUEUE_DEFINED";
+   set mqqExpiry          "APPLICATION_DEFINED";
+   set mqqBname           "ISTIQOPO01";
+   set mqqUser            "";
+   JVcreateMQQueue $NodeName $MQJMSProvider $qcfName $qcfMgr $qcfHost $qcfPort $qcfChannel $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname $mqqUser;   
+
+
+#--------------------------------------------------------------------
+# Create MQ Queue MQQueueDestDirectLinkOpodoResponse
+#--------------------------------------------------------------------
+
+   set mqQname            "MQQueueDestDirectLinkOpodoResponse";
+   set mqqDesc            "MQResponse Queue for DirectLink - Opodo";
+   set mqqJNDI            "jms/com/hertz/directlink/seamless/response/MQ_opodo";
+   set mqqPersistence     "APPLICATION_DEFINED";
+   set mqqExpiry          "APPLICATION_DEFINED";
+   set mqqBname           "ISTOQOPO01";
+   set mqqUser            "";
+   JVcreateMQQueue $NodeName $MQJMSProvider $qcfName $qcfMgr $qcfHost $qcfPort $qcfChannel $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname $mqqUser;   
+   
+#--------------------------------------------------------------------
+# Create MQ Queue MQQueueDestDirectLinkHTTPSResponse
+#--------------------------------------------------------------------
+
+   set mqQname            "MQQueueDestDirectLinkHTTPSResponse";
+   set mqqDesc            "MQResponse Queue for DirectLink - Standard Https";
+   set mqqJNDI            "jms/com/hertz/directlink/seamless/response/MQ_https";
+   set mqqPersistence     "APPLICATION_DEFINED";
+   set mqqExpiry          "APPLICATION_DEFINED";
+   set mqqBname           "ISTIQHTP01";
+   set mqqUser            "";
+   JVcreateMQQueue $NodeName $MQJMSProvider $qcfName $qcfMgr $qcfHost $qcfPort $qcfChannel $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname $mqqUser;   
+
+
+#--------------------------------------------------------------------
+# Create MQ Queue Connection Factory QUAL
+#--------------------------------------------------------------------
+  
+   set MQJMSProvider      "WebSphere MQ JMS Provider";
+   set qcfChannel         "SYSTEM.DEF.SVRCONN";
+   set qcfName            "MQQualConnectionFactoryDirectLink";
+   set qcfDesc            "MQ Queue Connection Factory for DirectLink";
+   set qcfHost            "mq01.dev.irac.ecom.ad.hertz.com";
+   set qcfPort            "1414";
+   set qcfMgr             "ISQMQIRT01";
+   set qcfJNDI            "jms/com/hertz/directlink/seamless/connFactory/MQ_qual";
+   JVcreateMQQueueConnectionFactory $NodeName $MQJMSProvider $qcfChannel $qcfName $qcfDesc $qcfHost $qcfPort $qcfMgr $qcfJNDI;
+  
+
+#--------------------------------------------------------------------
+# Create MQ Queue MQQueueDestDirectLinkHTTPSRequest QUAL
+#--------------------------------------------------------------------
+
+   set mqQname            "MQQualQueueDestDirectLinkHTTPSRequest";
+   set mqqDesc            "MQRequestQueue for DirectLink - Standard Https on Qual";
+   set mqqJNDI            "jms/com/hertz/directlink/seamless/request/vq/MQ_https";
+   set mqqPersistence     "APPLICATION_DEFINED";
+   set mqqExpiry          "APPLICATION_DEFINED";
+   set mqqBname           "ISTOQHTP01";
+   set mqqUser            "";
+   JVcreateMQQueue $NodeName $MQJMSProvider $qcfName $qcfMgr $qcfHost $qcfPort $qcfChannel $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname $mqqUser;   
+
+
+
+#--------------------------------------------------------------------
+# Create MQ Queue MQQueueDestDirectLinkHTTPSResponse -- QUAL
+#--------------------------------------------------------------------
+
+   set mqQname            "MQQualQueueDestDirectLinkHTTPSResponse";
+   set mqqDesc            "MQResponse Queue for DirectLink - Standard Https on QUAL";
+   set mqqJNDI            "jms/com/hertz/directlink/seamless/response/vq/MQ_https";
+   set mqqPersistence     "APPLICATION_DEFINED";
+   set mqqExpiry          "APPLICATION_DEFINED";
+   set mqqBname           "ISTIQHTP01";
+   set mqqUser            "";
+   JVcreateMQQueue $NodeName $MQJMSProvider $qcfName $qcfMgr $qcfHost $qcfPort $qcfChannel $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname $mqqUser;  
+
+
+}

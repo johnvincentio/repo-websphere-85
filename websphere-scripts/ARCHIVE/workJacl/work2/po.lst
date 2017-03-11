@@ -1,0 +1,214 @@
+Before wsadmin
+ 
+ Starting wsadmin for Jacl development work
+ 
+WASX7209I: Connected to process "server1" on node alphaNode04 using SOAP connector;  The type of process is: UnManagedProcess
+WASX7303I: The following unrecognized options are passed to the scripting environment and are available as argv: "[-node, alphaNode04, -cell, alphaNode04Cell, -server, server1]"
+INFO: create.jacl; Starting
+TRACE: >>> processArguments; 6 -node
+alphaNode04
+-cell
+alphaNode04Cell
+-server
+server1
+TRACE: Check cell name alphaNode04Cell
+TRACE: Check node name alphaNode04
+TRACE: Check node name server1
+TRACE: <<< processArguments
+INFO: ---------------------------------------------------------------
+INFO:  
+INFO:  Scope:                                                        
+INFO:     cell                alphaNode04Cell                                
+INFO:     node                alphaNode04                                
+INFO:     server              server1                              
+INFO: ---------------------------------------------------------------
+
+---------------------------------------------------------------
+              Create J2C resource adapter                      
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode04                              
+    server              server1                            
+ Resource adapter:                                             
+    name                WebSphere Relational Resource Adapter  
+---------------------------------------------------------------
+
+INFO: The J2C resource adapter already exists.
+
+---------------------------------------------------------------
+              Create JAAS authentication alias                  
+---------------------------------------------------------------
+ Scope:                                                        
+    cell                alphaNode04Cell                              
+ Authentication alias:                                         
+    alias               alphaNode04Cell/samples                             
+    description         JAAS Alias for WebSphere Samples                              
+    user ID             samples                                   
+    password            s1amples                              
+---------------------------------------------------------------
+
+TRACE: Get the cell's security object.
+TRACE: Create the alphaNode04Cell/samples JAASAuthData object.
+
+---------------------------------------------------------------
+              Create JDBC provider                             
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode04                              
+    server              server1                            
+ JDBC provider:                                                
+    template            Cloudscape JDBC Provider (XA)                          
+    name                Samples Cloudscape JDBC Provider (XA)                          
+---------------------------------------------------------------
+
+TRACE: Checking for match with Cloudscape JDBC Provider (XA)
+TRACE: Get the ID for /Node:alphaNode04/Server:server1.
+INFO: The Samples Cloudscape JDBC Provider (XA) JDBC provider already exists.
+
+---------------------------------------------------------------
+              Create data source                               
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode04                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Samples Cloudscape JDBC Provider (XA)                          
+ Datasource:                                                   
+    template            Cloudscape JDBC Driver XA DataSource                          
+    name                BANKDS                                
+    JNDI                jdbc/Bank                                
+    description         Data source for the WebSphereBank entity beans                                
+    database name       ${APP_INSTALL_ROOT}/${CELL}/WebSphereBank.ear/Database/BankDB                                
+    auth alias          N_O_N_E                             
+    connection attrs    upgrade=true                             
+---------------------------------------------------------------
+
+INFO: The BANKDS data source already exists.
+
+---------------------------------------------------------------
+              Create connection factory                        
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode04                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Samples Cloudscape JDBC Provider (XA)                          
+ Datasource:                                                   
+    name                BANKDS                                
+ Connection factory:                                           
+    name                BANKDS_CF                                
+    auth mechanism      BASIC_PASSWORD                            
+    auth alias          N_O_N_E                             
+    interface           javax.resource.cci.ConnectionFactory                                   
+---------------------------------------------------------------
+
+TRACE: Get the ID for the default relational resource adapter and the ID for the BANKDS data source.
+TRACE: Create the BANKDS_CF connection factory for the BANKDS database.
+TRACE: Locate the javax.resource.cci.ConnectionFactory connection factory interface.
+TRACE: Create a new connection factory named BANKDS_CF.
+
+---------------------------------------------------------------
+              Create SI bus                                    
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode04                              
+ SI bus:                                                       
+    name                alphaNode04SamplesBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SI bus named alphaNode04SamplesBus.
+
+---------------------------------------------------------------
+              Add SI bus member                                
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode04                              
+    server              server1                            
+ SI bus:                                                       
+    name                alphaNode04SamplesBus                                 
+---------------------------------------------------------------
+
+TRACE: Add the server named server1 to the bus.
+
+---------------------------------------------------------------
+              Enable service                                   
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode04                              
+    server              server1                            
+ Service:                                                      
+    name                SIBService                           
+---------------------------------------------------------------
+
+TRACE: Get the ID for the SIBService service.
+INFO: The SIBService service is already enabled.
+
+---------------------------------------------------------------
+              Create SIB JMS connection factory                
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode04                              
+ Connection factory:                                           
+    name                BankJMSConnFactory                             
+    JNDI                jms/BankJMSConnFactory                             
+    description         WebSphere Bank Sample JMS ConnectionFactory                             
+    type                                             
+    auth alias          alphaNode04Cell/samples                             
+ SI bus:                                                       
+    name                alphaNode04SamplesBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS connection factory named BankJMSConnFactory.
+
+---------------------------------------------------------------
+              Create SIB JMS queue                             
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode04                              
+ SIB JMS queue:                                                
+    name                BankJMSQueue                              
+    JNDI                jms/BankJMSQueue                              
+    description         WebSphere Bank Sample Queue (WebSphere Bank receives a message from this Queue)                              
+    SIB queue           BankJSQueue                              
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS queue named BankJMSQueue.
+
+---------------------------------------------------------------
+              Create SIB queue                                 
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode04                              
+    server              server1                            
+ SIB queue:                                                    
+    name                BankJSQueue                              
+ SI bus:                                                       
+    name                alphaNode04SamplesBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB queue named BankJSQueue.
+
+---------------------------------------------------------------
+              Create SIB JMS activation spec                   
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode04                              
+ Activation spec:                                              
+    name                BankActivationSpec                    
+    JNDI                eis/BankActivationSpec                
+    destination JNDI    jms/BankJMSQueue                              
+    destination type    javax.jms.Queue                       
+    auth alias          alphaNode04Cell/samples                             
+ SI bus:                                                       
+    name                alphaNode04SamplesBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS activation spec named BankActivationSpec.
+
+---------------------------------------------------------------
+              Save                                             
+---------------------------------------------------------------
+
+after save
+INFO: create.jacl; Complete
+After wsadmin

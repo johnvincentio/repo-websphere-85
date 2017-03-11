@@ -1,0 +1,1472 @@
+##  @(#) 1.10 SERV1/ws/code/security/scripts/SecConfigMenu.jacl, WAS.security, WAS60.SERV1 5/5/03 22:35:06 [12/2/04 10:19:24]
+##  5639-D57 (C) COPYRIGHT International Business Machines Corp. 2002
+##
+##  All Rights Reserved *  Licensed Materials - Property of IBM
+##
+
+##----------------------------------------------------------------------
+## This program may be used, executed, copied, modified and distributed 
+## without royalty for the purpose of developing, using, marketing, or 
+## distributing.
+##----------------------------------------------------------------------
+## 
+## This sample provides sample scripts to configure  
+## WebSphere Application Server security
+
+##----------------------------------------------------------------------
+## The main purpose of this sample is to demonstrate the use of the
+## WSAdmin to configure WebSphere Application Server security. 
+## As such simplicity and not the performance was a major 
+## factor behind this. 
+##----------------------------------------------------------------------
+
+
+######################################################################################################
+#
+#  Main Menu
+#  	This is the first menu that the user will see when they first start the script
+#	Option 1 is the step by step wizard to enable security for the first time
+#	Option 2 is used to configure each individual parts of security.
+#       Option 3 is a quick switch to disable security
+#	Option 4 saves the current configuration and does the validation
+#
+######################################################################################################	
+
+proc mainMenu {} {
+	global AdminConfig security_item
+	set loop true
+	puts stdout "\n\n\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "Please enter your choice from the following menu:"
+		puts stdout "\n 1)  Enable Security Quick Start Wizard"
+		puts stdout "\n 2)  Configure Security"
+		puts stdout "\n 3)  Disable Security"
+		puts stdout "\n 4)  Purge user from cache"
+                puts stdout "\n 5)  Save and Exit"
+                puts stdout "\n 6)  Exit (no save)"
+                
+		puts stdout "\nYour Choice:"
+		set mainChoice [gets stdin]
+		
+		switch -exact -- $mainChoice {
+			1 { enableSecurity }
+			2 { subMenu_configPanel }
+			3 { setSecurityEnable "disable" }
+                        4 { subMenu_purgeCachePanel }
+			5 { if {[string match [$AdminConfig showAttribute $security_item enabled] true]} {
+				    set validationResult [validation]
+				    if {[string match $validationResult true]} {
+				      saveConfig 
+				      set loop false 
+				      exit 
+				    }
+			    } else {
+				saveConfig 
+				set loop false
+				exit
+			    }
+			  }
+			6 { set loop false; exit }
+		}
+	}       
+}
+
+######################################################################################################
+#
+#  Security Configuration Menu
+#	This menu show different parts of security component that can be configurated
+#
+######################################################################################################
+
+proc subMenu_configPanel {} {
+	set loop true
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu:"
+		puts stdout "\n 1)  Configure Global Security"
+		puts stdout "\n 2)  Configure SSL"
+		puts stdout "\n 3)  Configure LTPA"
+		puts stdout "\n 4)  Configure User Registries"
+		puts stdout "\n 5)  Configure JAAS Configuration"
+		puts stdout "\n 6)  Configure Authentication Protocols"
+		puts stdout "\n 7)  Back to Main Menu"	
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { configGlobalSecurity}
+			2 { subMenu_SSL }
+			3 { subMenu_LTPA }
+			4 { subMenu_UR }
+			5 { subMenu_JAAS }
+			6 { subMenu_AP }
+			7 { set loop false; break }
+		}
+	}   
+}
+
+######################################################################################################
+#
+#  Security Purge Cache Menu
+#	This menu show different parts of security component that can be configurated
+#
+######################################################################################################
+
+proc subMenu_purgeCachePanel {} {
+	set loop true
+        
+        set realm [getRealm]
+
+	puts stdout "\tWelcome to WebSphere Application Server Security Purge Cache Menu"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nEnter userid to be purged from the cache in following realm ($realm):"
+		set userid [gets stdin]
+		
+	        if {$userid != {}} {
+                        revokeUser $realm $userid
+                        set loop false 
+		}
+	}   
+}
+
+######################################################################################################
+#
+#  LTPA Menu
+#	This the menu to config LTPA, Trust Association, and Single Sign on
+#
+######################################################################################################
+
+proc subMenu_LTPA {} {
+	set loop true
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu:"
+		puts stdout "\n 1)  Configure LTPA"
+		puts stdout "\n 2)  Configure Trust Association"
+		puts stdout "\n 3)  Configure Single Signon"
+		puts stdout "\n 4)  Back to previous menu"
+		puts stdout "\n 5)  Back to Main Menu"	
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { configLTPA }
+			2 { configTA }
+			3 { configSSO }
+			4 { set loop false; break }
+			5 { mainMenu }
+		}
+	}   
+}
+
+######################################################################################################
+#
+#  User Registry Menu
+#	This is the menu to config different kind of user registries.  LocalOS, LDAP and Custom
+#	user registris are available.
+#
+######################################################################################################
+
+proc subMenu_UR {} {
+	set loop true
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Configure LocalOS"
+		puts stdout "\n 2)  Configure LDAP"
+		puts stdout "\n 3)  Configure Custom User Registry"
+		puts stdout "\n 4)  Back to Configure Security Panel"
+		puts stdout "\n 5)  Back to Main Menu" 
+		puts stdout "\nYour Choice:"		
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { subMenu_UR_Localos}
+			2 { subMenu_UR_LDAP }
+			3 { configCustomReg }
+			4 { set loop false; break }
+			5 { mainMenu }
+		}
+	}   
+}
+######################################################################################################
+#
+#  Local OS User Registry Menu
+#	This is the menu to config Local OS user registry
+#
+######################################################################################################
+
+proc subMenu_UR_Localos {} {
+	global userRegistry
+	set loop true
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set Server User ID and Password"
+		puts stdout "\n 2)  Set Custom Properties"
+		puts stdout "\n 3)  Save Current Configuration"
+		puts stdout "\n 4)  Back to Configure Security Panel"
+		puts stdout "\n 5)  Back to Main Menu"
+		puts stdout "\nYour Choice:"		
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { configLocalOS }
+			2 { subMenu_CustomProperties $userRegistry }
+			3 { saveConfig }
+			4 { set loop false; break }
+			5 { mainMenu }
+		}
+	}   
+}
+
+######################################################################################################
+#
+#  LDAP User Registry Menu
+#	This is the menu to config LDAP user registry and advanced LDAP settings
+#	Option 2 is used to config advanced LDAP filters.  
+#
+######################################################################################################
+ 
+proc subMenu_UR_LDAP {} {
+	set loop true
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set LDAP configurations"
+		puts stdout "\n 2)  Set Advanced LDAP Settings"
+		puts stdout "\n 3)  Back to Configure Security Panel"
+		puts stdout "\n 4)  Back to Main menu" 
+		puts stdout "\nYour Choice:"		
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { configLDAP}
+			2 { configAdvancedLDAP }
+			3 { set loop false; break }
+			4 { mainMenu }
+		}
+	}   
+}
+
+######################################################################################################
+#
+#  Authentication Protocol Menu
+#	This is the menu used to config CSI and SAS properties.
+#
+######################################################################################################
+
+proc subMenu_AP {} {
+	set loop true
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Configure CSIv2 Inbound Authentication"
+		puts stdout "\n 2)  Configure CSIv2 Outbound Authentication"
+		puts stdout "\n 3)  Configure CSIv2Inbound Transport"
+		puts stdout "\n 4)  Configure CSIv2Outbound Transport"
+		puts stdout "\n 5)  Configure SAS Inbound"
+		puts stdout "\n 6)  Configure SAS Outbound"
+		puts stdout "\n 7)  Back to Configure Security Panel"
+		puts stdout "\n 8)  Back to Main Menu" 
+		puts stdout "\nYour Choice:"		
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { configCSIia }
+			2 { configCSIoa }
+			3 { configCSIic }
+			4 { configCSIoc }
+			5 { configSASic }
+			6 { configSASoc }
+			7 { set loop false; break }
+			8 { mainMenu }
+		}
+	}   
+}
+
+######################################################################################################
+#
+#  configGlobalSecurity
+#	This is the menu to config global security.    
+#
+######################################################################################################
+
+proc configGlobalSecurity {} {
+	global AdminConfig security_item
+	set loop true
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set Global Security Enabled ([getSecurityAttributes enabled])"
+		puts stdout "\n 2)  Set Enforce Java 2 Security ([getSecurityAttributes enforceJava2Security])"
+		puts stdout "\n 3)  Set Use Domain Qualified User IDs ([getSecurityAttributes useDomainQualifiedUserNames])"
+		puts stdout "\n 4)  Set Cache Timeout  ([getSecurityAttributes cacheTimeout])"
+		puts stdout "\n 5)  Set Issue Permission Warning  ([getSecurityAttributes issuePermissionWarning])"
+		puts stdout "\n 6)  Set Active Protocol ([getSecurityAttributes activeProtocol])"
+		puts stdout "\n 7)  Set Active Authentication Mechanism ([getSecurityAttributes activeAuthMechanism])"
+		puts stdout "\n 8)  Set Active User Registry  ([getSecurityAttributes activeUserRegistry])"
+		puts stdout "\n 9)  Set Custom Properties"
+		puts stdout "\n 10) Save Current Configuration"
+		puts stdout "\n 11) Back to Previous Menu"
+		puts stdout "\n 12) Back to Main Menu" 
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {							 
+			1 { 	puts stdout "Enable Security y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+						#$AdminConfig modify $security_item [list [list enabled "true"]]
+						lappend attrib [list enabled "true"] 
+					} else {
+						lappend attrib [list enabled "false"] 
+					}
+				}
+			  }      	
+			2 { puts stdout "Enable Java 2 Security y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+						#$AdminConfig modify $security_item [list [list enforceJava2Security "true"]]
+						lappend attrib [list enforceJava2Security "true"] 
+					} else {
+						lappend attrib [list enforceJava2Security "false"] 
+					}
+				}
+			  }      
+			3 { puts stdout "Use Domain Qualified User IDs y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+						lappend attrib [list useDomainQualifiedUserNames "true"] 
+					} else {
+						lappend attrib [list useDomainQualifiedUserNames "false"] 
+					}
+				}
+			  }      
+			4 { puts stdout "Cache Timeout"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list cacheTimeout $userinput]
+				}
+			  }    
+			5 { puts stdout "issuePermissionWarning y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+				if {[regexp $userinput y]} {
+						lappend attrib [list issuePermissionWarning "true"] 
+					} else {
+						lappend attrib [list issuePermissionWarning "false"] 
+					}
+				}
+			  }
+			6 { puts stdout "Active Protocol CSIandSAS | CSI"
+				set userinput [gets stdin]
+					if {$userinput != {}} {
+					if {[regexp $userinput CSI]} {
+						lappend attrib [list activeProtocol "CSI"] 
+					} else {
+						lappend attrib [list activeProtocol "BOTH"] 
+					}
+				}
+			  }
+			7 { puts stdout "Active Authentication Mechanism LTPA | SWAM"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					setAuthMech $userinput
+				}
+		          }
+			8 { puts stdout "Active User Registry LDAP | LocalOS | Custom"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					setActiveUserRegistry $userinput
+				}
+			  }
+			9 { subMenu_CustomProperties $security_item
+			  }
+			10 { if {[llength attrib] != 0} {
+			        $AdminConfig modify $security_item $attrib
+				if {[string match [validateGlobalSecurity] true]} {
+					saveConfig
+				}
+				set attrib {}
+			    } 
+			   }
+			11 { set loop false; break }
+			12 { mainMenu }
+		}
+	}   
+}
+
+######################################################################################################
+#
+#  configLTPA
+#	This is the menu to config LTPA.  Key will be automatically generated when a password
+#	is entered.  User can also import and export key to and from a file.
+#
+######################################################################################################
+
+proc configLTPA {} {
+	global LTPA AdminConfig privateKey publicKey sharedKey
+	set loop true
+	set LTPAPassword {}
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set LTPA Password"
+		puts stdout "\n 2)  Set Timeout (min) ([getLTPAAttributes timeout])"
+		puts stdout "\n 3)  Genereate Keys"
+		puts stdout "\n 4)  Import Keys"
+		puts stdout "\n 5)  Export Keys"
+		puts stdout "\n 6)  Save Current Configuration"
+		puts stdout "\n 7)  Back to Previous Menu"
+		puts stdout "\n 8)  Back to Main Menu" 
+		puts stdout "\nYour Choice:"		
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { puts stdout "Please enter your password"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					puts stdout "Please confirm your password"
+					set userinput2 [gets stdin]
+					if {$userinput2 != {}} {
+						if {[string compare $userinput $userinput2] == 0} {
+							lappend attrib [list password $userinput]
+							generateLTPAKeys $userinput
+							exportLTPAKey
+							lappend attrib [list private [list [list byteArray $privateKey]]] [list public [list [list byteArray $publicKey]]] [list shared [list [list byteArray $sharedKey]]]
+						} else {
+							puts stdout "Password does not match"
+						}
+					}
+				}
+			  }      	
+			2 { puts stdout "Set Timeout"
+				set LTPAPassword [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list timeout $LTPAPassword]
+				}
+			  }      
+			3 { puts stdout "Generate Keys"
+				if {$LTPAPassword == {}} {
+					set LTPAPassword [$AdminConfig showAttribute $LTPA password]
+				}
+				if { $LTPAPassword != {}} {
+					generateLTPAKeys $LTPAPassword
+					exportLTPAKey
+					lappend attrib [list private [list [list byteArray $privateKey]]] [list public [list [list byteArray $publicKey]]] [list shared [list [list byteArray $sharedKey]]]
+				} else {
+					puts stdout "LTPA password not defined"
+					puts stdout "Please set the password from the menu first, and then regenerate key" 
+				}	
+			  }       
+			4 { puts stdout "Please enter the Key File Name to import. ex. c:/myfile (win) or /myfile (unix)"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[file exist $userinput]} {
+						importKeys $userinput
+					} else {
+						puts stdout "File does not exist.  Please specify vaild key file to import"
+					}
+				}
+			  }
+			5 { puts stdout "Please enter the Key File to export. ex. c:/myfile (win) or /myfile (unix)"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					exportKeys $userinput
+				}
+			  }
+			6 { if {[llength attrib] != 0} {
+				    $AdminConfig modify $LTPA $attrib
+				    if {[string match [validateLTPA] true]} {
+					saveConfig
+				    }
+			    }
+			  }
+			7 { set loop false; break}
+			8 { mainMenu }
+		}
+	}      
+}
+
+######################################################################################################
+# 
+# configSSO
+#	This is the menu to config SSO.  When SSO is enabled, a fully qualify domain name needs
+#	to be entered
+#
+######################################################################################################
+
+proc configSSO {} {
+	set loop true
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set Enabled ([getSSOAttributes enabled])"
+		puts stdout "\n 2)  Set Requires SSL ([getSSOAttributes requiresSSL])"
+		puts stdout "\n 3)  Set Domain Name ([getSSOAttributes domainName])"
+		puts stdout "\n 4)  Save Current Configuration"
+		puts stdout "\n 5)  Back to Previous Menu"
+		puts stdout "\n 6)  Back to Main Menu" 
+		puts stdout "\nYour Choice:"		
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { 	puts stdout "Enable SSO y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+						lappend attrib [list enabled "true"]
+					} else {
+						lappend attrib [list enabled "false"]
+					}
+				}
+			  }      	
+			2 { puts stdout "Requires SSL y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+						lappend attrib [list requiresSSL "true"]
+					} else {
+						lappend attrib [list requiresSSL "false"]
+					}
+				}
+			  }      
+			3 { puts stdout "Domain Name"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list domainName $userinput]
+				}
+			  }
+			4 { if {[llength attrib] != 0} {
+				setSSO $attrib; saveConfig 
+			    }     
+			  }
+			5 { set loop false; break }
+			6 { mainMenu }
+		}
+	}   
+}
+
+######################################################################################################
+#
+# configLocalOS
+#     This is the menu to config LocalOS registry.  User id and password is needed.  
+#
+######################################################################################################
+
+proc configLocalOS {} {
+	puts stdout "Please enter your Server User ID"
+	set userid [gets stdin]
+	puts stdout "Please enter your Server User Password"
+	set password [gets stdin]
+	setLocalOSUserRegistry $userid $password
+}
+
+######################################################################################################
+#
+#  configLDAP
+#	This is the menu to config LDAP properties.  The advanced LDAP filter will automatically
+#	change to match the LDAP server type when LDAP Server type is changed
+#
+######################################################################################################
+
+proc configLDAP {} {
+	global AdminConfig security_item ldapUserRegistryId
+	set loop true
+	set userid {}
+	set password {}
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set Server User ID/Password"
+		puts stdout "\n 2)  Set LDAP Server Type ([getLDAPUserRegistryAttributes type])"
+		puts stdout "\n 3)  Set Host and Port ([getLDAPUserRegistryAttributes realm])"
+		puts stdout "\n 4)  Set Base DN ([getLDAPUserRegistryAttributes baseDN])"
+		puts stdout "\n 5)  Set Bind DN ([getLDAPUserRegistryAttributes bindDN])"
+		puts stdout "\n 6)  set Bind Password ([getLDAPUserRegistryAttributes bindPassword])"
+		puts stdout "\n 7)  Set Search Timeout ([getLDAPUserRegistryAttributes searchTimeout])"
+		puts stdout "\n 8)  Set Reuse Connection ([getLDAPUserRegistryAttributes reuseConnection])"
+		puts stdout "\n 9)  Set Ignore case ([getLDAPUserRegistryAttributes ignoreCase])"
+		puts stdout "\n 10) Set SSL Enabled ([getLDAPUserRegistryAttributes sslEnabled])"
+		puts stdout "\n 11) Set SSL Configuration ([getLDAPUserRegistryAttributes sslConfig])"
+		puts stdout "\n 12) Set Custom Properties"
+		puts stdout "\n 13) Save Current Configuration"
+		puts stdout "\n 14) Back to Previous Menu"
+		puts stdout "\n 15) Back to Main Menu"
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { 	puts stdout "Please enter your Server User ID"
+				set userid [gets stdin]
+				puts stdout "Please enter your Server User Password"
+				set password [gets stdin]
+				if {$userid != {} && $password != {}} {
+					lappend attrib [list serverId $userid]
+					lappend attrib [list serverPassword $password]
+				}
+			  }      	
+			2 { puts stdout "Set LDAP Server Type (IBM_DIRECTORY_SERVER   SECUREWAY   IPLANET   NETSCAPE   DOMINO502   NDS   ACTIVE_DIRECTORY   CUSTOM)"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list type $userinput] 
+					updateLDAPFilter $userinput
+				}
+			  }      
+			3 { puts stdout "Set LDAP Host and Port"
+				puts stdout "Please enter your Host Name"
+				set ldapServer [gets stdin]
+				puts stdout "Please enter your Port"
+				set ldapPort [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list hosts [list [list [list host $ldapServer] [list port $ldapPort]]]] [list realm $ldapServer:$ldapPort]  
+				}
+			  }      
+			4 { puts stdout "Set Base DN"
+				set baseDN [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list baseDN $baseDN]
+				}
+			  }    
+			5 { puts stdout "Set Bind DN"
+				set bindDN [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list bindDN $bindDN]
+				}
+			  }
+			6 { puts stdout "Set Bind Password"
+				set bindPS [gets stdin]
+				if {$bindPS != {}} {
+					lappend attrib [list bindPassword $bindPW]
+				}
+			  }
+			7 { puts stdout "Set Search Timeout"
+				set searchTO [gets stdin]
+				if {$searchTO != {}} {
+					lappend attrib [list searchTimeout $searchTO]
+				}
+		          }
+			8 { puts stdout "Set Reuse Connection y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+					       lappend attrib [list reuseConnection "true"]
+					} else {
+					       lappend attrib [list reuseConnection "false"]
+					}
+				}
+			  }
+			9 { puts stdout "Set Ignore Case"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+					       lappend attrib [list ignoreCase "true"]
+					} else {
+					       lappend attrib [list ignoreCase "false"]
+					}
+				}
+			  }
+			10 { puts stdout "Set SSL Enabled y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+					       lappend attrib [list sslEnabled "true"]
+					} else {
+					       lappend attrib [list sslEnabled "false"]
+					}
+				}
+			  }
+			11 { puts stdout "Set SSL Setting.  Please choose one of following the SSL config\n"
+				showSSLAlias
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list sslConfig $userinput]
+				}
+			  }
+			12 { subMenu_CustomProperties $ldapUserRegistryId
+			   }
+			13 { if {[llength attrib] != 0} {
+				setLDAPUserRegistry $attrib
+				if {[string match [validateLDAPUserRegistry] true]} {
+					saveConfig
+				}
+			     }
+			   }
+			14 { set loop false; break }
+			15 { mainMenu }
+		}
+	}
+}
+
+######################################################################################################
+#
+#  configAdvancedLDAP
+#	This is the menu to config Advanced LDAP filters.  These setting will get automatically
+#	updated when the ldap server type changes from the LDAP panel.
+#
+######################################################################################################
+proc configAdvancedLDAP {} {
+	global AdminConfig security_item
+	set loop true
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set User Filter ([getldapSearchFilterAttributes userFilter])"
+		puts stdout "\n 2)  Set Group Filter ([getldapSearchFilterAttributes groupFilter])"
+		puts stdout "\n 3)  Set User ID Map ([getldapSearchFilterAttributes userIdMap])"
+		puts stdout "\n 4)  Set Group ID Map ([getldapSearchFilterAttributes groupIdMap])"
+		puts stdout "\n 5)  Set Group Member ID Map ([getldapSearchFilterAttributes groupMemberIdMap])"
+		puts stdout "\n 6)  set Certificate Map Mode ([getldapSearchFilterAttributes certificateMapMode])"
+		puts stdout "\n 7)  Set Certificate Filter ([getldapSearchFilterAttributes certificateFilter])"
+		puts stdout "\n 8)  Save Current Configuration"
+		puts stdout "\n 9)  Back to Previous Menu"
+		puts stdout "\n 10) Back to Main Menu"
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { 	puts stdout "Set User Filter"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list userFilter $userinput]
+				}
+			  }      	
+			2 { puts stdout "Set Group Filter"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list groupFilter $userinput]
+				}
+			  }      
+			3 { puts stdout "Set User ID Map"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list userIdMap $userinput]
+				}
+			  }      
+			4 { puts stdout "Set Group Id Map"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list groupIdMap $userinput]
+				}
+			  }    
+			5 { puts stdout "Set Group Member ID Map"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list groupMemberIdMap $userinput]
+				}
+			  }
+			6 { puts stdout "Set Certificate Map Mode EXACT_DN | CERTIFICATE_FILTER"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list certificateMapMode $userinput]
+				}
+			  }
+			7 { puts stdout "Set Certificate Filter"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib [list certificateFilter $userinput]
+				}
+		          }
+
+			8 { if {[llength attrib] != 0} {
+				setLDAPFilter $attrib; saveConfig 
+			     }
+			   }
+			9 { set loop false; break }
+			10 { mainMenu }
+		}
+	}
+}
+
+######################################################################################################
+#
+#  configCustomReg
+#	This is the menu to add custom user registry.
+#
+######################################################################################################
+
+proc configCustomReg {} {
+	global cusUserRegistry
+	set loop true
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set Server User ID and Password"
+		puts stdout "\n 2)  Set Class Name ([getCustomUserRegistryAttributes customRegistryClassName])"
+		puts stdout "\n 3)  Set Custom Properties"
+		puts stdout "\n 4)  Save Current Configuration"
+		puts stdout "\n 5)  Back to Configure Security Panel"
+		puts stdout "\n 6)  Back to Main Menu"
+		puts stdout "\nYour Choice:"		
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { puts stdout "Please enter your Server User ID"
+			    set userid [gets stdin]
+			    puts stdout "Please enter your Server User Password"
+			    set password [gets stdin]
+			    if {$userid != {} && $password != {}} {
+				    lappend attrib [list serverId $userid] [list serverPassword $password]  
+			    }
+			  }
+			2 { puts stdout "Please enter your Custom Registry Classname"
+			    set customRegClassName [gets stdin]
+			    if {$customRegClassName != {}} {
+				    lappend attrib [list customRegistryClassName $customRegClassName] 
+			    }
+			  }
+			3 { subMenu_CustomProperties $cusUserRegistery
+			  } 
+			4 { if {[llength attrib] != 0} {
+				setCustomUserRegistry $attrib
+				if {[string match [validateCustomUserRegistry] true]} {
+					saveConfig
+				}			    
+			    }
+			  }
+			5 { set loop false; break }
+			6 { mainMenu }
+		}
+	}
+}
+
+######################################################################################################
+#
+#  configCSIia
+#	This is the menu to config CSI inbound authentication
+#
+######################################################################################################
+
+proc configCSIia {} {
+	global AdminConfig security_item
+	set loop true
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set Basic Authentication ([getCSIiaAttributes BasicAuth])"
+		puts stdout "\n 2)  Set Client Certificate Authentication ([getCSIiaAttributes ClientCert])"
+		puts stdout "\n 3)  Set Identity Assertion ([getCSIiaAttributes IdentityAssertion])"
+		puts stdout "\n 4)  Set Trusted Servers ([getCSIiaAttributes TrustedServers])"
+		puts stdout "\n 5)  Set Stateful ([getCSIiaAttributes isStateful])"
+		puts stdout "\n 6)  Save Current Configuration"
+		puts stdout "\n 7)  Back to Previous Menu"
+		puts stdout "\n 8)  Back to Main Menu"
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { 	puts stdout "Set Basic Authentication Never|Supported|Required"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib BasicAuth $userinput
+				}
+			  }      	
+			2 { puts stdout "Set Client Certificate Authentication Never|Supported|Required"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib ClientCert $userinput
+				}
+			  }      
+			3 { puts stdout "Set Identity Assertion y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+						lappend attrib IdentityAssertion true 
+					} else {
+						lappend attrib IdentityAssertion false 
+					}
+				}
+			  }      
+			4 { puts stdout "Set Trusted Servers.  Seperate by comma."
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib TrustedServers $userinput
+				}
+			  }    
+			5 { puts stdout "Set Stateful y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+						lappend attrib isStateful true 
+					} else {
+						lappend attrib isStateful false 
+					}
+				}
+			  }
+
+			6 { if {[llength attrib] != 0} {
+				setCSIia $attrib; saveConfig 
+			     }
+			   }
+			7 { set loop false; break }
+			8 { mainMenu }
+		}
+	}
+}
+
+######################################################################################################
+#
+#  configCSIoa
+#	This is the menu to config CSI outbound authentication
+#
+######################################################################################################
+
+proc configCSIoa {} {
+	global AdminConfig security_item
+	set loop true
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set Basic Authentication ([getCSIoaAttributes BasicAuth])"
+		puts stdout "\n 2)  Set Client Certificate Authentication ([getCSIoaAttributes ClientCert])"
+		puts stdout "\n 3)  Set Identity Assertion ([getCSIoaAttributes IdentityAssertion])"
+		puts stdout "\n 4)  Set Stateful ([getCSIoaAttributes isStateful])"
+		puts stdout "\n 5)  Save Current Configuration"
+		puts stdout "\n 6)  Back to Previous Menu"
+		puts stdout "\n 7)  Back to Main Menu"
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { 	puts stdout "Set Basic Authentication Never|Supported|Required"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib BasicAuth $userinput
+				}
+			  }      	
+			2 { puts stdout "Set Client Certificate Authentication Never|Supported|Required"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib ClientCert $userinput
+				}
+			  }      
+			3 { puts stdout "Set Identity Assertion y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+						lappend attrib IdentityAssertion true 
+					} else {
+						lappend attrib IdentityAssertion false 
+					}
+				}
+			  }      
+			4 { puts stdout "Set Stateful y/n"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					if {[regexp $userinput y]} {
+						lappend attrib isStateful true 
+					} else {
+						lappend attrib isStateful false 
+					}
+				}
+			  }
+			5 { if {[llength attrib] != 0} {
+				setCSIoa $attrib; saveConfig 
+			     }
+			   }
+			6 { set loop false; break }
+			7 { mainMenu }
+		}
+	}
+}
+
+######################################################################################################
+#
+#  configCSIic
+#	This is the menu to config CSI inbound transport
+#
+######################################################################################################
+
+proc configCSIic {} {
+	global AdminConfig security_item
+	set loop true
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set Transport ([getCSIicAttributes Transport])"
+		puts stdout "\n 2)  Set SSL Settings ([getCSIicAttributes SSLSetting])"
+		puts stdout "\n 3)  Save Current Configuration"
+		puts stdout "\n 4)  Back to Previous Menu"
+		puts stdout "\n 5)  Back to Main Menu"
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { 	puts stdout "Set Transport TCPIP|SSL-Required|SSL-Supported"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib Transport $userinput
+				}
+			  }      	
+			2 { puts stdout "Set SSL Setting.  Please choose one of following the SSL config\n"
+				showSSLAlias
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib SSLSetting $userinput
+				}
+			  }      
+			3 { if {[llength attrib] != 0} {
+				setCSIic $attrib; saveConfig 
+			     }
+			   }
+			4 { set loop false; break }
+			5 { mainMenu }
+		}
+	}
+}
+
+######################################################################################################
+#
+#  configCSIoc
+#	This is the menu to config CSI outbound transport
+#
+######################################################################################################
+
+proc configCSIoc {} {
+	global AdminConfig security_item
+	set loop true
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set Transport ([getCSIocAttributes Transport])"
+		puts stdout "\n 2)  Set SSL Settings ([getCSIocAttributes SSLSetting])"		
+		puts stdout "\n 3)  Save Current Configuration"
+		puts stdout "\n 4)  Back to Previous Menu"
+		puts stdout "\n 5)  Back to Main Menu"
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { 	puts stdout "Set Transport TCPIP|SSL-Required|SSL-Supported"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib Transport $userinput
+				}
+			  }      	
+			2 { puts stdout "Set SSL Setting.  Please choose one of the following SSL config\n"
+				showSSLAlias
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib SSLSetting $userinput
+				}
+			  }      
+			3 { if {[llength attrib] != 0} {
+				setCSIoc $attrib; saveConfig 
+			     }
+			   }
+			4 { set loop false; break }
+			5 { mainMenu }
+		}
+	}
+}
+
+######################################################################################################
+#
+#  configSASic
+#	This is the menu to config SAS inbound
+#
+######################################################################################################
+
+proc configSASic {} {
+	global AdminConfig security_item
+	set loop true
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set SSL Settings ([getSASicAttributes SSLSetting])"
+		puts stdout "\n 2)  Save Current Configuration"
+		puts stdout "\n 3)  Back to Previous Menu"
+		puts stdout "\n 4)  Back to Main Menu" 
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { puts stdout "Set SSL Setting.  Please choose one of following the SSL config\n"
+				showSSLAlias
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib SSLSetting $userinput
+				}
+			  }      
+			2 { if {[llength attrib] != 0} {
+				setSASic $attrib; saveConfig 
+			     }
+			   }
+			3 { set loop false; break }
+			4 { mainMenu }
+		}
+	}
+}
+
+######################################################################################################
+#
+#  configSASia
+#	This is the menu to config SAS outbound
+#
+######################################################################################################
+
+proc configSASoc {} {
+global AdminConfig security_item
+	set loop true
+	set attrib {}
+	puts stdout "\tWelcome to WebSphere Application Server Security Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set SSL Settings ([getSASocAttributes SSLSetting])"
+		puts stdout "\n 2)  Save Current Configuration"
+		puts stdout "\n 3)  Back to Previous Menu"
+		puts stdout "\n 4)  Back to Main menu" 
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { puts stdout "Set SSL Setting.  Please choose one of the SSL config"
+				showSSLAlias
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					lappend attrib SSLSetting $userinput
+				}
+			  }      
+			2 { if {[llength attrib] != 0} {
+				setSASoc $attrib; saveConfig 
+			     }
+			  }
+			3 { set loop false; break }
+			4 { mainMenu }
+		}
+	}
+}
+
+
+###############################################################
+#
+# High level menu for configuring J2C Authentication Data
+#
+###############################################################
+
+proc configJAASAuthData {} {
+global AdminConfig
+	set jaas_attrib {}
+	set loop true
+	
+	puts stdout "\tConfiguring J2C Authentication Data"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Create a new J2C Authentication Data"
+		puts stdout "\n 2)  Show the list of defined J2C Authentication Data"
+		puts stdout "\n 3)  Modify J2C Authentication Data"
+		puts stdout "\n 4)  Delete J2C Authentication Data"
+		puts stdout "\n 5)  Save Current Configuration"
+		puts stdout "\n 6)  Back to Previous Menu"
+		puts stdout "\n 7)  Back to Main Menu"
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { createJAASAuthData}      	
+			2 { showJAASAuthData}
+			3 { puts stdout "Available JAAS configuration alias for modifications\n"
+			    showJAASAuthData
+			    puts stdout "Please enter which JAAS configuration alias to modify"
+			    set alias [gets stdin]
+			       modifyJAASAuthData $alias
+			  } 
+			4 { puts stdout "Available JAAS configuration alias for deletions\n"
+			    showJAASAuthData
+			    puts stdout "Please enter which JAAS configuration alias to delete"
+			    set alias [gets stdin]
+			       deleteJAASAuthData $alias
+			  } 
+			5 { saveConfig}
+			6 { set loop false; break }
+			7 { mainMenu }
+		}
+	}   
+}
+
+
+
+########################################################
+#
+# Procedure to define one or more JAAS Login Modules
+#
+########################################################
+
+proc configJAASLoginModule {appLoginConfigId appLoginAlias} {
+	global AdminConfig
+	
+	puts stdout "You need to define at least one Login Module for the alias $appLoginAlias"
+	set loop true
+			    
+	while {$loop} {
+		puts stdout "\nPlease enter your choices from the following menu choices:"
+		puts stdout "\n 1) Create a new JAAS Login Module for alias $appLoginAlias"
+		puts stdout "\n 2) Show the defined JAAS Login Modules for alias $appLoginAlias"
+		puts stdout "\n 3) Modify a JAAS Login Module for alias $appLoginAlias"
+		puts stdout "\n 4) Delete a JAAS Login Module for alias $appLoginAlias"
+		puts stdout "\n 5) Back to Previous Menu"
+		puts stdout "\n 6) Back to Main Menu"
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+                switch -exact -- $subChoice {
+			1 { createJAASLoginModule  $appLoginAlias}
+			2 { showJAASLoginModules $appLoginAlias}  
+			3 { puts stdout "Available loginModules for modifications\n"
+			    showJAASLoginModules $appLoginAlias
+			    puts stdout "Please enter which loginModule to modify"
+			    modifyJAASLoginModules $appLoginAlias}
+			4 { deleteJAASLoginModules $appLoginAlias}
+			5 { set $loop false; break}
+			6 { mainMenu }
+                }
+        }        
+}
+
+##################################################################################
+#
+# Procedure to create, show,modify and delete the applicationLoginConfig objects
+#
+##################################################################################
+ 
+proc configAppLogins {} {
+global AdminConfig
+	
+	set loop true
+	
+	puts stdout "\tWelcome to Application Login Configuration"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Create a new Application Login Configuration"
+		puts stdout "\n 2)  Show the list of Aliases for Application Login Configurations"
+		puts stdout "\n 3)  Modify Application Login Configuration"
+		puts stdout "\n 4)  Delete Application Login Configuration"
+		puts stdout "\n 5)  Save Current Configuration"
+		puts stdout "\n 6)  Back to Previous Menu"
+		puts stdout "\n 7)  Back to Main Menu"
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { createJAASConfigurationEntry}      	
+			2 { showAliasesForLoginConfigurations}
+			3 { puts stdout "Aliases for Application Login Configurations are\n"
+			    showAliasesForLoginConfigurations
+			    puts stdout "Please enter which Application Login Configuration to modify"
+			    set loginConfigAlias [gets stdin]
+			    if {$loginConfigAlias != {}} {
+				    modifyJAASConfigurationEntry $loginConfigAlias 
+			    }
+			  }  
+			4 { puts stdout "Aliases for Application Login Configurations are\n"
+			    showAliasesForLoginConfigurations
+			    puts stdout "Please enter which Application Login Configuration to delete"
+			    set loginAlias [gets stdin]
+			    if {$loginAlias != {}} {
+				    deleteJAASConfigurationEntry $loginAlias
+		            }
+			  }  
+			5 { saveConfig
+			    puts stdout "Aliases for Application Login Configurations are\n"
+			    showAliasesForLoginConfigurations
+			  }  
+			6 { set $loop false; break }
+			7 { mainMenu }
+		}
+	}   
+}
+
+proc subMenu_JAAS {} {
+	set loop true
+	puts stdout "\tWelcome to JAAS Configuration Center"
+	puts stdout "================================================================================"
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu:"
+		puts stdout "\n 1)  Configure Application Login"
+		puts stdout "\n 2)  Configure J2C Authentication Data"
+		puts stdout "\n 3)  Back to Previous Menu"
+		puts stdout "\n 4)  Back to Main Menu"	
+		puts stdout "\nYour Choice:"
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { configAppLogins }
+			2 { configJAASAuthData }
+			3 { set loop false; break }
+			4 { mainMenu }
+		}
+	}   
+}
+
+proc subMenu_SSL {} {
+        set loop true
+        puts stdout "\tSSL Configuration"
+        puts stdout "======================"
+        while {$loop} {
+                puts stdout "\nPlease enter your choice from the following menu choices:"
+                puts stdout "\n 1) Create a SSL Configuration Repertoire"
+                puts stdout "\n 2) Show SSL Configuration Repertoires"
+                puts stdout "\n 3) Modify a SSL Configuration Repertoire"
+                puts stdout "\n 4) Delete a SSL Configuration Repertoire"
+                puts stdout "\n 5) Save Current Configuration"
+                puts stdout "\n 6) Back to Previous Menu"
+		puts stdout "\n 7) Back to Main Menu"
+                puts stdout "\nYour Choice:"
+                set subChoice [gets stdin]
+                
+                switch -exact -- $subChoice {
+                        1 {	addSSLEntry }
+                          
+                        2 {	showSSLEntries}
+                          
+                        3 { 	puts stdout "Available SSL Aliases for modifications\n"
+				showSSLAlias
+				puts stdout "Please specify which SSL Alias to modify"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					modifySSLEntry $userinput
+				}
+                          }
+                        4 { 	puts stdout "Available SSL Aliases for deletions\n"
+				showSSLAlias
+				puts stdout "Please specify which SSL Alias to delete"
+				set userinput [gets stdin]
+				if {$userinput != {}} {
+					deleteSSLEntry $userinput
+				}
+                          }
+                        5 { 	saveConfig }
+			6 { 	set $loop false; break }
+			7 {	mainMenu }
+                }
+       }
+}                      
+
+
+
+proc config_TAI {trustConfigId} {
+        global AdminConfig
+	set loop true
+	set attrib {}
+	puts stdout "\tConfiguring Trust Association Interceptor"
+	puts stdout "=================================================="
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Add a TAInterceptor"
+		puts stdout "\n 2)  Show the list of configured TAInterceptors"
+		puts stdout "\n 3)  Modify a TAInterceptor"
+		puts stdout "\n 4)  Delete a TAInterceptor"
+		puts stdout "\n 5)  Save Current Configuration"
+		puts stdout "\n 6)  Back to Previous Menu"
+		puts stdout "\nYour Choice:"		
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { 	puts stdout "Please type the Interceptor Classname"
+				set userinput [gets stdin]
+				createTAInterceptor $trustConfigId $userinput
+			  }
+			2 {	set listOfTAI [$AdminConfig list TAInterceptor]
+				foreach tai $listOfTAI { 
+					set className [$AdminConfig showAttribute $tai interceptorClassName]
+					puts stdout "$className"
+				}     
+			  }    
+			3 {  	puts stdout "Available Trust Association Interceptors for modifications\n"
+				showTAInterceptors
+				puts stdout "Please enter the interceptorClassName you want to modify"
+				set className [gets stdin]
+				modifyTAInterceptor $trustConfigId $className 
+			  }
+			4 {	puts stdout "Available Trust Association Interceptors for deletion\n"
+				showTAInterceptors
+				puts stdout "Please enter the interceptorClassName you want to delete"
+				set className [gets stdin]
+				deleteTAInterceptor $trustConfigId $className
+			  }
+			5 {	saveConfig }	
+			6 { 	set loop false; break }
+		}
+	}   
+}
+                     
+
+proc configTA {} {
+        global AdminConfig TA
+	set loop true
+	set attrib {}
+	puts stdout "\tConfiguring Trust Association"
+	puts stdout "===================================="
+	while {$loop} {
+		puts stdout "\nPlease enter your choice from the following menu choices:"
+		puts stdout "\n 1)  Set Enabled"
+		puts stdout "\n 2)  Configure Trust Association Interceptors"
+		puts stdout "\n 3)  Save Current Configuration"
+		puts stdout "\n 4)  Back to Previous Menu"
+		puts stdout "\n 5)  Back to Main Menu"
+		puts stdout "\nYour Choice:"		
+		set subChoice [gets stdin]
+		
+		switch -exact -- $subChoice {
+			1 { 	puts stdout "Enable Trust Association y/n"
+				set userinput [gets stdin]
+				if {[regexp $userinput y]} {
+					lappend attrib [list enabled "true"]
+				} else {
+					lappend attrib [list enabled "false"]
+				}
+				set TAConfigId [$AdminConfig list TrustAssociation]
+				$AdminConfig modify $TAConfigId $attrib 
+			  }
+			2 { 	config_TAI $TAConfigId   
+			  }    
+			3 { 	if {[llength $attrib] != 0} {
+					setTA $attrib; saveConfig 
+				}     
+			  }
+			4 { 	set loop false; break }
+			5 {	mainMenu }
+		}
+	}   
+}
+
+mainMenu
+
+                  

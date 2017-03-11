@@ -1,0 +1,53 @@
+
+proc JVcreateListenerPort {nodeName lpDescr lpName lpCFJNDI lpDestJNDI lpMaxSes lpMaxRet lpMaxMsgs smIState} {
+
+   global AdminConfig;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create Listener Port                             ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                    $nodeName   ";
+   puts " Listener Port:                         ";
+   puts "    Name                    $lpName     ";
+   puts "    Description             $lpDescr    ";
+   puts "    ConnectionFactory JNDI  $lpCFJNDI   ";
+   puts "    Destination JNDI        $lpDestJNDI ";
+   puts "    Maximum Sessions        $lpMaxSes   ";
+   puts "    Maximum Retries         $lpMaxRet   ";
+   puts "    Maximum Messages        $lpMaxMsgs  ";
+   puts "    Initial State           $smIState   ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+#--------------------------------------------------------------------
+# Get Message Listener Service
+#--------------------------------------------------------------------
+
+   puts "Get the Message Listener Service";
+   set mls [lindex [$AdminConfig list MessageListenerService] 0];
+   if {[llength $mls] ==0} {
+      JVputError "Could not find the Message Listener Service";
+      return;
+   }
+
+#--------------------------------------------------------------------
+# Create Listener Port
+#--------------------------------------------------------------------
+
+   puts "Create Listener Port $lpName";
+   set descr_attr      [list description $lpDescr];
+   set name_attr       [list name $lpName];
+   set cfJNDI_attr     [list connectionFactoryJNDIName $lpCFJNDI];
+   set destJNDI_attr   [list destinationJNDIName $lpDestJNDI];
+   set maxSes_attr     [list maxSessions $lpMaxSes];
+   set maxRet_attr     [list maxRetries $lpMaxRet];
+   set maxMsgs_attr    [list maxMessages $lpMaxMsgs];
+# setup State Management Attributes                                                       
+   set InitState_attr  [list initialState $smIState];
+   set sm_attrs        [list $InitState_attr];
+   set stateMgmt_attr  [list stateManagement $sm_attrs];
+   set attrs           [list $descr_attr $name_attr $cfJNDI_attr $destJNDI_attr $maxSes_attr $maxRet_attr $maxMsgs_attr $stateMgmt_attr];
+   set newLP [$AdminConfig create ListenerPort $mls $attrs];
+}

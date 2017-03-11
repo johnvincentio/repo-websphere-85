@@ -1,0 +1,30 @@
+
+proc JVlistSIBQueue {} {
+
+   global AdminConfig;
+   global AdminTask;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              List SIB Queues                                ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   foreach entry [$AdminConfig list SIBQueue] {
+      puts " ";
+      puts "    Name: $entry";
+      puts " ";
+   }
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              List SIB Topics                                ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   foreach entry [$AdminConfig list SIBTopicSpace] {
+      puts " ";
+      puts "    Name: $entry";
+      puts " ";
+   }
+}

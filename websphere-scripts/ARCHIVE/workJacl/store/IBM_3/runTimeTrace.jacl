@@ -1,0 +1,145 @@
+#############################################################################################
+#     
+#   Author:  Ganesan Karuppaiah  (Ken) 
+#            IBM WebSphere Support
+#   This script is used to set traces for running JVM (dmgr,nodeagent and Server)
+#   
+#   It can be used both "Base Only","ND Only" and "Federated Cell environment (Base/ND)"   
+#
+#############################################################################################
+#
+#  How to use:
+#  -----------
+#  1.Copy and paste this "runTimeTrace.jacl"  <was_root>/bin dir
+#  2.Start wsadmin from command line with -f 
+#   <was_root>/bin>wsadmin -f runTimeTrace.jacl 
+#  3.If you choose to place this "runTimeTrace.jacl" in some other dir 
+#    Please provide fully qualified name
+#    Ex: I am placing this in C:\myDir\runTimeTrace.jacl
+#   <was_root>/bin>wsadmin  -f  C:\myDir\runTimeTrace.jacl 
+#
+#         WARNING !!!!! 
+#         Federated Cell  Env. 
+#         =================== 
+#         This script uses $AdminConfig and $AdminControl Objects 
+#         If you are trying to connect wsadmin  to "NodeAgent" or "Server" port  this will fail !!
+#         $AdminConfig  service is not available for NodeAgent/Server in a Federated Cell  Env.
+#
+#         If you want to connect wsadmin to a particular Server/NodeAgent SOAP port (Federated Cell  Env)
+#         Please comment the $AdminConfig function from this script  
+#
+#         #set kenAvailableServer [$AdminConfig list Server]
+#         #puts "$kenAvailableServer"
+#
+#         Stand alone Base Env
+#         ======================        
+#         If you are connecting wsadmin to a Server's SOAP port ..this will work
+#
+#         Suggestion:
+#         ===========
+#         In a Federated Cell  Env. always start wsadmin using "dmgr" port (ND SOAP Port)
+#         This will have access to all Servers !!
+#
+#  
+#############################################################################################
+
+set thisNode [$AdminControl getNode]
+set thisPort [$AdminControl getPort]
+set kenAvailableServer [$AdminConfig list Server]
+puts "  "
+puts "  "
+puts "-----------------------------Start----------------------------------------"
+puts "   "
+puts "   "
+puts "This wsadmin script is connected to"
+puts "  "
+puts "  "
+puts "Node => $thisNode"
+puts "Port => $thisPort"
+puts "  "
+puts "Only following Server(s) are available for This wsadmin connection"
+puts "  "
+puts "=================================================================="
+puts "  "
+puts "  "
+puts "$kenAvailableServer"
+puts "  "
+puts "  "
+puts "----------------------------------------------------------------------"
+puts "  "
+puts "  "
+puts "Enter following details for Tracing"
+puts "    "
+puts -nonewline  "Enter Server Name   : " ; gets stdin myServer 
+puts -nonewline  "Enter Node   Name   : " ; gets stdin myNode
+puts "  "
+set kenServerObject     [ $AdminControl completeObjectName type=TraceService,node=$myNode,process=$myServer,* ] 
+if {[llength $kenServerObject] < 1} {
+     puts "---------------------------ERROR------------------------------------"
+     puts "  "
+     puts "  "
+     puts "Error -- Server==> $myServer is NOT running on Node==> $myNode !!"
+     puts "Check the serverstatus <was_root>/bin>serverstatus.bat/sh  $myServer"
+     puts "  "
+     puts "  "
+     puts "--------------------------------------------------------------------"
+     puts "  "
+     puts "  "
+     return 
+ }
+set  currentTrace [$AdminControl getAttribute $kenServerObject traceSpecification]
+puts "   " 
+puts "   "
+puts "   " 
+puts "Current Trace settings for $myServer "
+puts "===> $currentTrace"
+puts "   "
+puts "   "
+puts "   " 
+puts "Enter New Trace  String as per IBM Support recommendations !!!" 
+puts "Example: com.ibm.ejs.*=all=enabled "
+puts "   " 
+puts -nonewline "===> " ; gets stdin myTrace
+puts "  "
+puts "  "
+if {[llength $myTrace] < 1} {
+     puts "---------------------------ERROR------------------------------------"
+     puts "  "
+     puts "  "
+     puts "Error---Trace Specification is NOT Valid  !!"
+     puts "  "
+     puts "  "
+     puts "--------------------------------------------------------------------"
+     puts "  "
+     puts "  "
+     return 
+ }
+puts "Setting new trace for  $myServer in Node  $myNode ................"
+set kenTrace [$AdminControl setAttribute $kenServerObject traceSpecification $myTrace]
+puts "   "  
+puts "Trace setting for $myServer Completed successfully ....!"
+puts "   "
+puts "   "
+set  newTrace [$AdminControl getAttribute $kenServerObject traceSpecification]
+puts "New Trace settings for $myServer "
+puts "---------------------------------"
+puts "   "
+puts "===> $newTrace"
+puts "   "
+puts "   "
+puts "   "
+puts "Please Note: "
+puts "============"
+puts "Enabling run time trace creates following informations:"
+puts "   " 
+puts "1.tracefile called ==> trace.log  "
+puts "in <Installed root of $myNode>/logs/$myServer/trace.log  "
+puts "   "
+puts "2.SystemOut.log gets updated with new Trace settings !!!"
+puts " <Installed root of $myNode>/logs/$myServer/SystemOut.log "
+puts "   "
+puts "   " 
+puts "--------------------------End------------------------------------------"
+puts "   "
+puts "   " 
+exit

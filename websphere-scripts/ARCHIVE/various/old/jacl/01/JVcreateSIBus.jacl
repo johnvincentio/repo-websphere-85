@@ -1,0 +1,47 @@
+
+proc JVcreateSIBus {NodeName ServerName SIBusName SIBusDesc SIBusSecure} {
+
+   global AdminTask;
+   global AdminConfig;
+
+#--------------------------------------------------------------------
+# Create a bus in the current cell.  As well as creating a bus, the
+# createSIBus command will create a default topic space on the bus.
+#--------------------------------------------------------------------
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create SI bus                                    ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts "    server              $ServerName                            ";
+   puts " SI bus:                                                       ";
+   puts "    name                $SIBusName                             ";
+   puts "    description         $SIBusDesc                             ";
+   puts "    secure              $SIBusSecure (true or false)           ";
+   puts "---------------------------------------------------------------";
+   puts "";
+ 
+   set bus [$AdminConfig getid /SIBus:$SIBusName];
+   if {[llength $bus] == 0} {
+      JVputInfo "Create a new SI bus named $SIBusName.";
+#      $AdminTask createSIBus [list -bus $SIBusName -description $SIBusDesc];
+      $AdminTask createSIBus [list -bus $SIBusName -description $SIBusDesc -secure $SIBusSecure];
+   } else {
+      JVputInfo "The $SIBusName already exists.";
+   }
+
+#--------------------------------------------------------------------
+# Add SI bus member
+#--------------------------------------------------------------------
+
+   JVaddSIBusMember $NodeName $ServerName $SIBusName;
+
+#--------------------------------------------------------------------
+# Enable SIB service
+#--------------------------------------------------------------------
+
+   JVenableService $NodeName $ServerName SIBService;
+}
+

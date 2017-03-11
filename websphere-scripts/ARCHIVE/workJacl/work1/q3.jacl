@@ -1,0 +1,21 @@
+puts ">>> q3"
+
+source q3prof.jacl
+
+puts "q3; stage 1"
+
+#set JVServer server1
+#set JVCell localhost
+#set JVNode localhost
+
+# alphaNode02Cell\alphaNode02\server1
+set JVServer server1
+set JVCell alphaNode02Cell
+set JVNode alphaNode02
+
+set JVResourceProvider REP1
+
+JV_create_resource_provider $JVNode $JVCell $JVResourceProvider
+
+puts "<<< q3"
+

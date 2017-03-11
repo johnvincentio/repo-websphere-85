@@ -1,0 +1,74 @@
+set FileName "wpcpRemoveJDBC.jacl"
+set FlagDebug {False}
+#set FlagDebug True
+#set FlagDebug False
+
+set NodeName {@NodeName@}
+#set JDBCProviderName {wps50JDBC}
+
+if {$FlagDebug == "True"} {
+    puts stdout " "
+    puts stdout "-------------------------------------------------------------------------------------------------------"
+    puts stdout "---- Start $FileName"
+    puts stdout "----"
+    puts stdout "---- Check if JDBCProvider: $JDBCProviderName; Parent Node: $NodeName exists."
+    puts stdout "---- If JDBCProvider exists, remove it and check for success."
+    puts stdout "----"
+    puts stdout "---- Debugmode = $FlagDebug"
+    puts stdout "-------------------------------------------------------------------------------------------------------"
+}
+
+
+set JDBCProviderCount 0
+set FlagJDBCProviderExist "False"
+foreach TmpJDBCProvider [$AdminConfig list JDBCProvider] {
+    incr JDBCProviderCount
+    set TmpJDBCProviderName [$AdminConfig showAttribute $TmpJDBCProvider name]
+    if {$FlagDebug == "True"} {puts stdout "$JDBCProviderCount. Server $TmpJDBCProviderName"}
+    if {[string compare $TmpJDBCProviderName $JDBCProviderName] == 0} {
+        set FlagJDBCProviderExist "True"
+        #break;
+    }
+}
+
+if {$FlagJDBCProviderExist == "False"} {
+    puts stdout "JDBCProvider $JDBCProviderName does not exist, no Action taken"
+    exit 1
+} else {
+    ########### remove JDBCProvider ####################################
+	set JDBCProviderId [$AdminConfig getid /Node:$NodeName/JDBCProvider:$JDBCProviderName/]
+	if {$FlagDebug == "True"} {puts stdout "JDBCProviderId = $JDBCProviderId"}
+    if {[catch {$AdminConfig remove $JDBCProviderId} result]} {
+		puts stdout "ERROR: JDBCProvider $JDBCProviderName could not be removed ."
+		exit 1
+    }
+}
+
+
+
+#check for success
+if {$FlagDebug == "True"} {puts stdout " "}
+set JDBCProviderCount 0
+set FlagJDBCProviderExist "False"
+foreach TmpJDBCProvider [$AdminConfig list JDBCProvider] {
+    incr JDBCProviderCount
+    set TmpJDBCProviderName [$AdminConfig showAttribute $TmpJDBCProvider name]
+    if {[string compare $TmpJDBCProviderName $JDBCProviderName] == 0} {
+        set FlagJDBCProviderExist "True"
+        break;
+    }
+}
+if {$FlagJDBCProviderExist == "False"} {
+	puts stdout "JDBCProvider $JDBCProviderName successfully removed."
+	$AdminConfig save
+} else {	
+	puts stdout "ERROR: JDBCProvider $JDBCProviderName could not be removed."
+    exit 1
+}
+
+if {$FlagDebug == "True"} {
+	puts stdout " "
+	puts stdout "-------------------------------------------------------------------------------------------------------"
+	puts stdout "---- End $FileName"
+	puts stdout "-------------------------------------------------------------------------------------------------------"
+}

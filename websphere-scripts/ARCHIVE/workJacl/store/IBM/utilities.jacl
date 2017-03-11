@@ -1,0 +1,822 @@
+#--------------------------------------------------------------------
+# Procedure:   userPrompt
+# Description: 
+# Parameters:
+# Returns:
+#
+# Note: This procedure returns 0 for matching the desiredResponse and
+#       a value > 0 for any error response, similar to how "catch" works
+#--------------------------------------------------------------------
+proc userPrompt {args} {
+  set displayMessage "Press ENTER to Continue, R to Rollback, or Q to Quit"
+  set returnCode 0
+  if {[llength $args]} {
+    catch {lindex $args 0} displayMessage
+    catch {lindex $args 1} desiredResponse
+  }
+
+  # Display the message to the user
+  puts "$displayMessage"
+
+  # Wait for user response
+  set userResponse [gets stdin]
+
+  if {[string length $userResponse]} {
+    # A response value was given, check if we are comparing it to something
+    switch [string tolower $userResponse] {
+      "q" {
+        puts "Exiting script immediately"
+        exit
+      }
+      "r" {
+        puts "User Requested Rollback"
+        set returnCode 100
+      }
+      default {
+        if {[info exists desiredResponse]} {
+          set returnCode [expr ![string match $desiredResponse $userResponse]]
+        } else {
+          # User entered a value even though no comparison was requested
+          set returnCode 0
+        }
+      }
+    }
+  } else {
+    # User only pressed ENTER so return a true value (default)
+    set returnCode 0
+  }
+  return $returnCode
+}
+
+
+#--------------------------------------------------------------------
+# Procedure:   parsePMIdataForLiveSessions
+# Description: 
+# Parameters:
+# Returns:
+#
+# This is a major hack to get the data until getStatistics works...
+#--------------------------------------------------------------------
+proc parsePMIdataForLiveSessions {inDataString inID} {
+  regexp "id=$inID.*current=(\\d*)" $inDataString tempStr liveSessionsValue
+  #puts "Live Sessions: $liveSessionsValue"
+  return $liveSessionsValue
+}
+
+#--------------------------------------------------------------------
+# Procedure:   sortUnique
+# Description: This method is a replacement for the lsort -unique
+#              which doesn't seem to be implemented yet in the lsort
+#              JACL code.
+# Parameters:
+# Returns:
+#
+# Note: lsort uses merge sort which is O(n log n) plus there is an 
+#       O(n) iteration through the list to make it unique.
+#--------------------------------------------------------------------
+proc sortUnique {inList args} {
+  # Get the index to sort on for sublists
+  if {[info exists args]} {
+    set sortIndex [lindex $args 0]
+  } 
+  # Sort the list to get everything in order
+  # Sort by the index 1 because the index 0 value is just a name attribute
+  set sortedList [lsort -index $sortIndex $inList]
+
+  # Now iterate through the list and remove any duplicates
+  set finalList {}
+#  puts "List: $sortedList"
+  foreach element $sortedList {
+    # Flatten the current element into a string
+    set elementStr [join [lindex $element $sortIndex]]
+#    puts "Element String: $elementStr"
+
+    # Check if we already have set the lastElementStr.  If so, start the comparison
+    if [info exists lastElementStr] {
+#      puts "Last Element String exists"
+     # Compare the last element to this element
+      if {[string compare $elementStr $lastElementStr] != 0} {
+#        puts "Element is unique, adding to final list"
+        # We found a unique value, so add it to the final list
+        lappend finalList $element
+      } else {
+        # Found a duplicate, add name to first of this type (which should be the last appended item)
+#        puts "Found matching elements"
+        set tempObj [lindex $finalList end]
+#        puts "Final List: $finalList"
+#        puts "Temp Obj: $tempObj"
+        set tempList [lindex $tempObj 0]
+#        puts "TempList: $tempList"
+        set tempElem [lindex $element 0]
+#        puts "TempElem: $tempElem"
+        lappend tempList [lindex $tempElem 0]
+#        puts "TempList: $tempList"
+        set lastObj [lreplace $tempObj 0 0 $tempList]
+#        puts "Last Object: $lastObj"
+        set finalList [lreplace $finalList end end $lastObj]
+      }
+    } else {
+      # The first element is always unique, so add it to the final list
+      lappend finalList $element
+    }
+
+    # Update the 'last element'
+#    puts "Setting the 'last element'"
+    set lastElementStr $elementStr
+  }
+  # Return the unique list to the caller
+  return $finalList
+}
+
+
+#--------------------------------------------------------------------
+# Procedure:   getActiveObjectValues
+# Description: 
+# Parameters: 
+# Returns:     A list of values for a runtime object.
+#
+# Note: The values returned are not the same as MBean attributes.
+#       The values are simply the value portion of the name=value 
+#       pairs that make up a runtime object's completeObjectName.
+#--------------------------------------------------------------------
+proc getActiveObjectValues {inObjectList inObjectType args} {
+  global AdminControl
+
+  set resultList {}
+  foreach obj $inObjectList {
+    if {[catch {$AdminControl completeObjectName $obj} completeName]} {
+      if {[catch {$AdminControl completeObjectName "type=$inObjectType,name=$obj,*"} completeName]} {
+        puts "Error getting complete name of Active Object"
+        puts "Error Message = $completeName"
+        return
+      }
+    }
+
+    if {[string length $completeName]} {
+      foreach arg $args {
+      # Get the Name/value pair of the attribute desired (save just the value)
+      # FIXME: Need to add dash "-" and slash "/" as possible character to accept in the arg value
+        regexp -nocase -- "$arg=(\\w*)" $completeName tempStr argValue
+        #puts "Name/Value: $arg - $argValue"
+        lappend resultList $argValue
+      }
+    }
+    #puts "Result List in Loop: $resultList"
+  }
+  #puts "Result List: $resultList"
+  return $resultList
+}
+
+#--------------------------------------------------------------------
+# Procedure:   getConfigObject
+# Description: 
+# Parameters: 
+# Returns:     
+#--------------------------------------------------------------------
+proc getConfigObject {objectName objectType} {
+  global AdminConfig 
+
+  if {[catch {$AdminConfig getid "/$objectType:$objectName/"} objID]} {
+    puts "Error getting object ID of Config Object"
+    puts "Error Message = $objID"
+    return
+  }
+  return $objID
+}
+
+#--------------------------------------------------------------------
+# Procedure:   getConfigObjectScoped
+# Description: 
+# Parameters: 
+# Returns:     
+#--------------------------------------------------------------------
+proc getConfigObjectScoped {scopeObjectID objectType} {
+  global AdminConfig
+
+  if {[catch {$AdminConfig list $objectType $scopeObjectID} obj]} {
+    global errorInfo
+    puts "Error getting $objectType object"
+    puts "Error Message = $obj"
+    puts $errorInfo
+    return
+  }
+  return $obj
+}
+#--------------------------------------------------------------------
+# Procedure:   getConfigObjectValues
+# Description: 
+# Parameters: 
+# Returns:     A list of values for a runtime object.
+#
+# Note: 
+#--------------------------------------------------------------------
+proc getConfigObjectValues {objectNameList objectType args} {
+  global AdminConfig
+
+  set resultList {}
+  foreach objectName $objectNameList {
+    set objID [getConfigObject objectName objectType]
+
+    if {[string length $objID]} {
+      foreach arg $args {
+        switch [string tolower $arg] {
+          "node" {
+            regexp -nocase -- "nodes/(\\w*)/" $objID tempStr argValue
+          }
+          default {
+            if {[catch {$AdminConfig showAttribute $objID $arg} argValue]} {
+              puts "Error getting value of attribute $arg"
+              puts "Error Message = $argValue"
+            }
+          }
+        }
+        lappend resultList $argValue
+      }
+    }
+  }
+  return $resultList
+}
+
+#--------------------------------------------------------------------
+# Procedure:   setConfigObjectValues
+# Description: 
+# Parameters: 
+#--------------------------------------------------------------------
+proc setConfigObjectValues {objectNameList objectType args} {
+  global AdminConfig
+
+  foreach objectName $objectNameList {
+    foreach {name value} $args {
+      switch [string tolower $objectType] {
+        "javavirtualmachine" {
+          # Get the parent object of the JVM since JVM's are not named objects
+          set scopingID [getConfigObject $objectName Server]
+          # Get the JVM object of the specified server
+          set jvm [getConfigObjectScoped $scopingID JavaVirtualMachine]
+
+          switch [string tolower $name] {
+            "heapmin" {
+              if {[catch {$AdminConfig modify $jvm [list [list initialHeapSize $value]]} error]} {
+                puts "Error setting JVM Minimum Heap Size"
+                puts "Error Message = $error"
+                return
+              } else {
+                puts "$objectName JVM Minimum Heap Size set to $value"
+              }
+            }
+            "heapmax" {
+              if {[catch {$AdminConfig modify $jvm [list [list maximumHeapSize $value]]} error]} {
+                puts "Error setting JVM Maximum Heap Size"
+                puts "Error Message = $error"
+                return
+              } else {
+                puts "$objectName JVM Maximum Heap Size set to $value"
+              }
+            }
+            "classpath" {
+              if {[catch {$AdminConfig modify $jvm [list [list classpath $value]]} error]} {
+                puts "Error setting JVM Classpath"
+                puts "Error Message = $error"
+                return
+              } else {
+                puts "$objectName JVM Classpath set to $value"
+              }
+            }
+            default {
+              if {[catch {$AdminConfig modify $jvm [list [list $name $value]]} error]} {
+                puts "Error setting $name to $value"
+                puts "Error Message = $error"
+                return
+              }
+            }
+          }
+        }
+        "webcontainer" {
+          # Get a parent/scoping object of the Web Container since 
+          # Web Containers are not named objects
+          set scopingID [getConfigObject $objectName Server]
+          # Get the Web Container of the specified Server
+          set webContainer [getConfigObjectScoped $scopingID WebContainer]
+
+          switch [string tolower $name] {
+            "threadpoolmin" {
+              # FIXME: The following line I believe is correct but it does not
+              # seem to scope the results correctly
+              #set threadPool [getConfigObjectScoped $webContainer ThreadPool]
+              # FIXME: Workaround...
+              set threadPool [$AdminConfig showAttribute $webContainer threadPool]
+              if {[catch {$AdminConfig modify $threadPool [list [list minimumSize $value]]} error]} {
+                puts "Error setting Web Container Minimum Thread Pool Size"
+                puts "Error Message = $error"
+                return
+              } else {
+                puts "$objectName Web Container Minimum Thread Pool Size set to $value"
+              }
+            }
+            "threadpoolmax" {
+              set threadPool [$AdminConfig showAttribute $webContainer threadPool]
+              if {[catch {$AdminConfig modify $threadPool [list [list maximumSize $value]]} error]} {
+                puts "Error setting Web Container Maximum Thread Pool Size"
+                puts "Error Message = $error"
+                return
+              } else {
+                puts "$objectName Web Container Maximum Thread Pool Size set to $value"
+              }
+            }
+          }
+        }
+        default {
+        }
+      }
+    }
+  }
+}
+
+#--------------------------------------------------------------------
+# Procedure:   getShellEnvVariable
+# Description: This procedure retrieves environment variables that
+#              were set in the calling shell environment.
+# Parameters:  inName = Name of the environment variable to retrieve
+# Returns: The value of the environment variable passed in as inName
+#--------------------------------------------------------------------
+proc getShellEnvVariable {inName} {
+  if {[catch {exec env} variables]} {
+    puts "Error getting Environment Variables"
+    puts "Error Message = $variables"
+    return
+  }
+  set regExp "$inName=(.*)"
+  regexp -nocase -- $regExp $variables tempStr tempValue
+  regsub -all {\"} $tempValue {} envValue
+  return $envValue
+}
+
+#--------------------------------------------------------------------
+# Procedure:   regeneratePluginConfig
+# Description: 
+# Parameters:  
+#--------------------------------------------------------------------
+proc regeneratePluginConfig {args} {
+  global AdminControl
+
+  if {[info exists $args]} {
+    # FIXME
+  } else {
+    lappend pluginOptionsList [getShellEnvVariable "WAS_ND_HOME"]
+    lappend pluginOptionsList [getShellEnvVariable "WAS_ND_CONFIG"]
+    lappend pluginOptionsList [$AdminControl getCell]
+    lappend pluginOptionsList null
+    lappend pluginOptionsList null
+    lappend pluginOptionsList [getShellEnvVariable "PLUGIN_CFG_NAME"]
+  }
+
+  if {[catch {$AdminControl completeObjectName type=PluginCfgGenerator,*} pluginGenerator]} {
+    puts "Error setting Plugin Configuration Generator"
+    puts "Error Message = $pluginGenerator"
+    break
+  }
+
+  $AdminControl invoke $pluginGenerator generate $pluginOptionsList
+}
+
+#--------------------------------------------------------------------
+# Procedure:   updatePluginConfigPaths
+# Description:
+# Parameters:
+# Returns:
+#--------------------------------------------------------------------
+proc updatePluginConfigPaths {args} {
+
+  set filePath [getShellEnvVariable "PLUGIN_CFG_PATH"]
+  if [catch {
+       set originalFile [open $filePath r]
+       set originalText [split [read $originalFile] \n]
+       close $originalFile
+       file rename -force -- $filePath "$filePath.bak"
+     } error] {
+     puts "Error Reading File $filePath"
+     puts "Error Message = $error"
+     return 
+  }
+
+  if {[info exists $args]} {
+    # FIXME
+  } else {
+    set searchStr [getShellEnvVariable "WAS_ND_HOME"]
+    set replaceStr [getShellEnvVariable "WAS_BASE_HOME"]
+  }
+
+  if {[catch {open $filePath w} updatedFile]} {
+     puts "Error Opening File $filePath"
+     puts "Error Message = $updatedFile"
+     return
+  } else {
+    foreach line $originalText {
+      regsub -all -- $searchStr $line $replaceStr newLine 
+      puts $updatedFile $newLine
+    }
+    close $updatedFile
+  }
+}
+
+#******************************************************************************
+# Synchronization Procedures Section
+#******************************************************************************
+
+#--------------------------------------------------------------------
+# Procedure:   syncActiveObjectToConfigObject
+# Description:
+# Parameters:
+# Returns:
+#--------------------------------------------------------------------
+proc syncActiveObjectToConfigObject {runtimeObject} {
+  global AdminConfig AdminControl
+
+#  puts "Incoming object: $runtimeObject"
+#  if {[$AdminControl isRegistered $runtimeObject]} {
+    # Convert the runtime object to a config object
+#    set configObjectID [$AdminControl getConfigId $runtimeObject]
+    set configObjectID [getConfigId-FIX $runtimeObject]
+#    puts "Config Object ID: $configObjectID"
+    # Get the list of all the runtime object attributes
+#    puts "Getting list of attributes for object $runtimeObject"
+    set runtimeAttrList [$AdminControl getAttributes $runtimeObject]
+    #puts "Attribute List: $runtimeAttrList"
+    
+#    puts "Starting foreach loop"
+    # Set all of the Active attributes to the value of the config attributes recursively
+    foreach attr $runtimeAttrList {
+#      puts "Object: $attr"
+#      puts "Name: [lindex $attr 0]  Value: [lrange $attr 1 end]"
+      set isObject [catch {$AdminControl completeObjectName $attr}]
+      if {$isObject} {        
+        $AdminControl setAttribute $runtimeObject [lindex $attr 0] [$AdminConfig showAttribute $configObject [lindex $attr 0]]
+      } else {
+#        puts "$attr is an object"
+        syncActiveObjectToConfigObject $attr
+      }
+    }
+#  }
+}
+
+#--------------------------------------------------------------------
+# Procedure:   syncNodesToMaster
+# Description: Force a synchronization  between the master repository
+#              and the list of nodes.  This is faster than waiting 
+#              for the synchronization timeout.
+# Parameters:
+# Returns:
+#--------------------------------------------------------------------
+proc syncNodesToMaster {nodeList} {
+  global AdminControl
+
+  # Get the ConfigRepository object for the DeploymentManager
+  set repos [$AdminControl completeObjectName type=ConfigRepository,process=dmgr,*]
+  # Reset the epoch so nodes are forced to resync
+  $AdminControl invoke $repos refreshRepositoryEpoch
+
+  # Invoke the resync on each node individually so we know they have been run instead of waiting
+  # for the sync interval
+  foreach node $nodeList {
+    set nodeSync [$AdminControl completeObjectName type=NodeSync,node=$node,*]
+    $AdminControl invoke $nodeSync sync
+  }
+}
+
+#--------------------------------------------------------------------
+# Procedure:   syncPluginConfigFile
+# Description:
+# Parameters:
+# Returns:
+#--------------------------------------------------------------------
+proc syncPluginConfigFile {remoteHost remotePath protocol args} {
+  #FIXME
+
+}
+
+
+#******************************************************************************
+# Auditing Procedures Section
+#******************************************************************************
+
+#--------------------------------------------------------------------
+# Procedure:   compareObjectAttributes
+# Description: 
+# Parameters:
+# Returns:
+#
+# NOTE: The list of objects must all be of the same type.  You can
+#       not compare a Server object to a Perf Object.
+#--------------------------------------------------------------------
+proc compareObjectAttributes {objectList isRecursive isActiveObj} {
+  global AdminConfig AdminControl
+  set diffList {}
+
+  # Check if we are working with a runtime object or a config object
+  if {$isActiveObj} {
+    # Get all the attributes of all the objects.  Then do a unique
+    # sort on them.  If name has two or more values, we know that is different
+    # across the objects.
+    set allAttributes {}
+    foreach obj $objectList {
+      # Get and output the name just to let the user know what we are working with
+      set objProcess [getActiveObjectValues $obj process]
+      set objName [getActiveObjectValues $obj name]
+      set objDisplay "$objName ($objProcess)"
+      puts "Object Name: $objDisplay"
+
+      # Get the attribute list of each object
+      set attrList [$AdminControl getAttributes $obj]
+
+      # Iterate through each attribute in the list and add to a grand list
+      foreach item $attrList {
+        lappend allAttributes [list [list $objDisplay] $item]
+      }
+    }
+
+    puts "Total Configuration Items: [llength $allAttributes]"
+
+    # Do a unique sort on the list.  This sorts the list and removes any duplicates
+    set sortedList [sortUnique $allAttributes 1]
+    foreach item $sortedList {
+      set nameList [lindex $item 0]
+      puts "\nObject Name:                          Attribute:"
+      set first true
+      if {[llength $nameList] > 1} {
+        foreach name $nameList {
+          if {$first} {
+            puts [format "-> %-35s  -> %s" $name [lindex $item 1]]
+            set first false
+          } else {
+            puts [format "-> %-35s" $name]
+          }
+        }
+      } else {
+        puts [format "-> %-35s  -> %s" [lindex $nameList 0] [lindex $item 1]]
+      }
+    }
+
+    puts "\nTotal Configuration Differences: [expr [llength $sortedList] - [llength $attrList]]"
+  }
+}
+
+#******************************************************************************
+# Status Monitoring Section
+# Performance Monitoring Interface (PMI) Procedures
+#
+# Note: look in directory com/ibm/websphere/pmi/xml for a cross-reference of 
+#       PMI id to PMI name
+#******************************************************************************
+
+#--------------------------------------------------------------------
+# Procedure:   getLiveSessionsCount
+# Description:
+# Parameters:
+# Returns:
+#---------------------------------------------------
+proc getLiveSessionsCount {inServerName} {
+  global AdminControl 
+
+  set perfName [$AdminControl completeObjectName type=Perf,process=$inServerName,*]
+  set perfObjName [$AdminControl makeObjectName $perfName]
+
+  # Get the complete name of the server we are monitoring
+  set serverName [$AdminControl completeObjectName type=Server,process=$inServerName,*]
+
+  # set the parameters for the invoke JMX call
+  set params [java::new {java.lang.Object[]} 2]
+  $params set 0 [$AdminControl makeObjectName $server]
+  $params set 1 [java::new java.lang.Boolean true]
+
+  # set the signatures for the invoke JMX call
+#  puts "Setting the signatures"
+  set sigs [java::new {java.lang.String[]} 2]
+  $sigs set 0 javax.management.ObjectName
+  $sigs set 1 java.lang.Boolean
+
+  # Invoke the call to get the PMI Stats Object
+  set object [$AdminControl invoke_jmx $perfOName getStatsObject $params $sigs]
+#  puts "Casting to Stats object"
+  # Cast the object to a Stats object to be safe
+  set stats [java::cast com.ibm.websphere.pmi.stat.Stats $object]
+
+  # We have the Stats object of all the PMI data on the server.  We
+  # need to just get the SessionsModule data
+  set sessionStats [$stats getStats "servletSessionsModule"]
+
+#  puts "Getting 'Live Sessions' Statistic"
+  # According to the servletSessionsModule.xml it looks like id=7 is the Live Sessions
+  #set liveSessionsStat [$sessionStats getStatistic 7]
+  # This 1 line below works.... but doesn't isn't the end result needed...
+  # set liveSessionsStat [$sessionStat getStats "DefaultApplication#DefaultWebApplication.war"]
+  #set liveSessionsStat [$sessionStat getStatistic 7]
+
+#  puts "Getting 'Live Sessions' Count"
+  set liveSessionsCount [parsePMIdataForLiveSessions [$sessionStats toString] 7]
+#  puts "LiveSC: $liveSessionsCount"
+  return $liveSessionsCount
+}
+
+#--------------------------------------------------------------------
+# Procedure:   changeServerWeight
+# Description: 
+#
+# Note: You only need to pass clusterServerName because you are not 
+#       allowed to have the same cluster server names even if 
+#       different cluster groups -newWeight is the new value for the 
+#       weight of the server -pluginDirectory is a list containing 
+#       elements which are the webserver host names combined with the
+#       directory on each webserver where the generated plugin 
+#       should be put. The elements can be a local or remote system 
+#       by using the following syntax:
+#       For a local system use:
+#         /path/to/put/plugin 
+#       Example: /opt/WebSphere/AppServer/config/cells/plugin-cfg.xml
+#       For a remote system use:
+#         remoteHostName:/path/to/put/plugin
+#       Example: test.ibm.com:/opt/WebSphere/AppServer/config/cells/plugin-cfg.xml
+#--------------------------------------------------------------------
+proc changeServerWeight {clusterServerName newWeight pluginDirectory} {
+  global AdminConfig AdminControl
+
+  #Set the $WAS_HOME
+  set was_home [getShellEnvVariable "WAS_HOME"]
+
+  # If the newWeight is non-negative then make the change, otherwise skip this part
+  if {$newWeight >= 0} {
+    # Get the id of the clusterServer to change the weight of
+    set clusterServer [$AdminConfig getid /ClusterMember:$clusterServerName/]
+
+    # Set the weight of the server to the value of newWeight so plugin/WLM will direct traffic accordingly
+    $AdminConfig modify $clusterServer [list [list weight $newWeight]]
+
+    # Save the config
+    $AdminConfig save
+  }
+
+  # Regen the plugin
+  #set generator [$AdminControl completeObjectName type=PluginCfgGenerator,*]
+  #$AdminControl invoke $generator generate "$was_home /tmp [$AdminControl getCell] {} {} test-xml.cfg"
+
+  # Regen the plugin - workaround
+  exec $was_home/bin/GenPluginCfg.sh -cell.name [$AdminControl getCell]
+
+  puts "Plugin Generation Complete!"
+
+  # Fix the plugin to replace DeploymentManager with AppServer (workaround for a bug in WAS 5.0 Beta 4)
+  exec ex -c %s/DeploymentManager/AppServer/ -c wq $was_home/config/plugin-cfg.xml
+
+  # Change permissions on plugin-cfg.xml file so that any user can read it
+  exec chmod a+r $was_home/config/plugin-cfg.xml
+
+  # Copy plugin to config directory for each element specified in $pluginDirectory parameter  
+  # If the copy is to a remote webserver each $pluginDirectory element should take the form of 
+  # remoteHost:/path/to/plugin/directory
+  # If the copy is for a local webserver there should be only 1 element in $pluginDirectory and that 
+  # element should take the form of /path/to/plugin/directory
+  foreach webServer $pluginDirectory { 
+    exec rcp -p $was_home/config/plugin-cfg.xml $webServer
+  }
+}
+
+#--------------------------------------------------------------------
+# Procedure:   drainServer
+# Description: 
+# Parameters:  timeToWait - Time in seconds to wait for the drain
+#                           to complete
+# Returns:
+# Note:
+# - Only need to pass clusterServerName because
+# you are not allowed to have the same cluster server
+# names even if different cluster groups.
+# - This method only works with a cluster server since
+# standalone application servers don't have a WLM
+# weight attribute.
+# -pluginDirectory is a list containing elements which
+# are the webserver host names combined with the directory 
+# on each webserver where the generated plugin should be put.
+# The elements can be a local or remote system by using the syntax:
+# For a local system use /path/to/put/plugin (If system is local
+# no remote hostname is specified)
+# For a remote system use remoteHostName:/path/to/put/plugin
+#---------------------------------------------------
+proc drainServer {clusterServerName timeToWait pluginDirectory} {
+  #global AdminControl AdminConfig
+
+  # Check if the PMI services are turned on in the config
+
+  # Stop traffic from HTTP Server's plugins by changing server weights.
+  # - Set the weight to 0 so plugin/WLM doesn't route to this server
+  # - The pluginDirectory parameter is a list containing elements where the plugin-cfg.xml file
+  #   will be copied to, each element is a combination of remoteHostName:/path/to/plugin, if the
+  #   plugin should be copied to the local config directory only one element should be in the list
+  #   and it should take the form of /path/to/plugin
+  changeServerWeight $clusterServerName 0 $pluginDirectory
+  
+  # Check active sessions status
+  puts "Waiting for plugin to read new config file." 
+  after 30000 
+  set activeSessionCount [getLiveSessionsCount $clusterServerName]
+  puts "Currently there are $activeSessionCount sessions active on $clusterServerName"
+
+  # Wait for either all active sessions to be done or timeToWait has expired
+  set expireTime [clock seconds]
+  incr expireTime $timeToWait
+  puts "Current TimeToWait set to $timeToWait seconds"
+  while {$activeSessionCount > 0 && $expireTime > [clock seconds]} {
+    # Pause for 10 seconds
+    after 10000   
+    set activeSessionCount [getLiveSessionsCount $clusterServerName]
+    puts "Currently there are $activeSessionCount sessions active on $clusterServerName ([expr $expireTime - [clock seconds]]s left)"
+  }
+
+  # Return the number of active sessions  
+  # Note: if activeSessionCount > 0 then we know timeToWait value expired first
+  return $activeSessionCount
+}
+
+#--------------------------------------------------------------------
+# Procedure:   activateServer
+# Description:
+# Parameters:  timeToWait - Time in seconds to wait for the drain
+#                           to complete
+# Returns:
+# Note:
+# - Only need to pass clusterServerName because
+# you are not allowed to have the same cluster server
+# names even if different cluster groups.
+# - This method only works with a cluster server since
+# standalone application servers don't have a WLM
+# weight attribute.
+# -pluginDirectory is a list containing elements which
+# are the webserver host names combined with the directory
+# on each webserver where the generated plugin should be put.
+# The elements can be a local or remote system by using the syntax:
+# For a local system use /path/to/put/plugin (If system is local
+# no remote hostname is specified)
+# For a remote system use remoteHostName:/path/to/put/plugin
+#
+# Author: John Reif jreif@us.ibm.com
+#---------------------------------------------------
+proc activateServer {clusterServerName timeToWait pluginDirectory} {
+  #global AdminControl AdminConfig
+
+  # Check if the PMI services are turned on in the config
+
+  # Start sending traffic to HTTP Server's plugins by changing server weights.
+  # - Set the weight to 1 so plugin/WLM doesn't route to this server
+  # - The pluginDirectory parameter is a list containing elements where the plugin-cfg.xml file
+  #   will be copied to, each element is a combination of remoteHostName:/path/to/plugin, if the
+  #   plugin should be copied to the local config directory only one element should be in the list
+  #   and it should take the form of /path/to/plugin
+  changeServerWeight $clusterServerName 1 $pluginDirectory
+
+  # Check active sessions status
+  # set activeSessionCount [getLiveSessionsCount $clusterServerName]
+  # puts "Currently there are $activeSessionCount sessions active on $clusterServerName"
+
+  # Wait for timeToWait to expire
+  # set expireTime [clock seconds]
+  # incr expireTime $timeToWait
+  # puts "Current TimeToWait set to $timeToWait seconds"
+  # while {$expireTime > [clock seconds]} {
+    # Pause for 10 seconds
+    # after 10000
+    # set activeSessionCount [getLiveSessionsCount $clusterServerName]
+    # puts "Currently there are $activeSessionCount sessions active on $clusterServerName ([expr $expireTime - [clock seconds]]s left)"
+  #}
+
+  # Return the number of active sessions
+  # Note: if activeSessionCount > 0 then we know timeToWait value expired first
+  return #activeSessionCount
+}
+
+#******************************************************************************
+# Status Procedures Section
+#******************************************************************************
+
+#--------------------------------------------------------------------
+# Procedure:   listActiveMBeans
+# Description: Displays the active MBeans running on the system
+# Parameters:
+# Returns:
+#--------------------------------------------------------------------
+proc listActiveMBeans {} {
+  global AdminControl
+
+  set mbCount [$AdminControl getMBeanCount]
+  # Invoking the queryNames will display the results to the screen
+  set mbList [$AdminControl queryNames *]
+
+  puts "Active Object Count: $mbCount"
+}
+
+#******************************************************************************
+# Bonus Tips and Techniques Section
+#******************************************************************************
+# Use "$Help operations $object" to get operations that can be performed on the object
+# Also use "$Help attributes $object" or "$AdminConfig attributes Object"
+# While in wsadmin interpretter, push CNTL-4 to force thread dump
+# Use "$AdminConfig getObjectName $object" to convert from config world to control world objects
+# Use "$AdminControl getConfigId $object" to convert from control world to config world objects
+# When trying to set Object attributes using a variable, use the [list Attribute $variable] to get jacl to resolve the variable.

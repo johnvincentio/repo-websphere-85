@@ -1,0 +1,11 @@
+#
+trap 'echo -e "\nwsadmin has been aborted\n";exit 1' 1 2 15
+#
+JVADMIN_DIR="/opt/IBM/Rational/SDP/6.0/runtimes/base_v6/bin"
+JVADMIN="${JVADMIN_DIR}/wsadmin.sh"
+#
+echo " "
+echo " Starting wsadmin for Jacl MDB work"
+echo " "
+${JVADMIN} -f mdb.jacl -conntype SOAP -port 8889
+echo "wsadmin script is complete"

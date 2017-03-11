@@ -1,0 +1,19 @@
+puts ">>> q3"
+
+#source q2prof.jacl
+source q3prof.jacl
+
+puts "q3; stage 1"
+set JVServer server1
+set JVCell localhost
+set JVNode localhost
+
+#JV_trace_on $JVNode $JVServer
+
+set JVResourceProvider REP1
+# set JVName fred
+JV_create_resource_provider $JVNode $JVCell $JVResourceProvider
+
+#JV_Test
+
+puts "<<< q3"

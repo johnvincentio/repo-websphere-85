@@ -1,0 +1,20 @@
+set NodeName {localhost}
+set JDBCProviderName {wps50JDBC}
+
+# Check if exists
+set JDBCProviderId [$AdminConfig getid /Node:$NodeName/JDBCProvider:$JDBCProviderName/]
+if {$JDBCProviderId != ""} {
+    $AdminConfig remove $JDBCProviderId
+	
+	# Check for success
+	set JDBCProviderId [$AdminConfig getid /Node:$NodeName/JDBCProvider:$JDBCProviderName/]
+	if {$JDBCProviderId != ""} {
+		puts stdout "ERROR: /Node:$NodeName/JDBCProvider:$JDBCProviderName/ could not be removed."
+		exit 1
+	} else {
+		puts stdout "/Node:$NodeName/JDBCProvider:$JDBCProviderName/ successfully removed."
+		$AdminConfig save
+	}
+} else {
+    puts stdout "/Node:$NodeName/JDBCProvider:$JDBCProviderName/ does not exist. No action taken"
+}

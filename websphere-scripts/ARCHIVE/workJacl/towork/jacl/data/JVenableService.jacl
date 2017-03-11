@@ -1,0 +1,57 @@
+
+proc JVenableService {nodeName serverName serviceName} {
+
+  #--------------------------------------------------------------------
+  # Set up globals  
+  #--------------------------------------------------------------------
+
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Enable service
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Enable service                                   "
+  puts "---------------------------------------------------------------"
+  puts " Scope:                                                        "
+  puts "    node                $nodeName                              "
+  puts "    server              $serverName                            "
+  puts " Service:                                                      "
+  puts "    name                $serviceName                           "
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  #--------------------------------------------------------------------
+  # Get a list of service objects. There should only be one.
+  # If there's more than one, use the first one found.
+  #--------------------------------------------------------------------
+
+ JVputTrace "Get the ID for the $serviceName service."
+
+  set scope [$AdminConfig getid /Node:$nodeName/Server:$serverName]
+
+  set services [$AdminConfig list $serviceName $scope]
+
+  if {[llength $services] == 0} {
+    JVthrow "The $serviceName service could not be found."
+  }
+
+  set serviceID [lindex $services 0]
+
+  #--------------------------------------------------------------------
+  # Set the service enablement
+  #--------------------------------------------------------------------
+
+  set enable true
+  if {[$AdminConfig showAttribute $serviceID enable] == $enable} {
+    JVputInfo "The $serviceName service is already enabled."
+  } else {
+    JVputTrace "Enable the $serviceName service."
+    $AdminConfig modify $serviceID "{enable $enable}"
+  }
+
+}
+
+

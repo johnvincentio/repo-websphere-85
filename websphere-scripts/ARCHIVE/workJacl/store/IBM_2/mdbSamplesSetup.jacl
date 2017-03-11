@@ -1,0 +1,562 @@
+#----------------------------------------------------------------------
+# mdbConfig.jacl - Jacl implementation of MDB Samples resource 
+#                       configuration
+#----------------------------------------------------------------------
+#
+#   This Jacl file configures the resources on the Cell and Node that
+#   the MDB samples requires.  The resources include:
+#      JMS Queue Connection Factories
+#      JMS Queues
+#      JMS Topic Connection Factories
+#      JMS Topics
+#      Listener Ports
+#      Queue Names
+#
+#   This script is designed to be called during install.  It expects
+#   the node name to be passed in.
+#  
+#   Here is an example of how to invoke it.
+#   
+#      wsadmin -conntype none -f mdbConfig.jacl myNodeName 
+#
+#----------------------------------------------------------------------
+
+proc jmsQueueCF { nodeName jmsqcfName jmsqcfJNDI jmsqcfDescr jmsqcfXA authAlias } {
+
+  #--------------------------------------------------------------------
+  # set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create JMS Queue Connection Factory
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create JMS Queue Connection Factory"
+  
+  #--------------------------------------------------------------------
+  # Get jmsProv IDs that we will need to make the JMS QCF
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Get ID for built in JMS provider for $nodeName server1"
+  
+  set jmsProv [$AdminConfig getid "/Node:$nodeName/Server:server1/JMSProvider:WebSphere JMS Provider/"]
+  
+  #--------------------------------------------------------------------
+  # Create JMS QCF using default JMS Provider
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create JMS Queue Connection Factory $jmsqcfName"
+  
+  set name_attr       [list name $jmsqcfName]
+  set jndiName_attr   [list jndiName $jmsqcfJNDI]
+  set descr_attr      [list description $jmsqcfDescr]
+  set xaEnabled_attr  [list XAEnabled $jmsqcfXA]
+  set node_attr       [list node $nodeName]
+  # setup connectionPool Attributes                                                       
+  set conTimeout      [list connectionTimeout "30"]
+  set conMax          [list maxConnections "6"]
+  set conMin          [list minConnections "0"]
+  set conReapTime     [list reapTime "30"]
+  set conUnused       [list unusedTimeout "180"]
+  set conAged         [list agedTimeout "300"]
+  set conPurgePol     [list purgePolicy "EntirePool"]
+  set con_attrs       [list $conTimeout $conMax $conMin $conReapTime $conUnused $conAged $conPurgePol]
+  set conpool_attr    [list connectionPool $con_attrs]
+  # setup sessionPool Attributes                                                       
+  set sesTimeout      [list connectionTimeout "30"]
+  set sesMax          [list maxConnections "5"]
+  set sesMin          [list minConnections "0"]
+  set sesReapTime     [list reapTime "30"]
+  set sesUnused       [list unusedTimeout "180"]
+  set sesAged         [list agedTimeout "300"]
+  set sesPurgePol     [list purgePolicy "EntirePool"]
+  set ses_attrs       [list $sesTimeout $sesMax $sesMin $sesReapTime $sesUnused $sesAged $sesPurgePol]
+  set sespool_attr    [list sessionPool $ses_attrs]
+  # check if mapping needed
+  if { !($authAlias == "N_O_N_E") } {
+    set map_auth_attr [list authDataAlias $authAlias] 
+    set map_configalias_attr [list mappingConfigAlias "DefaultPrincipalMapping"] 
+    set map_attrs     [list $map_auth_attr $map_configalias_attr]
+    set mapping_attr  [list mapping $map_attrs]
+    set attrs         [list $name_attr $jndiName_attr $descr_attr $xaEnabled_attr $node_attr $conpool_attr $mapping_attr $sespool_attr]
+  } else {
+    set attrs         [list $name_attr $jndiName_attr $descr_attr $xaEnabled_attr $node_attr $conpool_attr $sespool_attr]
+  }
+  set newjmsQCF [$AdminConfig create WASQueueConnectionFactory $jmsProv $attrs]
+
+}
+
+proc jmsQueue { nodeName jmsqName jmsqJNDI jmsqDescr jmsqPer jmsqPri jmsqExp } {
+
+  #--------------------------------------------------------------------
+  # set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create JMS Queue 
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create JMS Queue"
+  
+  #--------------------------------------------------------------------
+  # Get jmsProv IDs that we will need to make the JMS Queue
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Get ID for built in JMS provider for $nodeName server1"
+  
+  set jmsProv [$AdminConfig getid "/Node:$nodeName/Server:server1/JMSProvider:WebSphere JMS Provider/"]
+  
+  #--------------------------------------------------------------------
+  # Create JMS Queue using default JMS Provider
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create JMS Queue $jmsqName"
+  
+  set name_attr       [list name $jmsqName]
+  set jndiName_attr   [list jndiName $jmsqJNDI]
+  set descr_attr      [list description $jmsqDescr]
+  set per_attr        [list persistence $jmsqPer]
+  set pri_attr        [list priority $jmsqPri]
+  set exp_attr        [list expiry $jmsqExp]
+  set attrs           [list $name_attr $jndiName_attr $descr_attr $per_attr $pri_attr $exp_attr]
+  set newjmsQ [$AdminConfig create WASQueue $jmsProv $attrs]
+  
+}
+
+proc jmsTopicCF { nodeName jmstcfName jmstcfJNDI jmstcfDescr jmstcfXA jmstcfPort jmstcfCli authAlias} {
+
+  #--------------------------------------------------------------------
+  # set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create JMS Topic Connection Factory
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create JMS Topic Connection Factory"
+  
+  #--------------------------------------------------------------------
+  # Get jmsProv IDs that we will need to make the JMS QCF
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Get ID for built in JMS provider for $nodeName server1"
+  
+  set jmsProv [$AdminConfig getid "/Node:$nodeName/Server:server1/JMSProvider:WebSphere JMS Provider/"]
+  
+  #--------------------------------------------------------------------
+  # Create JMS Topic using default JMS Provider
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create JMS Topic Connection Factory $jmstcfName"
+  
+  set name_attr       [list name $jmstcfName]
+  set jndiName_attr   [list jndiName $jmstcfJNDI]
+  set descr_attr      [list description $jmstcfDescr]
+  set xaEnabled_attr  [list XAEnabled $jmstcfXA]
+  set node_attr       [list node $nodeName]
+  set port_attr       [list port $jmstcfPort]
+  set cli_attr        [list clientID $jmstcfCli]
+  # setup connectionPool Attributes                                                       
+  set conTimeout      [list connectionTimeout "30"]
+  set conMax          [list maxConnections "5"]
+  set conMin          [list minConnections "0"]
+  set conReapTime     [list reapTime "30"]
+  set conUnused       [list unusedTimeout "180"]
+  set conAged         [list agedTimeout "300"]
+  set conPurgePol     [list purgePolicy "EntirePool"]
+  set con_attrs       [list $conTimeout $conMax $conMin $conReapTime $conUnused $conAged $conPurgePol]
+  set conpool_attr    [list connectionPool $con_attrs]
+  # setup sessionPool Attributes                                                       
+  set sesTimeout      [list connectionTimeout "30"]
+  set sesMax          [list maxConnections "5"]
+  set sesMin          [list minConnections "0"]
+  set sesReapTime     [list reapTime "30"]
+  set sesUnused       [list unusedTimeout "180"]
+  set sesAged         [list agedTimeout "300"]
+  set sesPurgePol     [list purgePolicy "EntirePool"]
+  set ses_attrs       [list $sesTimeout $sesMax $sesMin $sesReapTime $sesUnused $sesAged $sesPurgePol]
+  set sespool_attr    [list sessionPool $ses_attrs]
+  # check if mapping needed
+  if { !($authAlias == "N_O_N_E") } {
+    set map_auth_attr [list authDataAlias $authAlias] 
+    set map_configalias_attr [list mappingConfigAlias "DefaultPrincipalMapping"] 
+    set map_attrs     [list $map_auth_attr $map_configalias_attr]
+    set mapping_attr  [list mapping $map_attrs]
+    set attrs         [list $name_attr $jndiName_attr $descr_attr $xaEnabled_attr $node_attr $port_attr $cli_attr $conpool_attr $mapping_attr $sespool_attr]
+  } else {
+    set attrs         [list $name_attr $jndiName_attr $descr_attr $xaEnabled_attr $node_attr $port_attr $cli_attr $conpool_attr $sespool_attr]
+  }
+  set newjmsTCF [$AdminConfig create WASTopicConnectionFactory $jmsProv $attrs]
+
+}
+
+proc jmsTopic { nodeName jmstName jmstJNDI jmstDescr jmstTopic jmstPer jmstPri jmstExp } {
+
+  #--------------------------------------------------------------------
+  # set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create JMS Topic 
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create JMS Topic"
+  
+  #--------------------------------------------------------------------
+  # Get jmsProv IDs that we will need to make the JMS Queue
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Get ID for built in JMS provider for $nodeName server1"
+  
+  set jmsProv [$AdminConfig getid "/Node:$nodeName/Server:server1/JMSProvider:WebSphere JMS Provider/"]
+  
+  #--------------------------------------------------------------------
+  # Create JMS Queue using default JMS Provider
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create JMS Topic $jmstName"
+  
+  set name_attr       [list name $jmstName]
+  set jndiName_attr   [list jndiName $jmstJNDI]
+  set descr_attr      [list description $jmstDescr]
+  set topic_attr      [list topic $jmstTopic]
+  set per_attr        [list persistence $jmstPer]
+  set pri_attr        [list priority $jmstPri]
+  set exp_attr        [list expiry $jmstExp]
+  set attrs           [list $name_attr $jndiName_attr $descr_attr $topic_attr $per_attr $pri_attr $exp_attr]
+  set newjmsT [$AdminConfig create WASTopic $jmsProv $attrs]
+  
+}
+
+proc listenerPort { nodeName lpDescr lpName lpCFJNDI lpDestJNDI lpMaxSes lpMaxRet lpMaxMsgs smIState} {
+
+  #--------------------------------------------------------------------
+  # set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create Listener Port
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create Listener Port"
+  
+  #--------------------------------------------------------------------
+  # Get Message Listener Service
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Get the Message Listener Service"
+
+  set mls [lindex [$AdminConfig list MessageListenerService] 0]
+  if {[llength $mls] ==0} {
+    puts "samplesConfig: Could not find the Message Listener Service"
+    return
+  }
+
+  #--------------------------------------------------------------------
+  # Create Listener Port
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create Listener Port $lpName"
+  
+  set descr_attr      [list description $lpDescr]
+  set name_attr       [list name $lpName]
+  set cfJNDI_attr     [list connectionFactoryJNDIName $lpCFJNDI]
+  set destJNDI_attr   [list destinationJNDIName $lpDestJNDI]
+  set maxSes_attr     [list maxSessions $lpMaxSes]
+  set maxRet_attr     [list maxRetries $lpMaxRet]
+  set maxMsgs_attr    [list maxMessages $lpMaxMsgs]
+  # setup State Management Attributes                                                       
+  set InitState_attr  [list initialState $smIState]
+  set sm_attrs        [list $InitState_attr]
+  set stateMgmt_attr  [list stateManagement $sm_attrs]
+  set attrs           [list $descr_attr $name_attr $cfJNDI_attr $destJNDI_attr $maxSes_attr $maxRet_attr $maxMsgs_attr $stateMgmt_attr]
+  set newLP [$AdminConfig create ListenerPort $mls $attrs]
+
+}
+
+proc queueName { nodeName qnName qnAppend} {
+
+  #--------------------------------------------------------------------
+  # set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create Queue Name
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create Queue Name"
+  
+  #--------------------------------------------------------------------
+  # Get JMS Server
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Get the JMS Server"
+
+  set jmss [lindex [$AdminConfig list JMSServer] 0]
+  if {[llength $jmss] ==0} {
+    puts "samplesConfig: Could not find the JMS Server"
+    return
+  }
+
+  #--------------------------------------------------------------------
+  # Create Listener Port
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Create Queue Name $qnName"
+  
+  set queueNames [$AdminConfig showAttribute $jmss queueNames]
+  # parse the semi-colon-separated string into a jacl list
+  set queueList [split $queueNames \;]
+  # make sure the specified queue is added to it
+  if { [lsearch $queueList $qnName]==-1 } {  
+     if { $qnAppend } {
+       set queueList $qnName
+     } else {
+       lappend queueList $qnName
+     }
+     # join the list back together
+     set queueNames [join $queueList \; ]
+     set attrs "{queueNames $queueNames}"
+     set newQN [$AdminConfig modify $jmss $attrs]
+  } else {
+    # do nothing because the queue is already present
+  }
+
+}
+
+proc setJMSServerState { {initState "START"} } {
+
+  #--------------------------------------------------------------------
+  # set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Get JMS Server
+  #--------------------------------------------------------------------
+
+  puts "samplesConfig: Setting the JMSServer to start"
+
+  set jmss [lindex [$AdminConfig list JMSServer] 0]
+  if {[llength $jmss] ==0} {
+    puts "samplesConfig: Could not find the JMS Server"
+    return
+  }
+
+  #--------------------------------------------------------------------
+  # Get the StateMangeable object
+  #--------------------------------------------------------------------
+
+  set state [$AdminConfig showAttribute $jmss stateManagement]
+  $AdminConfig modify $state "{initialState $initState}"
+  
+}
+
+proc save {} {
+
+  #--------------------------------------------------------------------
+  # set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Save all the changes
+  #--------------------------------------------------------------------
+  
+  puts "samplesConfig: Save the configuration"
+  
+  $AdminConfig save
+
+}  
+
+#----------------------------------------------------------------------
+# Main
+#----------------------------------------------------------------------
+
+if { !($argc == 1) } {
+  puts "samplesConfig: This script requires 1 parameter"
+  puts "                Node - the name of the node under which to configure"
+  puts "                MDB Samples resources"
+  puts ""
+  puts "                e.g.: petstoreConfig.jacl myNodeName"
+} else {
+
+  puts "samplesConfig: Configure MDB samples resources"
+
+  #--------------------------------------------------------------------
+  # Get arguments
+  #--------------------------------------------------------------------
+  
+  set node [lindex $argv 0]
+  
+  #--------------------------------------------------------------------
+  # Create JMS Queue Connection Factory (use builtin jms_provider) 
+  #--------------------------------------------------------------------
+  
+  set jmsqcfName   "SampleJMSQueueConnectionFactory"    
+  set jmsqcfJNDI   "Sample/JMS/QCF"
+  set jmsqcfDescr  "MDB Samples QueueConnectionFactory"
+  set jmsqcfXA     "true"
+  set authAlias    "N_O_N_E"
+  jmsQueueCF $node $jmsqcfName $jmsqcfJNDI $jmsqcfDescr $jmsqcfXA $authAlias
+
+  #--------------------------------------------------------------------
+  # Create JMS Queue (use builtin jms_provider) 
+  #--------------------------------------------------------------------
+  
+  set jmsqName   "Sample.JMS.Q1"    
+  set jmsqJNDI   "Sample/JMS/Q1"
+  set jmsqDescr  "MDB Samples Queue (MDB receives a message from this Queue)"
+  set jmsqPer    "APPLICATION_DEFINED"
+  set jmsqPri    "APPLICATION_DEFINED"
+  set jmsqExp    "APPLICATION_DEFINED"
+  jmsQueue $node $jmsqName $jmsqJNDI $jmsqDescr $jmsqPer $jmsqPri $jmsqExp
+  
+  #--------------------------------------------------------------------
+  # Create JMS Queue (use builtin jms_provider) 
+  #--------------------------------------------------------------------
+  
+  set jmsqName   "Sample.JMS.Q2"    
+  set jmsqJNDI   "Sample/JMS/Q2"
+  set jmsqDescr  "MDB Samples Queue (MDB moves the message to this Queue)"
+  set jmsqPer    "APPLICATION_DEFINED"
+  set jmsqPri    "APPLICATION_DEFINED"
+  set jmsqExp    "APPLICATION_DEFINED"
+  jmsQueue $node $jmsqName $jmsqJNDI $jmsqDescr $jmsqPer $jmsqPri $jmsqExp
+
+  #--------------------------------------------------------------------
+  # Create JMS Topic Connection Factory (use builtin jms_provider) 
+  #--------------------------------------------------------------------
+  
+  set jmstcfName   "SampleJMSTopicConnectionFactory"    
+  set jmstcfJNDI   "Sample/JMS/TCF"
+  set jmstcfDescr  "MDB Samples TopicConnectionFactory"
+  set jmstcfXA     "true"
+  set jmstcfPort   "QUEUED"
+  set jmstcfCli    "MDBSampleClientID"
+  set authAlias    "N_O_N_E"
+  jmsTopicCF $node $jmstcfName $jmstcfJNDI $jmstcfDescr $jmstcfXA $jmstcfPort $jmstcfCli $authAlias
+
+  #--------------------------------------------------------------------
+  # Create JMS Topic (use builtin jms_provider) 
+  #--------------------------------------------------------------------
+  
+  set jmstName   "Sample.JMS.listen"    
+  set jmstJNDI   "Sample/JMS/listen"
+  set jmstDescr  "MDB Samples Topic (used by MDB to listen on the other topics)"
+  set jmstTopic  "Sample/JMS/#"
+  set jmstPer    "APPLICATION_DEFINED"
+  set jmstPri    "APPLICATION_DEFINED"
+  set jmstExp    "APPLICATION_DEFINED"
+  jmsTopic $node $jmstName $jmstJNDI $jmstDescr $jmstTopic $jmstPer $jmstPri $jmstExp
+
+  #--------------------------------------------------------------------
+  # Create JMS Topic (use builtin jms_provider) 
+  #--------------------------------------------------------------------
+  
+  set jmstName   "Sample.JMS.news"    
+  set jmstJNDI   "Sample/JMS/news"
+  set jmstDescr  "MDB Samples Topic (used by the client to publish a news message)"
+  set jmstTopic  "Sample/JMS/news"
+  set jmstPer    "APPLICATION_DEFINED"
+  set jmstPri    "APPLICATION_DEFINED"
+  set jmstExp    "APPLICATION_DEFINED"
+  jmsTopic $node $jmstName $jmstJNDI $jmstDescr $jmstTopic $jmstPer $jmstPri $jmstExp
+  
+  #--------------------------------------------------------------------
+  # Create JMS Topic (use builtin jms_provider) 
+  #--------------------------------------------------------------------
+  
+  set jmstName   "Sample.JMS.sport"    
+  set jmstJNDI   "Sample/JMS/sport"
+  set jmstDescr  "MDB Samples Topic (used by the client to publish a sport message)"
+  set jmstTopic  "Sample/JMS/sport"
+  set jmstPer    "APPLICATION_DEFINED"
+  set jmstPri    "APPLICATION_DEFINED"
+  set jmstExp    "APPLICATION_DEFINED"
+  jmsTopic $node $jmstName $jmstJNDI $jmstDescr $jmstTopic $jmstPer $jmstPri $jmstExp
+
+  #--------------------------------------------------------------------
+  # Create JMS Topic (use builtin jms_provider) 
+  #--------------------------------------------------------------------
+  
+  set jmstName   "Sample.JMS.weather"    
+  set jmstJNDI   "Sample/JMS/weather"
+  set jmstDescr  "MDB Samples Topic (used by the client to publish a weather message)"
+  set jmstTopic  "Sample/JMS/weather"
+  set jmstPer    "APPLICATION_DEFINED"
+  set jmstPri    "APPLICATION_DEFINED"
+  set jmstExp    "APPLICATION_DEFINED"
+  jmsTopic $node $jmstName $jmstJNDI $jmstDescr $jmstTopic $jmstPer $jmstPri $jmstExp
+
+  #--------------------------------------------------------------------
+  # Create Listener Port (use default Message Listener Service) 
+  #--------------------------------------------------------------------
+  
+  set lpDescr    "Sample Point to Point Listener Port"
+  set lpName     "SamplePtoPListenerPort"
+  set lpCFJNDI   "Sample/JMS/QCF"
+  set lpDestJNDI "Sample/JMS/Q1"
+  set lpMaxSes   "5"
+  set lpMaxRet   "10"
+  set lpMaxMsgs  "1"
+  set smIState   "START"
+  listenerPort $node $lpDescr $lpName $lpCFJNDI $lpDestJNDI $lpMaxSes $lpMaxRet $lpMaxMsgs $smIState
+
+  #--------------------------------------------------------------------
+  # Create Listener Port (use default Message Listener Service) 
+  #--------------------------------------------------------------------
+  
+  set lpDescr    "Sample Publish and Subscribe Listener Port"
+  set lpName     "SamplePubSubListenerPort"
+  set lpCFJNDI   "Sample/JMS/TCF"
+  set lpDestJNDI "Sample/JMS/listen"
+  set lpMaxSes   "5"
+  set lpMaxRet   "10"
+  set lpMaxMsgs  "1"
+  set smIState   "START"
+  listenerPort $node $lpDescr $lpName $lpCFJNDI $lpDestJNDI $lpMaxSes $lpMaxRet $lpMaxMsgs $smIState
+
+  #--------------------------------------------------------------------
+  # Create Queue Name 
+  #--------------------------------------------------------------------
+  
+  set qnName     "Sample.JMS.Q1"
+  set qnAppend   "true"
+  queueName $node $qnName $qnAppend
+
+  #--------------------------------------------------------------------
+  # Create Queue Name 
+  #--------------------------------------------------------------------
+  
+  set qnName     "Sample.JMS.Q2"
+  set qnAppend   "true"
+  queueName $node $qnName $qnAppend
+
+  #--------------------------------------------------------------------
+  # start jmsserver
+  #--------------------------------------------------------------------
+
+  setJMSServerState
+
+  #--------------------------------------------------------------------
+  # Save configuration
+  #--------------------------------------------------------------------
+  
+  save
+  
+}

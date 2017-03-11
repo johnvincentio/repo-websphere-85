@@ -1,0 +1,335 @@
+# This program may be used, executed, copied, modified and distributed
+# without royalty for the purpose of developing, using, marketing, or distribution
+
+#-----------------------------------------------------------------
+# ex13.jacl - Jacl implementation of example script 13 
+#-----------------------------------------------------------------
+#
+#  The purpose of this example is to show a potentially useful
+#  sequence of common actions using the scripting client wsadmin.
+#
+#  This example will list all Enterprise applications installed on a specific app server.
+#  For each Enterprise Application, it will display which Web and EJB modules are 
+#  installed on the target server, and which are not.   
+# 	
+#  In the case of an nd environment, you need to pass in an additional argument 
+#  for the node name
+#  
+#  This is a bi-modal script: it can be included in the wsadmin 
+#  command invocation like this:
+#     wsadmin -f ex13.jacl serverX             (in base environment)
+#     wsadmin -f ex13.jacl serverX nodeX       (in nd environment)
+#
+#  or the script can be sourced from the wsadmin command line:
+#     wsadmin> source ex13.jacl
+#     wsadmin> ex13 serverX   or
+#     wsadmin> ex13 serverX nodeX
+# 
+#  The script expects one parameter for base environment and
+#  two parameters for the nd environment
+#      arg1 - serverName
+#      arg2 - nodeName
+#
+#  ServerName is the name of the application server as it would appear
+#  on the administrative web page
+#
+#  In the case of a Network Deployment configuration, there may be multiple application  	
+#  servers with the same name on different nodes, so nodeName is to identity which node 
+#  hosts the target server.
+#
+#  The script may be launched from any node in the Network Deployment configuration,
+#  as long as the deployment manager is running. 	
+#-----------------------------------------------------------------
+
+# setup global list
+set webList {}
+set ejbList {}
+
+proc ex13 {serverName} {
+
+   #--------------------------------------------------------------
+   # set up globals variables
+   #--------------------------------------------------------------
+   global AdminConfig
+   global AdminApp
+   global webList
+   global ejbList
+ 
+
+   # get all the Deployment 
+   set deployments [$AdminConfig list Deployment]
+
+
+   # iterate to all the Deployment 
+   foreach deployment $deployments {
+      # reset the list on each application
+      set webList {}
+      set ejbList {}
+
+      # get the application name
+      set appName [lindex [split $deployment (] 0]
+
+      # get the deployedObjects
+      set depObject [$AdminConfig showAttribute $deployment deployedObject]
+     
+      # get all modules in the application
+      set modules [lindex [$AdminConfig showAttribute $depObject modules] 0] 
+      set modServerMatch {}	 
+      set modServerMoreMatch {}
+      set modServerNotMatch {}
+
+      foreach module $modules {
+         set sameServer "false"
+	 set diffServer "false"
+
+         # get the targetMappings
+         set targetMaps [lindex [$AdminConfig showAttribute $module targetMappings] 0]
+
+         foreach targetMap $targetMaps { 
+	    # get the target
+            set target [$AdminConfig showAttribute $targetMap target]
+            # filter to find the matching app server
+            # the trim \" is to take care if the config id start with " so the when doing
+            # the split will get "server1 instead, so need to trim it first otherwise it
+            # will failed when doing the compare
+            set sName [string trim [lindex [split $target (] 0] \"]
+
+            if {$sName == $serverName} {
+               set sameServer "true"
+	       #set modServerMatch [linsert $modServerMatch end [$AdminConfig showAttribute $module uri]]
+	    } else {
+	       set diffServer "true"
+ 	       #set modServerNotMatch [linsert $modServerNotMatch end [$AdminConfig showAttribute $module uri]]
+            } 
+	    if {$sameServer == "true" && $diffServer == "true"} {
+               break
+            }
+	 }
+	 
+         if {$sameServer == "true"} {
+            if {$diffServer == "true"} {
+	       set modServerMoreMatch [linsert $modServerMoreMatch end [$AdminConfig showAttribute $module uri]]
+            } else {
+	       set modServerMatch [linsert $modServerMatch end [$AdminConfig showAttribute $module uri]]
+            }
+         } else {
+            set modServerNotMatch [linsert $modServerNotMatch end [$AdminConfig showAttribute $module uri]]
+         }
+        
+      } 
+     
+ 
+      #print app name
+      if {$modServerMatch != {} || $modServerMoreMatch != {}} {
+         puts stdout "\tApplication name: $appName"
+      }
+      
+      #print out the result
+      if {$modServerMatch != {}} {
+      	filterAndPrint $modServerMatch "+"
+      }
+      if {$modServerMoreMatch != {}} {
+        filterAndPrint $modServerMoreMatch "*"
+      }
+      if {($modServerMatch != {} || $modServerMoreMatch != {}) && $modServerNotMatch != {}} {
+        filterAndPrint $modServerNotMatch ""
+      }
+   }   
+}
+
+proc ex13 {serverName nodeName} {
+
+   #--------------------------------------------------------------
+   # set up globals variables
+   #--------------------------------------------------------------
+   global AdminConfig
+   global AdminApp
+   global webList
+   global ejbList
+ 
+
+   # get all the Deployment 
+   set deployments [$AdminConfig list Deployment]
+
+
+   # iterate to all the Deployment 
+   foreach deployment $deployments {
+      # reset the list on each application
+      set webList {}
+      set ejbList {}
+
+      # get the application name
+      set appName [lindex [split $deployment (] 0]
+
+      # get the deployedObjects
+      set depObject [$AdminConfig showAttribute $deployment deployedObject]
+     
+      # get all modules in the application
+      set modules [lindex [$AdminConfig showAttribute $depObject modules] 0] 
+      set modServerMatch {}	 
+      set modServerMoreMatch {}
+      set modServerNotMatch {}
+
+     foreach module $modules {
+         set sameNodeSameServer "false"
+	 set diffNodeSameServer "false"
+         set sameNodeDiffServer "false"
+         set diffNodeDiffServer "false"
+
+
+         # get the targetMappings
+         set targetMaps [lindex [$AdminConfig showAttribute $module targetMappings] 0]
+
+         foreach targetMap $targetMaps { 
+	    # get the target
+            set target [$AdminConfig showAttribute $targetMap target]
+            # do some filtering to make sure it will not get the ClusteredTarget but just ServerTarget
+            set targetName [lindex [split $target #] 1]
+	    if {[regexp "ClusteredTarget" $targetName] != 1} { 
+               set sName [$AdminConfig showAttribute $target name]
+               set nName [$AdminConfig showAttribute $target nodeName]
+
+               if {$sName == $serverName} {
+                  if {$nName == $nodeName} {
+		     set sameNodeSameServer "true"
+                  } else {
+		     set diffNodeSameServer "true"
+                  }
+	       } else { 
+                  if {$nName == $nodeName} {
+		     set sameNodeDiffServer "true"
+                  } else {
+                     set diffNodeDiffServer "true"
+                  }
+               } 
+	       if {$sameNodeSameServer == "true"} {
+                  if {$sameNodeDiffServer == "true" || $diffNodeDiffServer == "true" || $diffNodeSameServer == "true"} {
+                     break
+                  }
+               }
+	    }
+         }
+
+         if {$sameNodeSameServer == "true"} {
+	    if {$diffNodeDiffServer == "true" || $diffNodeSameServer == "true" || $sameNodeDiffServer == "true"} {
+	       set modServerMoreMatch [linsert $modServerMoreMatch end [$AdminConfig showAttribute $module uri]]
+            } else {
+	       set modServerMatch [linsert $modServerMatch end [$AdminConfig showAttribute $module uri]]
+            }      
+         } else {
+            set modServerNotMatch [linsert $modServerNotMatch end [$AdminConfig showAttribute $module uri]]
+         }
+      } 
+     
+ 
+      #print app name
+      if {$modServerMatch != {} || $modServerMoreMatch != {}} {
+         puts stdout "\tApplication name: $appName"
+      }
+      
+      # do grouping to appropriate module and print
+      if {$modServerMatch != {}} {
+      	filterAndPrint $modServerMatch "+"
+      }
+      if {$modServerMoreMatch != {}} {
+        filterAndPrint $modServerMoreMatch "*"
+      }
+      if {($modServerMatch != {} || $modServerMoreMatch != {}) && $modServerNotMatch != {}} {
+        filterAndPrint $modServerNotMatch ""
+      }
+   }   
+}
+
+
+
+proc filterAndPrint {lists flag} {
+   global webList
+   global ejbList
+   set webExists "false"
+   set ejbExists "false"
+
+   # check if list exists already then mark it, this is to not print the title more then once
+   # and reset the list
+   if {$webList != {}} {
+      set webExists "true"
+      set webList {}
+   }   
+   if {$ejbList != {}} {
+      set ejbExists "true"
+      set ejbList {}
+   }
+ 
+   # do some filtering for web modules and ejb modules
+   foreach list $lists {
+     set temp [lindex [split $list .] 1]
+     if {$temp == "war"} {
+        set webList [linsert $webList end $list]
+     } elseif {$temp == "jar"} {
+        set ejbList [linsert $ejbList end $list]
+     }
+   }
+
+   # sort the list before printing
+   set webList [lsort -dictionary $webList]
+   set ejbList [lsort -dictionary $ejbList]
+
+   #print out all the web modules install in serverX
+   if {$webList != {}} {
+      if {$webExists == "false"} {
+         puts stdout "\t\tWeb Modules:"
+      }
+      foreach web $webList {
+        puts stdout "\t\t\t$web  $flag"
+      }
+   }
+
+   # print out all the ejb modules install in serverX  
+   if {$ejbList != {}} {
+      if {$ejbExists == "false"} {
+         puts stdout "\t\tEJB Modules:"
+      }
+      foreach ejb $ejbList {
+        puts stdout "\t\t\t$ejb  $flag"
+      }
+   }
+}
+
+
+#-----------------------------------------------------------------
+# Main
+#-----------------------------------------------------------------
+if {($argc < 1) } {
+   puts "ex13: this script requires at least one parameter: server name"
+   puts "ex13: in nd environment the script require two parameters: server name, node name"
+   puts "e.g.:     ex13  serverX" 
+   puts "e.g.:     ex13  serverX  nodeX"
+} elseif {$argc == 1} { 
+   # do some checking
+   set nd [$AdminControl queryNames type=Server,process=dmgr,*]
+   if {[llength $nd] != 0} {
+      puts stdout "You are running this script in nd environment, please provide node name"
+      puts stdout "e.g.: ex13  serverX  nodeX"
+   } else {
+      set serverName [lindex $argv 0] 
+      puts stdout "\nThe following list of all applications installed on $serverName:"
+      puts stdout "(Including list of all modules for each application)"
+      puts stdout "NOTE:"
+      puts stdout "\t* means that the module is installed on $serverName and other server"
+      puts stdout "\t+ means that the module is installed on $serverName only"
+      puts stdout "\t  means that the module is not installed on $serverName"
+      puts stdout "\n[string toupper $serverName]"
+      ex13 $serverName
+   }
+} else {
+   set serverName [lindex $argv 0] 
+   set nodeName [lindex $argv 1]
+   puts stdout "\nThe following list of all applications installed on $serverName node $nodeName:"
+   puts stdout "(Including list of all modules for each application)"
+   puts stdout "NOTE:"
+   puts stdout "\t* means that the module is installed on $serverName node $nodeName and other node and/or server"
+   puts stdout "\t+ means that the module is installed on $serverName node $nodeName only"
+   puts stdout "\t  means that the module is not installed on $serverName node $nodeName"
+   puts stdout "\n[string toupper $serverName] on node [string toupper $nodeName]"
+   ex13 $serverName $nodeName
+}
+

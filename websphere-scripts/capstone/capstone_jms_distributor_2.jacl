@@ -1,0 +1,44 @@
+
+#------------------------------------------------------------------
+#  Create JMS Resources
+#------------------------------------------------------------------
+
+proc capstone_jms_distributor_2 {NodeName ServerName SIBusName} {
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+   set jmsCFName    "DistributorMdb2QueueConnectionFactory";
+   set jmsCFJNDI    "jms/DistributorMdb2QueueConnectionFactory";
+   set jmsCFDesc    "Capstone SIB JMS ConnectionFactory";
+   set jmsCFType    "queue";
+   set secAuthAlias "";
+   JVcreateSIBJMSConnectionFactory $NodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName;
+
+#--------------------------------------------------------------------
+# Create SIB JMS Queue that references a SIB Queue
+#--------------------------------------------------------------------
+  
+   set jmsQName   "DistributorMdb2PhysicalQueue";
+   set jmsQJNDI   "jms/DistributorMdb2Queue";
+   set jmsQDesc   "Capstone WebSphere DistributorMdb2 Queue";
+   set SIBQName   "SIBDistributorMdb2Queue";
+   JVcreateSIBJMSQueue $NodeName $jmsQName $jmsQJNDI $jmsQDesc $SIBQName;
+
+#--------------------------------------------------------------------
+# Create SIB Queue
+#--------------------------------------------------------------------
+
+   JVcreateSIBQueue $NodeName $ServerName $SIBQName $SIBusName
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Queue
+#--------------------------------------------------------------------
+
+   set activationSpecName     "DistributorMdb2QueueActivationSpec";
+   set activationSpecJndiName "eis/$activationSpecName";
+   set destinationType        "javax.jms.Queue";
+   JVcreateSIBJMSActivationSpec $NodeName $activationSpecName $activationSpecJndiName $jmsQJNDI $destinationType $secAuthAlias $SIBusName;
+}
+

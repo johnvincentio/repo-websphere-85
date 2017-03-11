@@ -1,0 +1,29 @@
+source @WpsInstallLocation@/config/work/was/msglog.jacl
+set logger [getLogger]
+set CellName @CellName@
+set VirtualHostName "@VirtualHostName@"
+
+set ListVirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+set FlagVirtualHostThere "false"
+foreach TmpVirtualHostId $ListVirtualHostId {
+    set TmpVirtualHostName [$AdminConfig showAttribute $TmpVirtualHostId name]
+	if {[string compare $TmpVirtualHostName $VirtualHostName] == 0} {
+        set FlagVirtualHostThere "true"
+        break;
+	}
+}
+if {$FlagVirtualHostThere == "false"} {
+    logMsgOneParm $logger "SEVERE" "checkVirtualHostIsPresent.jacl" "Config.object.notexist.failure" "Virtual Host '$VirtualHostName'"
+    puts stdout " "
+    puts stdout "Configured is:"
+    puts stdout [$AdminConfig list VirtualHost]
+    puts stdout " "
+    puts stdout "Either select one that is already configured"
+    puts stdout "(Change Entry 'VirtualHostName' in wpconfig.properties),"
+    puts stdout "or create a new one (including Mime Types and Ports),"
+    puts stdout "using the 'WebSphere Application Server Administrative Console'"
+    puts stdout " "
+    exit 1
+} else {
+    logMsgOneParm $logger "INFO" "checkVirtualHostIsPresent.jacl" "Config.object.exist.success" "Virtual Host '$VirtualHostName'"
+}

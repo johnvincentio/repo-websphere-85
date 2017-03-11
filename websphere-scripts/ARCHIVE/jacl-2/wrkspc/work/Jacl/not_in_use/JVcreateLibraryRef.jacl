@@ -1,0 +1,48 @@
+
+proc JVcreateLibraryRef {libName appName} {
+
+  #--------------------------------------------------------------------
+  # set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create the library reference
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Create library reference                         "
+  puts "---------------------------------------------------------------"
+  puts " Library reference:                                            "
+  puts "    name                $libName                               "
+  puts "    application         $appName                               "
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  #--------------------------------------------------------------------
+  # Check if the library reference already exists
+  #--------------------------------------------------------------------
+
+  foreach sharedLibraryEntry [$AdminConfig list LibraryRef] {
+    set sharedLibraryEntry [$AdminConfig showAttribute $sharedLibraryEntry libraryName]
+    if { [string compare $sharedLibraryEntry $libName] == 0 } {
+      JVputInfo "The $libName library reference already exists."
+      return
+    }
+  }
+
+  JVputTrace "Create a new library reference named $libName."
+
+  set deployment  [$AdminConfig getid /Deployment:$appName/]
+  set appDeploy   [$AdminConfig showAttribute $deployment deployedObject]
+  set classLoader [$AdminConfig showAttribute $appDeploy classloader]
+
+  set libraryName_attr        [list libraryName $libName]
+  set sharedClassloader_attr  [list sharedClassloader true]
+  set params [list $libraryName_attr $sharedClassloader_attr]
+  $AdminConfig create LibraryRef $classLoader $params
+
+}
+

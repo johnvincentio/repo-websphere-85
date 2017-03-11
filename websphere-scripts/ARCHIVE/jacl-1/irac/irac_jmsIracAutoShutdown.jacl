@@ -1,0 +1,58 @@
+
+#------------------------------------------------------------------
+#  Create JMS Resources
+#------------------------------------------------------------------
+
+proc irac_jmsIracAutoShutdown {NodeName ServerName SIBusName} {
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+   set jmsCFName    "iracAutoShutdown";
+   set jmsCFJNDI    "jms/com/hertz/iRAC/connFactory/AutoShutDown";
+   set jmsCFDesc    "iracAutoShutdown";
+   set jmsCFType    "topic";
+   set secAuthAlias "me"
+   JVcreateSIBJMSConnectionFactory $NodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName;
+
+#--------------------------------------------------------------------
+# Create SIB JMS Topic that references a SIB Topic
+#--------------------------------------------------------------------
+  
+   set jmsTName   "iracAutoShutdown";
+   set jmsTJNDI   "jms/com/hertz/iRAC/dest/AutoShutDown";
+   set jmsTDesc   "iracAutoShutdown";
+   set SIBTName   "SIBiracAutoShutdown";
+   set SIBTopicSpace  "SIBiracAutoShutdown";
+   JVcreateSIBJMSTopic $NodeName $jmsTName $jmsTJNDI $jmsTDesc $SIBTName $SIBTopicSpace;
+
+#--------------------------------------------------------------------
+# Create SIB Topic
+#--------------------------------------------------------------------
+
+   JVcreateSIBQueue $NodeName $ServerName $SIBTName $SIBusName
+
+#--------------------------------------------------------------------
+# Create Listener Port - NO
+#--------------------------------------------------------------------
+
+   set lpDescr    "iracAutoShutdown Listener Port";
+   set lpName     "iracAutoShutdown";
+   set lpCFJNDI   "$jmsCFJNDI";
+   set lpDestJNDI "$jmsTJNDI";
+   set lpMaxSes   "5";
+   set lpMaxRet   "10";
+   set lpMaxMsgs  "1";
+   set smIState   "START";
+ #  JVcreateListenerPort $NodeName $lpDescr $lpName $lpCFJNDI $lpDestJNDI $lpMaxSes $lpMaxRet $lpMaxMsgs $smIState;
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Topic
+#--------------------------------------------------------------------
+
+   set activationSpecName     "iracAutoShutdownSpec";
+   set activationSpecJndiName "eis/$activationSpecName";
+   set destinationType        "javax.jms.Topic";
+   JVcreateSIBJMSActivationSpec $NodeName $activationSpecName $activationSpecJndiName $jmsTJNDI $destinationType $secAuthAlias $SIBusName;
+}

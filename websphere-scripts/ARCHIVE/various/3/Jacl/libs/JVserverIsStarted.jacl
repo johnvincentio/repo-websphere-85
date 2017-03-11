@@ -1,0 +1,30 @@
+
+
+#--------------------------------------------------------------------
+# Check whether server is running
+#--------------------------------------------------------------------
+
+proc JVserverIsStarted {NodeName ServerName} {
+	global AdminControl;
+
+	puts "";
+	puts "---------------------------------------------------------------";
+	puts "              Status the Server                                ";
+	puts "---------------------------------------------------------------";
+	puts " Scope:                                                        ";
+	puts "    node                $NodeName                              ";
+	puts "    server              $ServerName                            ";
+	puts "---------------------------------------------------------------";
+	puts "";
+
+	if {[catch {$AdminControl queryNames name=$ServerName,node=$NodeName,type=Server,*} server]} {
+		JVputError "Cannot status the server; $server";
+		return false;
+	}
+	if {$server == ""} {
+#		puts "Server is not running";
+		return false;
+	}
+#	puts "Server is running";
+	return true;
+}

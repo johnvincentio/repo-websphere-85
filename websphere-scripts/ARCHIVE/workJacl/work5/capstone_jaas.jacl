@@ -1,0 +1,23 @@
+
+#------------------------------------------------------------------
+# handle JAAS
+#------------------------------------------------------------------
+
+source libs/data/JVcreateJAASAuthenticationAlias.jacl;
+
+proc capstone_jaas {CellName NodeName} {
+
+   set secAuthAlias $NodeName/OracleNero;
+   set secDescript  "Capstone Nero Oracle Database User";
+   set secUserID    "JVNERO";
+   set secPassword  "capstone";
+   JVcreateJAASAuthenticationAlias $CellName $secAuthAlias $secDescript $secUserID $secPassword;
+
+   set secAuthAlias $NodeName/OracleJms;
+   set secDescript  "Capstone JMS Oracle Database User";
+   set secUserID    "JVJMS";
+   set secPassword  "capstone";
+   JVcreateJAASAuthenticationAlias $CellName $secAuthAlias $secDescript $secUserID $secPassword;
+
+}
+

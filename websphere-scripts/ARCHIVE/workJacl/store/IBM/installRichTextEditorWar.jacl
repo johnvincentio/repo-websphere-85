@@ -1,0 +1,48 @@
+set WarFile {C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1/odc/editors/rt/RichTextEditor.war}
+set NodeName {localhost}
+set CellName {localhost}
+set ServerName {WebSphere_Portal}
+set ContextRoot {wps}
+set VirtualHost {default_host}
+set AppName {"RichTextEditor.war"}
+
+# Check if exists
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+	if {[string compare $TmpAppName [string trim $AppName \"]] == 0} {
+	  set FlagAppExist "True"
+        break
+    }
+}
+
+if {$FlagAppExist == "True"} {
+    puts stdout "Enterprise Application Resource '$AppName' does exist, no Action taken"
+	exit 0
+} else {
+    set VHostAttr [subst {{{"RichTextEditor" RichTextEditor.war,WEB-INF/web.xml $VirtualHost}}}]
+    set ModToServerAttr [subst {{{"RichTextEditor" RichTextEditor.war,WEB-INF/web.xml WebSphere:cell=$CellName,node=$NodeName,server=$ServerName}}}]
+    set Attrs [subst {-contextroot /$ContextRoot/richText -MapWebModToVH $VHostAttr -MapModulesToServers $ModToServerAttr -nopreCompileJSPs -distributeApp -nouseMetaDataFromBinary -nodeployejb -appname RichTextEditor.war -createMBeansForResources -reloadEnabled}]
+    set Attrs [subst {$Attrs}]
+    puts $WarFile
+    #puts "	$AdminApp install $WarFile $Attrs "
+	$AdminApp install $WarFile $Attrs
+#	$AdminConfig save
+
+}
+
+#check for success
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+	if {[string compare $TmpAppName [string trim $AppName \"]] == 0} {
+		puts "$TmpAppName"
+		puts "$AppName"
+		set FlagAppExist "True"
+		break;
+	}
+}
+if {$FlagAppExist == "True"} {
+   puts stdout "Enterprise Application Resource '$AppName' successfully installed."
+    $AdminConfig save
+} else {
+    puts stdout "ERROR: Enterprise Application Resource '$AppName' could not be installed."
+}

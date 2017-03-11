@@ -1,0 +1,5 @@
+
+proc JVputTrace {msg} {
+	global M_TRACE_ENABLED;
+	if {$M_TRACE_ENABLED} {puts "TRACE: $msg";}
+}

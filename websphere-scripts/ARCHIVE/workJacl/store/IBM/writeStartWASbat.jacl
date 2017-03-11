@@ -1,0 +1,20 @@
+#  install/config/templates/was/writeStartWASbat.jacl
+#------------------------------------------------------------------------------
+# This file provides scripts to write the 'startWAS.bat'
+# into \PortalServer\install\ directory.
+#-------------------------------------------------------------------------------
+
+puts stdout "===== writeStartWASbat.jacl"
+
+set wasName "server1"
+set file [open "startWAS.bat" w]
+
+#set line "startServer server1 -user user -password password"
+set line "startServer $wasName "
+for {set i 0} {$i < $argc} {incr i} {
+	append line [lindex $argv $i]
+}
+#------- write the line
+puts $file $line
+close $file
+puts "\tDone..."

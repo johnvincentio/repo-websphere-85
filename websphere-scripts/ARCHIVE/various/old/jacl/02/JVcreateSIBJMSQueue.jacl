@@ -1,0 +1,38 @@
+
+proc JVcreateSIBJMSQueue {NodeName jmsQName jmsQJNDI jmsQDesc SIBQName} {
+
+   global AdminConfig;
+   global AdminTask;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create SIB JMS queue                             ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts " SIB JMS queue:                                                ";
+   puts "    name                $jmsQName                              ";
+   puts "    JNDI                $jmsQJNDI                              ";
+   puts "    description         $jmsQDesc                              ";
+   puts "    SIB queue           $SIBQName                              ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+#--------------------------------------------------------------------
+# Create SIB JMS queue that references a SIB queue
+#--------------------------------------------------------------------
+  
+   set scope [$AdminConfig getid /Node:$NodeName/];
+   foreach queue [$AdminTask listSIBJMSQueues $scope] {
+      set name [$AdminConfig showAttribute $queue name];
+      if { $name == $jmsQName } {
+         JVputInfo "The $jmsQName SIB JMS queue already exists.";
+         return;
+      }
+   }
+
+   JVputTrace "Create a new SIB JMS queue named $jmsQName.";
+   set params [list -name $jmsQName -jndiName $jmsQJNDI -description $jmsQDesc -queueName $SIBQName];
+   $AdminTask createSIBJMSQueue $scope $params;
+}
+

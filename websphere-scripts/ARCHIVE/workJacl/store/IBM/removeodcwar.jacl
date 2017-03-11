@@ -1,0 +1,104 @@
+##
+## Remove IBM Presentation Application
+##
+
+set AppName {Presentation.war}
+# Check if exists
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+    if {[string compare $TmpAppName $AppName] == 0} {
+        set FlagAppExist "True"
+        break
+    }
+}
+
+if {$FlagAppExist == "False"} {
+    puts stdout "Application $AppName does not exist, no Action taken"
+} else {
+$AdminApp uninstall $AppName
+	
+	#check for success
+	set FlagAppExist "False"
+	foreach TmpAppName [$AdminApp list] {
+			if {[string compare $TmpAppName $AppName] == 0} {
+				set FlagAppExist "True"
+				break;
+			}
+	}
+	if {$FlagAppExist == "False"} {
+		puts stdout "Application $AppName successfully removed."
+		$AdminConfig save
+	} else {
+		puts stdout "ERROR: Application $AppName could not be removed."
+	}
+}
+
+##
+## Remove Application
+##
+set AppName {RichTextEditor.war}
+# Check if exists
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+    if {[string compare $TmpAppName $AppName] == 0} {
+        set FlagAppExist "True"
+        break
+    }
+}
+
+if {$FlagAppExist == "False"} {
+    puts stdout "Application $AppName does not exist, no Action taken"
+} else {
+$AdminApp uninstall $AppName
+	
+	#check for success
+	set FlagAppExist "False"
+	foreach TmpAppName [$AdminApp list] {
+			if {[string compare $TmpAppName $AppName] == 0} {
+				set FlagAppExist "True"
+				break;
+			}
+	}
+	if {$FlagAppExist == "False"} {
+		puts stdout "Application $AppName successfully removed."
+		$AdminConfig save
+	} else {
+		puts stdout "ERROR: Application $AppName could not be removed."
+	}
+}
+
+##
+## Remove Application
+##
+set AppName {SpreadsheetBlox.war}
+
+# Check if exists
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+    if {[string compare $TmpAppName $AppName] == 0} {
+        set FlagAppExist "True"
+        break
+    }
+}
+
+if {$FlagAppExist == "False"} {
+    puts stdout "Application $AppName does not exist, no Action taken"
+} else {
+	$AdminApp uninstall $AppName
+	
+	#check for success
+	set FlagAppExist "False"
+	foreach TmpAppName [$AdminApp list] {
+			if {[string compare $TmpAppName $AppName] == 0} {
+				set FlagAppExist "True"
+				break;
+			}
+	}
+	if {$FlagAppExist == "False"} {
+		puts stdout "Application $AppName successfully removed."
+		$AdminConfig save
+	} else {
+		puts stdout "ERROR: Application $AppName could not be removed."
+	}
+}
+

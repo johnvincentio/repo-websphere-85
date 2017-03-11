@@ -1,0 +1,37 @@
+
+#--------------------------------------------------------------------
+# Handle server JVM classpath
+#--------------------------------------------------------------------
+
+proc JVsetAppServerJVMClassPath {NodeName ServerName myParam} {
+
+   global AdminConfig M_OK M_ERROR;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create JVM Classpath                             ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts "    server              $ServerName                            ";
+   puts " Classpath:                                                    ";
+   puts "    entry               $myParam                               ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   set JavaVirtualMachineId [$AdminConfig getid /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/];
+   if {$JavaVirtualMachineId == ""} {
+      JVputError "ERROR: /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/ does not exist";
+      return $M_ERROR;
+   }
+   JVputTrace "Old JVM Classpath {classpath [$AdminConfig showAttribute $JavaVirtualMachineId classpath]}";
+
+   set attrs [list [list classpath $myParam]];
+   if [catch {$AdminConfig modify $JavaVirtualMachineId $attrs} results] {
+      JVputError "ERROR: Could not create; $results.";
+      return $M_ERROR;
+   }
+   JVputTrace "New JVM Classpath {classpath [$AdminConfig showAttribute $JavaVirtualMachineId classpath]}";
+   JVputInfo "JVM Classpath successfully created/modified.";
+   return $M_OK;
+}

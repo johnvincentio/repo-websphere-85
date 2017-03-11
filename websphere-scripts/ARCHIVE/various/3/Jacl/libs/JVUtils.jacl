@@ -1,0 +1,57 @@
+
+#--------------------------------------------------------------------
+# Set global constants
+#--------------------------------------------------------------------
+
+set M_TRACE_ENABLED false;
+set M_OK 1;
+set M_ERROR 0;
+
+#--------------------------------------------------------------------
+# Get global constants
+#--------------------------------------------------------------------
+
+proc JVscript_trace_enable {} {global M_TRACE_ENABLED; set M_TRACE_ENABLED true;}
+proc JVscript_trace_disable {} {global M_TRACE_ENABLED; set M_TRACE_ENABLED false;}
+
+proc JVformatError {msg} {return "ERROR: $msg";}
+proc JVputError {msg} {puts [JVformatError $msg];}
+proc JVputInfo {msg} {puts "INFO: $msg";}
+proc JVputTrace {msg} {
+    global M_TRACE_ENABLED;
+    if {$M_TRACE_ENABLED} {puts "TRACE: $msg";}
+}
+proc JVthrow {msg} {return -code error [JVformatError $msg];}
+
+proc JVsave {} {
+    global AdminConfig; 
+    puts "";
+    puts "---------------------------------------------------------------";
+    puts "              Save                                             ";
+    puts "---------------------------------------------------------------";
+    puts "";
+    $AdminConfig save;
+}
+
+#--------------------------------------------------------------------
+# Handle properties file
+#--------------------------------------------------------------------
+
+proc JVloadProperties {propFileName} {
+	global M_ERROR;
+
+	java::import java.io.FileInputStream;
+	java::import java.util.Properties;
+
+	set fileprop [java::new Properties];
+	if {[catch {java::new FileInputStream $propFileName} fileStream]} {
+		JVputError "Cannot find properties file $propFileName; $fileStream";
+		return $M_ERROR;
+	}
+	$fileprop load $fileStream;
+	return $fileprop;
+}
+
+proc JVgetProperty {props myProp} {
+	return [$props getProperty $myProp];
+}

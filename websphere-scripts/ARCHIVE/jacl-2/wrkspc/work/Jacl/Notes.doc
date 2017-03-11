@@ -1,0 +1,16 @@
+﻿Solution 
+Here are a few different suggestions to try for resolving this issue: 
+Shorten the names of the Enterprise Application Project (EAR) and Web Project. 
+Shorten the package length used. 
+Shorten the temp directory used by WebSphere Application Server (WAS), following the steps described below:
+
+Create a directory with a short name on the C drive, for example, a. 
+Start the WebSphere® Test Environment v6 and using the WAS Administrative Console, 
+navigate to the servers 
+Application Servers > server1 > Java and Process Management > Process Definition > Java Virtual Machine page. 
+In the Generic JVM arguments fill in -Dworkspace.user.root=C:/a 
+Save and re-start the WebSphere Test Environment.
+
+When the server restarts it will then use the C:\a directory as the WAS temp directory, shortening the path above to:
+
+

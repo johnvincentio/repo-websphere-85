@@ -1,0 +1,5 @@
+
+proc JVgetSamplesBusName {nodeName} {
+	return [append nodeName "SamplesBus"]
+}
+

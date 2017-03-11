@@ -1,0 +1,49 @@
+
+proc JVcreateSIBJMSConnectionFactory {NodeName jmsCFName jmsCFJNDI jmsCFDesc jmsCFType authAlias SIBusName} {
+
+   global AdminConfig;
+   global AdminTask;
+
+#--------------------------------------------------------------------
+# Create SIB JMS connection factory
+#--------------------------------------------------------------------
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create SIB JMS connection factory                ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts " Connection factory:                                           ";
+   puts "    name                $jmsCFName                             ";
+   puts "    JNDI                $jmsCFJNDI                             ";
+   puts "    description         $jmsCFDesc                             ";
+   puts "    type                $jmsCFType                             ";
+   puts "    auth alias          $authAlias                             ";
+   puts " SI bus:                                                       ";
+   puts "    name                $SIBusName                             ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   set jmsCF [$AdminConfig getid "/Node:$NodeName/J2CResourceAdapter:SIB JMS Resource Adapter/J2CConnectionFactory:$jmsCFName"];
+   if {[llength $jmsCF] != 0} {
+      JVputInfo "The $jmsCFName JMS connection factory already exists.";
+      return;
+   }
+
+#--------------------------------------------------------------------
+# Create the SIB JMS connection factory
+#--------------------------------------------------------------------
+
+   set scope [$AdminConfig getid /Node:$NodeName/];
+   JVputTrace "Create a new SIB JMS connection factory named $jmsCFName.";
+   set params [list -name $jmsCFName -jndiName $jmsCFJNDI -busName $SIBusName -description $jmsCFDesc];
+   if { !($jmsCFType == "") } {
+      lappend params -type $jmsCFType;
+   }
+   if { !($authAlias == "") } {
+      lappend params -authDataAlias $authAlias;
+   }
+   $AdminTask createSIBJMSConnectionFactory $scope $params;
+}
+

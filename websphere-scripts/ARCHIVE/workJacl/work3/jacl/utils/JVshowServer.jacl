@@ -1,0 +1,12 @@
+
+proc JVshowServer {} {
+	global M_SERVER M_NODE M_CELL;
+	JVputInfo "---------------------------------------------------------------";
+	JVputInfo " ";
+	JVputInfo " Scope:                                                        ";
+	JVputInfo "    cell                $M_CELL                                ";
+	JVputInfo "    node                $M_NODE                                ";
+	JVputInfo "    server              $M_SERVER                              ";
+	JVputInfo "---------------------------------------------------------------";
+}
+

@@ -1,0 +1,37 @@
+
+#--------------------------------------------------------------------
+# Handle server tracing
+#--------------------------------------------------------------------
+
+proc JVsetServerTraceOff {NodeName ServerName} {
+
+   global AdminControl M_OK M_ERROR;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Set Server Trace Off                             ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts "    server              $ServerName                            ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   if {[catch {$AdminControl queryNames type=TraceService,node=$NodeName,process=$ServerName,*} myval1]} {
+      JVputError "Cannot get TraceService; $myval1";
+      return $M_ERROR;
+   }
+#  JVputTrace "result $myval1";
+
+   if {$myval1 == ""} {
+      JVputError "Request to get TraceService returned no results";
+      return $M_ERROR;
+   }
+#  JVputTrace "got TraceService";
+
+   if {[catch {$AdminControl setAttribute $myval1 traceSpecification com.ibm.*=all=disabled} myval2]} {
+      JVputError "Cannot set attribute; $myval2";
+      return $M_ERROR;
+   }
+   return $M_OK;
+} 

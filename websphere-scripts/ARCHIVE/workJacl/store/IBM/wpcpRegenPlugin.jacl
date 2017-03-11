@@ -1,0 +1,17 @@
+set FileName "wpcpRegenPlugin.jacl"
+set FlagDebug {@DebugMode@}
+set hostname [lindex $argv 0]
+set WAS_INSTALL_ROOT [lindex $argv 1]
+
+puts ""
+puts "scriptname : $FileName"
+puts "hostname : $hostname"
+puts "WAS root : $WAS_INSTALL_ROOT"
+puts ""
+
+# set node 
+set node [$AdminConfig getid /Node:$hostname/]
+
+# regen plugin
+set generator [$AdminControl completeObjectName type=PluginCfgGenerator,node=$hostname,*]
+$AdminControl invoke $generator generate "$WAS_INSTALL_ROOT $WAS_INSTALL_ROOT/config $hostname $hostname null plugin-cfg.xml"

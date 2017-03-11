@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "./log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+	<!-- ** DEBUG APPENDERS ** -->
+	<appender name="debugAppenderFILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="hercLog.txt" />
+		<param name="MaxFileSize" value="2000KB" />
+		<param name="MaxBackupIndex" value="5" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{ISO8601}] - [%p] - %m%n" />
+		</layout>
+	</appender>
+	<appender name="debugAppenderCONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%m%n" />
+		</layout>
+	</appender>
+
+	<!-- ** INFO APPENDERS ** -->
+	<appender name="infoAppenderFILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="hercLog.txt" />
+		<param name="MaxFileSize" value="2000KB" />
+		<param name="MaxBackupIndex" value="5" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{ISO8601}] - [%p] - %m%n" />
+		</layout>
+	</appender>
+	<appender name="infoAppenderCONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%m%n" />
+		</layout>
+	</appender>
+
+	<!-- ** WARN APPENDERS ** -->
+	<appender name="warnAppenderFILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="hercLog.txt" />
+		<param name="MaxFileSize" value="2000KB" />
+		<param name="MaxBackupIndex" value="5" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{ISO8601}] - [%p] - %m%n" />
+		</layout>
+	</appender>
+	<appender name="warnAppenderCONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%m%n" />
+		</layout>
+	</appender>
+
+	<!-- ** ERROR APPENDERS ** -->
+	<appender name="errorAppenderFILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="hercLog.txt" />
+		<param name="MaxFileSize" value="2000KB" />
+		<param name="MaxBackupIndex" value="5" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%m%n" />
+		</layout>
+	</appender>
+	<appender name="errorAppenderCONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{ISO8601}] - [%p] - %m%n" />
+		</layout>
+	</appender>
+
+	<!-- ** FATAL APPENDERS ** -->
+	<appender name="fatalAppenderFILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="hercLog.txt" />
+		<param name="MaxFileSize" value="2000KB" />
+		<param name="MaxBackupIndex" value="5" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{ISO8601}] - [%p] - %m%n" />
+		</layout>
+	</appender>
+	<appender name="fatalAppenderCONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%m%n" />
+		</layout>
+	</appender>
+ 
+	<!-- ** DEBUG LOGGER ** -->	
+	<logger name="com.hertz.irac.util.logging.DebugLogger" additivity="false">
+		<level value="DEBUG"/>
+		<appender-ref ref="debugAppenderFILE" />
+		<appender-ref ref="debugAppenderCONSOLE" />
+	</logger>
+
+	<!-- ** INFO LOGGER ** -->	
+	<logger name="com.hertz.irac.util.logging.InfoLogger" additivity="false">
+		<level value="INFO" />
+		<appender-ref ref="infoAppenderFILE" />
+		<appender-ref ref="infoAppenderCONSOLE" />
+	</logger>
+
+	<!-- ** WARN LOGGER ** -->	
+	<logger name="com.hertz.irac.util.logging.WarnLogger" additivity="false">
+		<level value="WARN" />
+		<appender-ref ref="warnAppenderFILE" />
+		<appender-ref ref="warnAppenderCONSOLE" />
+	</logger>
+
+	<!-- ** ERROR LOGGER ** -->	
+	<logger name="com.hertz.irac.util.logging.ErrorLogger" additivity="false">
+		<level value="ERROR" />
+		<appender-ref ref="errorAppenderFILE" />
+		<appender-ref ref="errorAppenderCONSOLE" />
+	</logger>
+
+	<!-- ** FATAL LOGGER ** -->	
+	<logger name="com.hertz.irac.util.logging.FatalLogger" additivity="false">
+		<level value="FATAL" />
+		<appender-ref ref="fatalAppenderFILE" />
+		<appender-ref ref="fatalAppenderCONSOLE" />
+	</logger>
+
+	<root>
+		<level value="OFF" />
+	</root>
+</log4j:configuration>

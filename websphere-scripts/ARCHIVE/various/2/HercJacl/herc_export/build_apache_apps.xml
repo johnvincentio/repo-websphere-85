@@ -1,0 +1,57 @@
+
+	<target name="create_herc_apache_apps_zip" depends="init_build_apache_apps, my_apache_apps" description="Create apache apps zips for Herc" />
+
+	<target name="my_apache_apps" depends="HercHes2Web" description="List of all Herc Apache apps" />
+
+	<target name="init_build_apache_apps">
+		<echo message="development.base.dir is ${development.base.dir} " />
+		<echo message="Creating apache.apps.work.dir is ${apache.apps.work.dir}" />
+		<echo message="Creating apache.apps.dir is ${apache.apps.dir}" />
+		<mkdir dir="${apache.apps.work.dir}"/>
+		<mkdir dir="${apache.apps.dir}"/>
+	</target>
+
+	<target name="HercHes2Web">
+		<echo message="No longer in use." />
+		<echo message="See HercHes2Web\WebContent\build\build.xml for help." />
+	</target>
+
+<!-- 
+	<target name="HercHes2Web">
+		<property name="HercHes2Web.build.id" value="32"/>
+		<mkdir dir = "${apache.apps.work.dir}/HercHes2Web"/>
+		<echo message="Copying files to ${apache.apps.work.dir}/HercHes2Web"/>
+		<copy todir="${apache.apps.work.dir}/HercHes2Web">
+			<fileset dir="${development.base.dir}/HercHes2Web/WebContent">
+				<include name="hes.html"/>
+				<include name="cinelease.html"/>
+				<include name="*.js"/>
+			</fileset>
+		</copy>
+		<copy todir="${apache.apps.work.dir}/HercHes2Web/${HercHes2Web.build.id}/build/output">
+			<fileset dir="${development.base.dir}/HercHes2Web/WebContent/${HercHes2Web.build.id}/build/output"/>
+		</copy>
+		<copy todir="${apache.apps.work.dir}/HercHes2Web/${HercHes2Web.build.id}/css">
+			<fileset dir="${development.base.dir}/HercHes2Web/WebContent/${HercHes2Web.build.id}/css"/>
+		</copy>
+		<copy todir="${apache.apps.work.dir}/HercHes2Web/${HercHes2Web.build.id}/img">
+			<fileset dir="${development.base.dir}/HercHes2Web/WebContent/${HercHes2Web.build.id}/img"/>
+		</copy>
+		<copy todir="${apache.apps.work.dir}/HercHes2Web/${HercHes2Web.build.id}/js">
+			<fileset dir="${development.base.dir}/HercHes2Web/WebContent/${HercHes2Web.build.id}/js"/>
+		</copy>
+		<copy todir="${apache.apps.work.dir}/HercHes2Web/${HercHes2Web.build.id}/json">
+			<fileset dir="${development.base.dir}/HercHes2Web/WebContent/${HercHes2Web.build.id}/json"/>
+		</copy>
+		<copy todir="${apache.apps.work.dir}/HercHes2Web/${HercHes2Web.build.id}/templates">
+			<fileset dir="${development.base.dir}/HercHes2Web/WebContent/${HercHes2Web.build.id}/templates"/>
+		</copy>
+		<echo message="Copy complete"/>
+
+		<property name="HercHes2Web.zip.file" value="${apache.apps.dir}/HercHes.zip"/>
+		<echo message="Creating HercHes2Web zip file ${HercHes2Web.zip.file}"/>
+		<zip destfile="${HercHes2Web.zip.file}" basedir="${apache.apps.work.dir}/HercHes2Web"/>
+		<echo message="Created zip file ${deploy.properties.zip.file}"/>
+	</target>
+
+-->

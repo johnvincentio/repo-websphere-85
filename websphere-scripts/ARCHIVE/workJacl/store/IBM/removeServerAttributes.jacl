@@ -1,0 +1,184 @@
+set NodeName {@NodeName@}
+set ServerName {@ServerName@}
+set WpsInstallLocation {@WpsInstallLocation@}
+
+set ServerId [$AdminConfig getid /Node:$NodeName/Server:$ServerName/]
+if {$ServerId == ""} {
+    puts stdout "ERROR: /Node:$NodeName/Server:$ServerName/ does not exist, no Action taken"
+	exit 1
+} else {
+	#####################################################################################
+	#  modify Server ApplicationServer attributes
+	#####################################################################################
+	set AppClassLoaderPolicy SINGLE
+	set AppClassLoadingMode PARENT_LAST
+	set AppClassLoaderPolicyAttr [list applicationClassLoaderPolicy $AppClassLoaderPolicy]
+	set AppClassLoadingModeAttr [list applicationClassLoadingMode $AppClassLoadingMode]
+	set attrs [list $AppClassLoaderPolicyAttr $AppClassLoadingModeAttr]
+   
+	set ServerId [$AdminConfig getid /Server:$ServerName/]
+	set ApplicationServerId [$AdminConfig list ApplicationServer $ServerId]	
+    set TmpAppClassLoaderPolicyAttr [$AdminConfig show $ApplicationServerId applicationClassLoaderPolicy]
+    set TmpAppClassLoadingModeAttr [$AdminConfig show $ApplicationServerId applicationClassLoadingMode]
+    puts stdout "Modify /Server:$ServerName/ApplicationServer:/"
+    puts stdout "Old: $TmpAppClassLoaderPolicyAttr"
+    puts stdout "Old: $TmpAppClassLoadingModeAttr"
+    puts stdout "ApplicationServer Attributes will not be changed !!."
+	puts stdout " "
+	
+	#####################################################################################
+	#  remove Server Processdefinition JavaVirtualMachine attributes
+	#####################################################################################
+	set FlagOk false
+	set SysPropName "ws.ext.dirs"
+	set JvmPropertyName [subst {name $SysPropName}]
+
+	puts "Remove '/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:$JvmPropertyName/'"
+
+	#### Check if its there ###################
+	set SysPropList [$AdminConfig getid /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:/]
+	set FlagOk false
+	set FlagChanges false
+	if {$SysPropList != ""} {
+		set TmpList [split $SysPropList ")"]
+		foreach Tmp $TmpList {
+			set Tmp [string trim $Tmp " "]
+			append Tmp ")"
+			if {[string first "(" $Tmp] > 1} {
+				set Tmp [string range $Tmp [string first "(" $Tmp] [string length $Tmp]]
+				lappend SysProp $Tmp
+			}
+		}
+        set FlagNotThere "true"
+		foreach TmpSysPropId $SysProp {
+			if {[catch {$AdminConfig showAttribute $TmpSysPropId name} TmpSysPropName]} {
+				puts stdout $TmpSysPropName
+				puts stdout "ERROR: In '/Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/'."
+				puts stdout "This is not a valid Property."
+				puts stdout $TmpSysPropId
+				exit 1
+			} else {
+                if {[string compare $TmpSysPropName [lindex $JvmPropertyName 1]] == 0} {
+                    set FlagNotThere "false"
+					puts stdout "Old: SystemProperty {name [$AdminConfig showAttribute $TmpSysPropId name]} {value [$AdminConfig showAttribute $TmpSysPropId value]}"
+					$AdminConfig remove $TmpSysPropId
+				}
+			}
+		}
+	}
+		
+    if {$FlagNotThere == "false"} {
+		# Check for success
+		set FlagOk  true
+		set SysPropList [$AdminConfig getid /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:/]
+		if {$SysPropList != ""} {
+			set TmpList [split $SysPropList ")"]
+			set SysProp ""
+			foreach Tmp $TmpList {
+				set Tmp [string trim $Tmp " "]
+				append Tmp ")"
+				if {[string first "(" $Tmp] > 1} {
+					set Tmp [string range $Tmp [string first "(" $Tmp] [string length $Tmp]]
+					lappend SysProp $Tmp
+				}
+			}
+			foreach TmpSysPropId $SysProp {
+				if {[catch {$AdminConfig showAttribute $TmpSysPropId name} TmpSysPropName]} {
+					puts stdout $TmpSysPropName
+					puts stdout "ERROR: In '/Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/'."
+					puts stdout "This is not a valid Property."
+					puts stdout $TmpSysPropId
+					exit 1
+				} else {
+					if {[string compare $TmpSysPropName [lindex $JvmPropertyName 1]] == 0} {
+						set FlagOk  false
+						break
+					}
+				}
+			}
+		} 
+		if {$FlagOk == "true"} {
+			$AdminConfig save
+			puts stdout "JVM Property successfull removed."
+		} else {
+			puts stdout "ERROR: JVM Property could not be removed."
+			exit 1
+		}
+    } else {
+		puts stdout "Not there, no action taken"
+	}
+}
+
+
+exit 0
+
+
+    #####################################################################################
+    #  modify server attributes errorStreamRedirect and logStreamRedirect 
+    #
+    #  no longer needed May. 09. 2003 Reibert
+    #
+    #####################################################################################
+    #puts stdout "Modify Server Attribute errorStreamRedirect and logStreamRedirect"
+    #set ServerId [$AdminConfig getid /Server:$ServerName/]
+	#foreach TmpStreamRedirect [$AdminConfig list StreamRedirect $ServerId] {
+    #    set tmpFileSpec [lindex [lindex [$AdminConfig showall $TmpStreamRedirect fileName] 0] 1]
+    #    set FileName [string range $tmpFileSpec [expr [string last "/" $tmpFileSpec] + 1] [string length $tmpFileSpec]]
+    #    set fileNameList [list fileName "$WpsInstallLocation/log/$FileName"]
+    #    puts stdout "FileNameOld: $tmpFileSpec"
+    #    set attrs [list $fileNameList]
+    #    $AdminConfig modify $TmpStreamRedirect $attrs
+    #    set tmpFileSpec [lindex [lindex [$AdminConfig showall $TmpStreamRedirect fileName] 0] 1]
+    #    set FileName [string range $tmpFileSpec [expr [string last "/" $tmpFileSpec] + 1] [string length $tmpFileSpec]]
+    #    puts stdout "FileNameNew: $tmpFileSpec"
+    #    puts stdout " "
+	#}
+
+
+
+	####################################################################################
+	#  create server attributes processDefinition JavaVirtualMachine systemProperties
+    #
+    #  no longer needed Mar. 24. 2003 Reibert
+    #
+	#####################################################################################
+	#<systemProperties xmi:id="Property_10" name="HttpSession.RecurseThroughProxy" value="true"/>
+	#set SysPropName HttpSession.RecurseThroughProxy
+	#set SysPropVal true
+	#
+	#set ServerId [$AdminConfig getid /Server:$ServerName/]
+	#set JavaVirtualMachine [$AdminConfig list JavaVirtualMachine $ServerId]
+	#
+	#set FlagObjectExist "False"
+	#foreach TmpSysPropObject [$AdminConfig list Property $ServerId] {
+	#	set TmpObjectName [$AdminConfig showAttribute $TmpSysPropObject name]
+	#	if {[string compare $TmpObjectName $SysPropName] == 0} {
+	#		set FlagObjectExist "True"
+	#		break;
+	#	}
+	#}
+    #
+	################ modify / create Object #################################
+	#set attrs [list [list name $SysPropName] [list value $SysPropVal]]
+	#if {$FlagObjectExist == "True"} {
+	#	set SysPropId [$AdminConfig getid "/Property:$SysPropName/"]
+	#	$AdminConfig modify $SysPropId $attrs 
+	#	puts stdout "Modify SystemProperties: $SysPropName"
+	#} else {
+	#	$AdminConfig create Property $JavaVirtualMachine $attrs
+	#	puts stdout "Create SystemProperties: $SysPropName"
+	#}
+	################ check for success  ####################################
+    #set SysPropId [$AdminConfig getid "/Property:$SysPropName/"]
+	#set TmpSysPropVal [$AdminConfig show $SysPropId value]
+	#puts stdout [$AdminConfig show $SysPropId]
+	#if {[string compare $TmpSysPropVal [list [list value $SysPropVal]]] == 0} {
+	#	puts stdout "OK"	
+	#} else {
+	#	puts stdout "ERROR: Set $SysPropName"	
+	#	puts stdout " Expected: $TmpSysPropVal"	
+	#	puts stdout " Actual:   [list [list value $SysPropVal]]"	
+	#}
+	#puts stdout " "
+
+

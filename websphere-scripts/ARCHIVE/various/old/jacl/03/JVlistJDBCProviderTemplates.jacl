@@ -1,0 +1,24 @@
+
+#--------------------------------------------------------------------
+# Create Provider
+#--------------------------------------------------------------------
+
+proc JVlistJDBCProviderTemplates {} {
+
+   global AdminConfig;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              List JDBC Provider Templates                     ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   set templates [$AdminConfig listTemplates JDBCProvider];
+   foreach templateEntry $templates {
+      set name [$AdminConfig showAttribute $templateEntry name];
+      puts " ";
+      puts "Template: $templateEntry";
+      puts "    Name: $name";
+      puts " ";
+   }
+} 

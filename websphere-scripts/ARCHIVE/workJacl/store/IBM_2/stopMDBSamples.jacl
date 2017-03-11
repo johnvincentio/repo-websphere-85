@@ -1,0 +1,267 @@
+#
+# "This program may be used, executed, copied, modified and distributed without royalty for the 
+# purpose of developing, using, marketing, or distributing."
+#
+# Product 5639-D57,5630-A36,5630-A37,5724-D18 (C) COPYRIGHT International Business Machines Corp. 2002
+#
+# All Rights Reserved * Licensed Materials - Property of IBM
+#
+
+set MyLocale ""
+set Bundle ""
+set ServerName ""
+set NodeName ""
+set setup "true"
+
+# This method prints the usage message
+proc printUsage { } {
+    global setup
+    set setup "false"
+
+    set osName [java::call java.lang.System getProperty os.name]
+    puts ""
+    if { [regexp {win|Win} $osName] == 1 } {
+	puts [getNLSText StopWindowsUsage]
+    } else {
+	puts [getNLSText StopUNIXUsage]
+    }
+
+    puts [getNLSText StopServerNameHelp]
+    puts [getNLSText StopNodeNameHelp]
+    puts ""
+}
+
+# This method when given a key will get the required text in the language specified in the current locale
+proc getNLSText { key } {
+  global Bundle
+  return [$Bundle getString $key]
+}
+
+# This method returns true if it is connected to a process that is part of a network distribution
+# and false if it is connected to a application server running in single server mode.
+proc inManagedEnvironment { } {
+  # Declare AdminControl as being used in this process
+  global AdminControl
+
+  # Get the number of processes of type UnManagedProcess that exist.
+  set result [regexp {processType=UnManagedProcess} [$AdminControl queryNames type=Server,*]]
+
+  # If there are no UnManagedProcesses then the process is part of a network distribution
+  # If there are then the server running in single server mode.
+  if { $result == 0 } {
+    return true
+  } else {
+    return false
+  }
+}
+
+# This takes a prompt and waits for an answer of 1 or 2, 1 signifying y and 2 n and returns true if y or Y have 
+# been entered.
+proc getYesNoResponse { prompt optionA optionB} {
+  set response ""
+  while { ($response != "1" && $response != "2") } {
+    puts [getNLSText $prompt]
+    puts [getNLSText $optionA]
+    puts [getNLSText $optionB]
+    set response [gets stdin]
+  }
+  
+  if { ($response == "1") } {
+    return "true"
+  } else {
+    return "false"
+  }
+}
+
+# This method given the server name and node name stops the server
+proc stopServer { serverName nodeName} {
+  global AdminControl
+
+  puts [getNLSText ServerShutdown]
+  $AdminControl stopServer $serverName $nodeName
+}
+
+# This method given the server name and node name start the server
+proc startServer { serverName nodeName} {
+  global AdminControl
+
+  puts [getNLSText ServerStartup]
+  $AdminControl startServer $serverName $nodeName
+}
+
+# This method given the server name and node name restart the server
+proc restartServer { serverName nodeName} {
+  stopServer $serverName $nodeName
+  startServer $serverName $nodeName
+}
+
+# This method given the server name and the node name discovers if the server is running
+proc isServerRunning { serverName nodeName } {
+  global AdminControl
+
+  # Try to find the MBean representing the requested server.
+  set server [$AdminControl queryNames name=$serverName,node=$nodeName,type=Server,*]
+
+  # If the response is the empty string then no MBean representing the server was found.
+  # This means the server is not up so false is returned.
+  if { $server == "" } {
+    return false
+  } else {
+    return true
+  }
+}
+
+# This procedure renders the samples inoperative when they are running in an
+# unmanaged environment.
+proc tearDownUnManagedEnvironment { } {
+  global AdminConfig
+  global ServerName
+  global NodeName
+
+  # This section changes the initialState of the JMSServer to STOP
+
+  # Checks to see if the user wants the jms server down. They may want it up for other things.
+  if { [getYesNoResponse AskJMSShutdown AskJMSShutdownShutdown AskJMSShutdownStayUp] } {
+
+    puts [getNLSText JMSServerInitialStateStop]
+    # Get hold of the JMS Server
+    set JMSServer [$AdminConfig list JMSServer]
+    # Change the initialState to STOP
+    $AdminConfig modify $JMSServer {{stateManagement {{initialState STOP}}}}
+  }
+
+  # This section changes the initialState of the Listener Port called SamplePtoPListenerPort to STOP
+
+  puts [getNLSText SamplePtoPListenerPortInitialStateStop]
+  # Get hold of the Listener Port with a display name of SamplePtoPListenerPort
+  regexp {SamplePtoPListenerPort(\([^\)]+\))} "[$AdminConfig list ListenerPort]" match port
+  # Display the Listener Port
+  # Change the initialState to STOP
+  $AdminConfig modify $port {{stateManagement {{initialState STOP}}}}
+
+  # This section changes the initialState of the Listener Port called SamplePubSubListenerPort to STOP
+
+  puts [getNLSText SamplePubSubListenerPortInitialStateStop]
+  # Get hold of the Listener Port with a display name of SamplePubSubListenerPort
+  regexp {SamplePubSubListenerPort(\([^\)]+\))} "[$AdminConfig list ListenerPort]" match port
+  # Display the Listener Port
+  # Change the initialState to STOP
+  $AdminConfig modify $port {{stateManagement {{initialState STOP}}}}
+
+  puts [getNLSText SavingTheSettings]
+  # This saves the configuration changes.
+  $AdminConfig save
+
+  # The server needs to be restarted for these changes to take place.
+  # The server cannot be started from here, but it can be stopped so ask if that
+  # is what is wanted.
+  if { [ getYesNoResponse AskShutdown AskShutdownShutdown AskShutdownStayUp] } {
+    stopServer $ServerName $NodeName
+    puts [getNLSText ServerShutdownStartServer]
+  } else {
+    puts [getNLSText RestartServer]
+  }
+}
+
+# This procedure renders the samples inoperative when they are running in a managed environment
+proc tearDownManagedEnvironment { } {
+  global AdminConfig
+  global AdminControl
+  global ServerName
+  global NodeName
+
+  # This section changes the initialState of the Listener Port called SamplePtoPListenerPort to STOP
+
+  puts [getNLSText SamplePtoPListenerPortInitialStateStop]
+  # Get hold of the Listener Port with a display name of SamplePtoPListenerPort on the specified node and server
+  regexp [ format {SamplePtoPListenerPort(\([^\)]+/nodes/%s/servers/%s[^\)]+\))} $NodeName $ServerName ] "[$AdminConfig list ListenerPort]" match port
+  # Display the Listener Port
+  # Change the initialState to STOP
+  $AdminConfig modify $port {{stateManagement {{initialState STOP}}}}
+
+  # This section changes the initialState of the Listener Port called SamplePubSubListenerPort to STOP
+
+  puts [getNLSText SamplePubSubListenerPortInitialStateStop]
+  # Get hold of the Listener Port with a display name of SamplePubSubListenerPort on the pecified node and server
+  regexp [ format {SamplePubSubListenerPort(\([^\)]+/nodes/%s/servers/%s[^\)]+\))} $NodeName $ServerName ] "[$AdminConfig list ListenerPort]" match port
+  # Change the initialState to STOP
+  $AdminConfig modify $port {{stateManagement {{initialState STOP}}}}
+
+  puts [getNLSText SavingTheSettings]
+  # This saves the configuration changes.
+  $AdminConfig save
+
+  # If the jmsserver is running then ask the user if they want it stopped as they may want
+  # it to remain up.
+  if { [isServerRunning jmsserver $NodeName] } {
+    if { [getYesNoResponse AskJMSShutdown AskJMSShutdownShutdown AskJMSShutdownStayUp] } {
+      puts [getNLSText JMSServerStopping]
+      stopServer jmsserver $NodeName
+      puts [getNLSText JMSServerStopped]
+    }
+  }
+
+  # If the application server is running then make sure that the listener port is stopped
+  if { [isServerRunning $ServerName $NodeName] } {
+    # get hold of the point to point listener port
+    set ptopLP [$AdminControl queryNames name=SamplePtoPListenerPort,type=ListenerPort,node=$NodeName,*]
+    # check to see if it is running
+    if { [$AdminControl getAttribute $ptopLP started] } { 
+      # stop the listener port.
+      puts [getNLSText SamplePtoPListenerPortStopping]
+      $AdminControl invoke $ptopLP stop
+      puts [getNLSText SamplePtoPListenerPortStopped]
+    }
+
+    # get hold of the publish subscribe listener port
+    set pubsubLP [$AdminControl queryNames name=SamplePubSubListenerPort,type=ListenerPort,node=$NodeName,*]
+    # check to see if it is running
+    if { [$AdminControl getAttribute $pubsubLP started] } { 
+      # stop the listener port.
+      puts [getNLSText SamplePubSubListenerPortStopping]
+      $AdminControl invoke $pubsubLP stop
+      puts [getNLSText SamplePubSubListenerPortStopped]
+    }
+
+  }
+
+}
+
+# Get hold of the current Locale, java::call calls a static method on a class.
+set MyLocale [java::call java.util.Locale getDefault]
+# Get hold of a resource bundle with all the translated text in it.
+set Bundle [java::call java.util.ResourceBundle getBundle com.ibm.ejs.jms.messaging $MyLocale]
+
+if { $argc != 4 } {
+    printUsage
+    set setup "false"
+} else {
+    for {set i 0 } {$i < $argc} {incr i} {
+	if { [lindex $argv $i] == "-serverName" } {
+	    incr i
+	    set ServerName [lindex $argv $i]
+	} elseif { [lindex $argv $i] == "-nodeName" } {
+	    incr i
+	    set NodeName [lindex $argv $i]
+	} else {
+	    printUsage
+	    set setup "false"
+	    break
+	}
+    }
+}
+
+if { $setup } {
+    puts ""
+    puts [getNLSText IntroText]
+    puts ""
+    
+    if { [inManagedEnvironment] } {
+	puts [getNLSText ManagedEnvironment]
+	tearDownManagedEnvironment
+    } else {
+	puts [getNLSText UnManagedEnvironment]
+	tearDownUnManagedEnvironment
+    }
+}
+

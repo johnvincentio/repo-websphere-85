@@ -1,0 +1,97 @@
+#--------------------------------------------------------------------
+# Set global constants
+#--------------------------------------------------------------------
+
+M_TRACE_ENABLED = "false"
+M_OK = 1
+M_ERROR = 0
+
+#--------------------------------------------------------------------
+# Get global constants
+#--------------------------------------------------------------------
+
+def JVscript_trace_enable (  ):
+        global M_TRACE_ENABLED
+        M_TRACE_ENABLED = "true"
+#endDef 
+def JVscript_trace_disable (  ):
+        global M_TRACE_ENABLED
+        M_TRACE_ENABLED = "false"
+#endDef 
+
+def JVformatError ( msg ):
+        return "ERROR: "+msg
+#endDef 
+def JVputError ( msg ):
+        _J2J_bracket_ = JVformatError(msg )
+        print _J2J_bracket_
+#endDef 
+def JVputInfo ( msg ):
+        print "INFO: "+msg
+#endDef 
+def JVputTrace ( msg ):
+        global M_TRACE_ENABLED
+        if (M_TRACE_ENABLED):
+                print "TRACE: "+msg
+        #endIf 
+#endDef 
+def JVthrow ( msg ):
+        _J2J_bracket_ = JVformatError(msg )
+        raise RuntimeError, _J2J_bracket_
+#endDef 
+
+def JVsave (  ):
+        global AdminConfig
+        print ""
+        print "---------------------------------------------------------------"
+        print "              Save                                             "
+        print "---------------------------------------------------------------"
+        print ""
+        AdminConfig.save( )
+#endDef 
+
+#--------------------------------------------------------------------
+# Handle properties file
+#--------------------------------------------------------------------
+
+def JVloadProperties ( propFileName ):
+        global M_ERROR
+
+        from java.io import FileInputStream
+        from java.util import Properties
+
+        _J2J_bracket_ = Properties(  ) #?PROBLEM? (jacl 46) JAVA::NEW Properties might require:  from ?? import Properties
+        fileprop = _J2J_bracket_
+        try:
+                _excp_ = 0
+                _J2J_brace_ = FileInputStream( propFileName ) #?PROBLEM? (jacl 47) JAVA::NEW FileInputStream might require:  from ?? import FileInputStream
+                fileStream = _J2J_brace_
+                _excp_ = 0 #reset (in case of nested exceptions)
+        except:
+                _type_, _value_, _tbck_ = sys.exc_info()
+                fileStream = str(_value_)
+                _excp_ = 1
+        #endTry 
+        _J2J_bracket_ = _excp_
+        if (_J2J_bracket_ ):
+                JVputError("Cannot find properties file "+propFileName+"; "+fileStream )
+                return M_ERROR
+        #endIf 
+        _J2J_file_ = open(fileStream)
+        _J2J_lines_ = _J2J_file_.readlines()
+        fileprop = {} 
+        for _J2J_line_ in _J2J_lines_:
+                _J2J_line_ = _J2J_line_.strip()
+                if(len(_J2J_line_)==0 or _J2J_line_[0:1]=="#"): continue
+                _J2J_index_ = _J2J_line_.find("=")
+                fileprop[_J2J_line_[0:_J2J_index_]] = _J2J_line_[_J2J_index_+1:]
+        #endFor (read of propertyFile=fileStream into variable=fileprop)
+        _J2J_file_.close()
+
+        return fileprop
+#endDef 
+
+def JVgetProperty ( props, myProp ):
+        _J2J_bracket_ = props[myProp]
+        return _J2J_bracket_
+#endDef 

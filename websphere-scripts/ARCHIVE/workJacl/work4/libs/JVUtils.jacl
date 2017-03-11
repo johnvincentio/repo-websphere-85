@@ -1,0 +1,111 @@
+#--------------------------------------------------------------------
+# Set global constants
+#--------------------------------------------------------------------
+
+set M_TRACE_ENABLED false;
+set M_OK 1;
+set M_ERROR 0;
+
+#--------------------------------------------------------------------
+# Get global constants
+#--------------------------------------------------------------------
+
+proc JVscript_trace_enable {} {global M_TRACE_ENABLED; set M_TRACE_ENABLED true;}
+proc JVscript_trace_disable {} {global M_TRACE_ENABLED; set M_TRACE_ENABLED false;}
+
+proc JVformatError {msg} {return "ERROR: $msg";}
+
+proc JVputError {msg} {puts [JVformatError $msg];}
+proc JVputInfo {msg} {puts "INFO: $msg";}
+proc JVputTrace {msg} {
+	global M_TRACE_ENABLED;
+	if {$M_TRACE_ENABLED} {puts "TRACE: $msg";}
+}
+proc JVthrow {msg} {return -code error [JVformatError $msg];}
+
+proc JVsave {} {
+	global AdminConfig; 
+	puts "";
+	puts "---------------------------------------------------------------";
+	puts "              Save                                             ";
+	puts "---------------------------------------------------------------";
+	puts "";
+	$AdminConfig save;
+}
+
+#--------------------------------------------------------------------
+# Handle properties file
+#--------------------------------------------------------------------
+
+proc JVloadProperties {propFileName} {
+	global M_ERROR;
+
+	java::import java.io.FileInputStream;
+	java::import java.util.Properties;
+
+	set fileprop [java::new Properties];
+	if {[catch {java::new FileInputStream $propFileName} fileStream]} {
+		JVputError "Cannot find properties file $propFileName; $fileStream";
+		return $M_ERROR;
+	}
+	$fileprop load $fileStream;
+	return $fileprop;
+}
+
+proc JVgetProperty {props myProp} {
+	return [$props getProperty $myProp];
+}
+
+#--------------------------------------------------------------------
+# Handle server tracing
+#--------------------------------------------------------------------
+
+proc JVtrace_off {} {
+	global AdminControl M_SERVER M_NODE M_OK M_ERROR;
+	JVputTrace ">>> Trace_Off; Node=$M_NODE Server=$M_SERVER";
+	if {[catch {$AdminControl queryNames type=TraceService,node=$M_NODE,process=$M_SERVER,*} myval1]} {
+		JVputError "Cannot get TraceService; $myval1";
+		return $M_ERROR;
+	}
+#	JVputTrace "result $myval1";
+	if {$myval1 == ""} {
+		JVputError "Request to get TraceService returned no results";
+		return $M_ERROR;
+	}
+#	JVputTrace "got TraceService";
+	if {[catch {$AdminControl setAttribute $myval1 traceSpecification com.ibm.*=all=disabled} myval2]} {
+		JVputError "Cannot set attribute; $myval2";
+		return $M_ERROR;
+	}
+	JVputTrace "<<< Trace_Off";
+	return $M_OK;
+} 
+
+
+#--------------------------------------------------------------------
+# Handle server tracing
+#--------------------------------------------------------------------
+
+proc JVtrace_on {} {
+	global AdminControl M_SERVER M_NODE M_OK M_ERROR;
+	JVputTrace ">>> Trace_On; Node=$M_NODE Server=$M_SERVER";
+	if {[catch {$AdminControl queryNames type=TraceService,node=$M_NODE,process=$M_SERVER,*} myval1]} {
+		JVputError "Cannot get TraceService; $myval1";
+		return $M_ERROR;
+	}
+#	JVputTrace "result $myval1";
+	if {$myval1 == ""} {
+		JVputError "Request to get TraceService returned no results";
+		return $M_ERROR;
+	}
+#	JVputTrace "got TraceService";
+	if {[catch {$AdminControl setAttribute $myval1 traceSpecification com.ibm.*=all=enabled} myval2]} {
+		JVputError "Cannot set attribute; $myval2";
+		return $M_ERROR;
+	}
+	JVputTrace "<<< Trace_On";
+	return $M_OK;
+} 
+
+
+

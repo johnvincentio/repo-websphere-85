@@ -1,0 +1,65 @@
+
+#--------------------------------------------------------------------
+# test1.jacl;
+#--------------------------------------------------------------------
+
+global AdminConfig;
+
+set nodeName "localhost";
+set serverName "server1";
+
+puts ">>> test1; Node=$nodeName Server=$serverName";
+
+if {[catch {$AdminConfig getid /Node:$nodeName/Server:$serverName} \
+			ServerId]} {
+	puts "Cannot get Server $serverName; $ServerId";
+	return 0;
+}
+if {$ServerId == ""} {
+	puts "ERROR: Server $serverName does not exist, no Action taken";
+	return 0;
+}
+set serverInfo [$AdminConfig show $ServerId];
+puts "serverInfo $serverInfo";
+
+if {[catch {$AdminConfig getid /Server:$serverName/ApplicationServer:/} ApplicationServerId]} {
+	puts "Cannot get ApplicationServer $serverName; $ApplicationServerId";
+	return 0;
+}
+if {$ApplicationServerId == ""} {
+	puts "ERROR: /Server:$serverName/ApplicationServer:/ does not exist";
+	return 0;
+}
+if {[llength $ApplicationServerId] != 1} {
+	puts "ERROR: more then one /Server:$serverName/ApplicationServer:/";
+	return 0;
+}
+
+set appServerInfo [$AdminConfig show $ApplicationServerId];
+puts "appServerInfo $appServerInfo";
+
+puts "------AdminConfig help";
+set qqq [$AdminConfig help];
+puts "qqq $qqq";
+
+puts "------AdminConfig types";
+set qqq2 [$AdminConfig types];
+puts "qqq2 $qqq2";
+
+puts "------AdminConfig list Agent";
+set qqq3 [$AdminConfig list Agent];
+puts "qqq3 $qqq3";
+
+puts "------AdminConfig list MessageLayer";
+set qqq4 [$AdminConfig list MessageLayer];
+puts "qqq4 $qqq4";
+
+puts "------AdminConfig list DataSource";
+set qqq4 [$AdminConfig list DataSource];
+puts "DataSource $qqq4";
+
+puts "------AdminConfig listTemplates DataSource";
+set qqq4 [$AdminConfig listTemplates JDBCProvider];
+puts "listTemplates DataSource $qqq4";
+
+puts "<<< test1";

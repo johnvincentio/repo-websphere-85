@@ -1,0 +1,117 @@
+#	global AdminConfig M_OK M_ERROR;
+
+#	set DbContext "wmm";
+#	JVputTrace ">>> JVcreateDataSource; Node=$NodeName Server=$ServerName Param=$DataSourceName";
+#	append JndiName "jdbc/" $DataSourceName;
+
+# set provider [$AdminConfig getid /Node:$nodeName/Server:$serverName/JDBCProvider:$providerName]
+
+# 	if {[catch {$AdminConfig getid /JDBCProvider:$JDBCProviderName} ParentJDBCProviderId]} {
+# 		JVputError "(1) Cannot get /JDBCProvider:$JDBCProviderName; $ParentJDBCProviderId";
+# 		return $M_ERROR;
+# 	}
+# 
+# 	if {$ParentJDBCProviderId == ""} {
+# 		JVputError "ERROR: /JDBCProvider:$JDBCProviderName is missing.";
+# 	    return $M_ERROR;
+# 	}
+# 	puts "ParentJDBCProviderId $ParentJDBCProviderId";
+# #Create the data source
+# 	puts "stage 1";
+# 	if {[catch {$AdminConfig getid /Node:$NodeName/Server:$ServerName/JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/} DataSourceId]} {
+# 		JVputInfo "New DataSource /JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/";
+# 	} else {
+# 		puts "stage 2";
+# 		if {$DataSourceId != ""} {
+# 			JVputError "/JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/ is already there. No action taken";
+# 			return $M_OK;
+# 		}
+# 	}
+# puts "stage 3";
+# 	set DataSourceAttrs01 [subst {{name $DataSourceName} {jndiName "$JndiName"} {description "JDBC DataSource for $DbName"}}];
+# puts "attrs01 $DataSourceAttrs01";
+# 	set DataSourceId [$AdminConfig create DataSource $ParentJDBCProviderId $DataSourceAttrs01];
+# 	JVputInfo "DataSource $DataSourceName for '$DbType' created: $DataSourceId";
+# puts "stage 4";
+# #Create the propertySet object
+# 	set J2EEResourcePropertySetId [$AdminConfig create J2EEResourcePropertySet $DataSourceId {}];
+# 	JVputInfo "J2EEResourcePropertySet created: $J2EEResourcePropertySetId";
+# puts "stage 5";
+# #Create the J2EEResourceProperty objects
+# 		if {$DatabaseUrl == "" } {puts stdout "ERROR: Database URL 'DbUrl' not specified in wpconfig.properties"; exit 1}
+# 		if {$DbName == "" } {puts stdout "ERROR: Database Name 'WpsDbName'/'WmmDbName' not specified in wpconfig.properties"; exit 1}
+#         set attrs01 [subst {{name URL} {type java.lang.String} {value $DatabaseUrl} {required "true"} {description "This is a required property. The URL indicating the database from which the Data Source will obtain connections, such as 'jdbc:oracle:thin:@localhost:1521:sample'."}}]
+#         set attrs02 [subst {{name description} {type java.lang.String} {value ""} {required "false"} {description "The description of this datasource."}}]
+#         set attrs03 [subst {{name enableMultithreadedAccessDetection} {type java.lang.Boolean} {value "false"} {required "false"} {description "Indicates whether or not to detect multithreaded access to a Connection and its corresponding Statements, ResultSets, and MetaDatas."}}]
+#         set attrs04 [subst {{name driverType} {type java.lang.String} {value ""} {required "false"} {description "The type of the driver. The possible values are: thin, oci8."}}]
+#         set attrs05 [subst {{name dataSourceName} {type java.lang.String} {value ""} {required "false"} {description "The name of the Data Source."}}]
+# 		set attrs06 [subst {{name oraclelogPrintMask} {type java.lang.Integer} {value ""} {required "false"} {description "The oraclelogPrintMask controls which information is printed with each trace message. Oracle9i requires the use of classes12_g.zip.  Default is 62 which is (OracleLog.FIELD_OBJECT for 9i / OracleLog.FIELD_CONN for 8i] 32 | OracleLog.FIELD_CATEGORY 16 | OracleLog.FIELD_SUBMOD 8 | OracleLog.FIELD_MODULE 4 | OracleLog.FIELD_TIME  2).  Possible values:  OracleLog.FIELD_TIME  2, OracleLog.FIELD_MODULE  4, OracleLog.FIELD_SUBMOD  8, OracleLog.FIELD_CATEGORY  16, OracleLog.FIELD_OBJECT  32, OracleLog.FIELD_THREAD  64"}}]
+# 		set attrs07 [subst {{name oraclelogModuleMask} {type java.lang.Integer} {value ""} {required "false"} {description "The oraclelogModuleMask controls which modules write debug output. Oracle9i requires the use of classes12_g.zip.  Default is 1 which is ( OracleLog.MODULE_DRIVER  1).  Possible values (OracleLog.MODULE_DRIVER  1, OracleLog.MODULE_DBACCESS  2)"}}]
+#         set attrs08 [subst {{name oraclelogCategoryMask} {type java.lang.Integer} {value ""} {required "false"} {description "The oraclelogCategoryMask controls which category to be output. Oracle9i requires the use of classes12_g.zip.  Default is 47 which is ( OracleLog.USER_OPER  1 | OracleLog.PROG_ERROR  2 | OracleLog.ERROR  4 | OracleLog.WARNING  8 | OracleLog.DEBUG1  32).  Possible values (OracleLog.USER_OPER  1, OracleLog.PROG_ERROR  2, OracleLog.ERROR  4, OracleLog.WARNING  8, OracleLog.FUNCTION  16, OracleLog.DEBUG1  32, OracleLog.SQL_STR  128)"}}]
+#         set attrs09 [subst {{name TNSEntryName} {type java.lang.String} {value ""} {required "false"} {description "The entry name which is used for the Oracle OCI driver."}}]
+#         set attrs10 [subst {{name networkProtocol} {type java.lang.String} {value ""} {required "false"} {description "Whether to use TCP/IP or IPC or any other protocol"}}]
+#         set attrs11 [subst {{name databaseName} {type java.lang.String} {value $DbName} {required "false"} {description "The database name. For example, enter sample to make your Data Source point to sample"}}]
+#         set attrs12 [subst {{name serverName} {type java.lang.String} {value $ServerName} {required "false"} {description "The name of the server"}}]
+#         set attrs13 [subst {{name portNumber} {type java.lang.Integer} {value "0"} {required "false"} {description "The TCP/IP port number where the jdbc driver resides."}}]
+#         set attrs14 [subst {{name loginTimeout} {type java.lang.Integer} {value "0"} {required "false"} {description "The maximum time to attempt to connect a database. If this value is non-zero, attempt to connect to the database will timeout when this specified value is reached."}}]
+#         set attrs15 [subst {{name transactionBranchesLooselyCoupled} {type java.lang.Boolean} {value ""} {required "false"} {description "This property is introduced as a result of Oraclebug 2511780, Oracle Patch for 2511780 must be installed before setting this property to true, failure to do that would cause a program error.  Please check the WebSphere readme file for more info ."}}]
+#         set NoOfJ2eeObjects 15
+# for {set i 1} {$i <= $NoOfJ2eeObjects} {incr i} {
+#     set VarAttrs ""
+#     if {$i < 10} {append VarAttrs $ "attrs0" $i} else {append VarAttrs $ "attrs" $i}
+# 	set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId [subst $VarAttrs]]
+# 	#puts "J2EEResourceProperty for '$DbType' created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+# 	puts "$DbType J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name] : [$AdminConfig showAttribute $J2EEResourcePropertyId value]"
+# }
+# 
+# #Finding the Resource Adapter
+# set ParentServerId [$AdminConfig getid /Server:$ServerName/]
+# set J2CResourceAdapterId [$AdminConfig list J2CResourceAdapter $ParentServerId]
+# 
+# #Modify the properties for the data source.
+# 		if {$DbContext == "wmm"} {
+# 			#Change authDataAlias from $JaasAuthDataAlias to authDataAlias ""; Input from Andy Zhuang/Toronto/IBM 28.04.2003
+# 			set DataSourceAttrs02 [subst {{authMechanismPreference "BASIC_PASSWORD"} {statementCacheSize 10} {datasourceHelperClassname $DatasourceHelperClassname} {relationalResourceAdapter $J2CResourceAdapterId}}]
+# 		} else {
+# 			set DataSourceAttrs02 [subst {{authMechanismPreference "BASIC_PASSWORD"} {authDataAlias $JaasAuthDataAlias} {statementCacheSize 10} {datasourceHelperClassname $DatasourceHelperClassname} {relationalResourceAdapter $J2CResourceAdapterId}}]
+# 		}
+# $AdminConfig modify $DataSourceId $DataSourceAttrs02
+# puts "DataSource modified: $DataSourceId"
+# 
+# #Create the connection pool object...
+# set ConnectionPoolId [$AdminConfig create ConnectionPool $DataSourceId {{connectionTimeout 1800} {maxConnections 10} {minConnections 1} {reapTime 180} {unusedTimeout 1800} {agedTimeout 0} {purgePolicy "EntirePool"}}]
+# puts "ConnectionPool created: $ConnectionPoolId"
+# 
+# #2003/05/16 START add
+# if {$DbContext == "wmm"} {
+# 	set MappingModuleAttrs [subst {{mappingConfigAlias "DefaultPrincipalMapping"} {authDataAlias $JaasAuthDataAlias}}]
+# } else {
+# 	set MappingModuleAttrs [subst {{mappingConfigAlias "DefaultPrincipalMapping"} {authDataAlias ""}}]
+# }
+# #2003/05/16 END add
+# 
+# set MappingModuleId [$AdminConfig create MappingModule $DataSourceId $MappingModuleAttrs]
+# puts "MappingModule for '$DbType' created: $MappingModuleId"
+# 
+# 
+# 
+# 
+# set FlagExist "False"
+# foreach TmpDataSource [$AdminConfig list DataSource] {
+# 	set TmpDataSourceName [$AdminConfig showAttribute $TmpDataSource name]
+# 	if {[string compare $TmpDataSourceName $DataSourceName] == 0} {
+# 		set FlagExist "True"
+#         break;
+# 	}
+# }
+# if {$FlagExist == "True"} {
+# 	puts stdout "DataSource $DataSourceName for '$DbType' and all required attributes successfully created."
+#     $AdminConfig save
+# } else {
+# 	puts stdout "ERROR: DataSource $DataSourceName for '$DbType' could not be created."
+# 	exit 1
+# }
+# 	JVputTrace "<<< JVcreateDataSource";
+# 	return $M_OK;
+
+}

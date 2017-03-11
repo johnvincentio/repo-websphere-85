@@ -1,0 +1,77 @@
+
+#------------------------------------------------------------------
+# script to handle Capstone Server Configuration
+#------------------------------------------------------------------
+
+#------------------------------------------------------------------
+# handle included scripts
+#------------------------------------------------------------------
+
+source libs/JVUtils.jacl;
+source capstone_jaas.jacl;
+source capstone_j2c.jacl;
+source capstone_jdbc.jacl;
+source capstone_jms.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "Starting";
+
+#--------------------------------------------------------------------
+#  load properties file
+#--------------------------------------------------------------------
+
+set myPropertiesFile "capstone.properties";
+JVputInfo "Loading Properties file $myPropertiesFile";
+set fileprops [JVloadProperties $myPropertiesFile];
+JVputTrace "JVloadProperties.jacl; code $fileprops";
+if {$fileprops == 0} {
+	JVputError "Load Properties failed";
+	exit 1;
+}
+JVputInfo "Loaded Properties file";
+
+#--------------------------------------------------------------------
+# get properties
+#--------------------------------------------------------------------
+
+set myCellName [JVgetProperty $fileprops "JVCell"];
+set myNodeName [JVgetProperty $fileprops "JVNode"];
+set myServerName [JVgetProperty $fileprops "JVServer"];
+
+JVputInfo "---------------------------------------------------------------";
+JVputInfo " ";
+JVputInfo " Scope:                                                        ";
+JVputInfo "    cell                $myCellName                            ";
+JVputInfo "    node                $myNodeName                            ";
+JVputInfo "    server              $myServerName                          ";
+JVputInfo "---------------------------------------------------------------";
+
+#--------------------------------------------------------------------
+# Configure Capstone Server
+#--------------------------------------------------------------------
+
+JVputInfo "J2C Resource Adapters";
+#capstone_j2c $myNodeName $myServerName;
+
+JVputInfo "JAAS";
+#capstone_jaas $myCellName $myNodeName;
+
+JVputInfo "JDBC";
+#capstone_jdbc $myNodeName $myServerName;
+
+JVputInfo "JMS";
+capstone_jms $myNodeName $myServerName;
+
+JVsave;
+exit 0;
+
+JVputInfo "Save configuration";
+JVsave;
+
+JVputInfo "Script completed";
+exit 0;
+

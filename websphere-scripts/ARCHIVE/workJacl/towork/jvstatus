@@ -1,0 +1,4 @@
+
+JVADMIN="/opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/JaclSrv01/bin"
+$JVADMIN/serverStatus.sh -all
+

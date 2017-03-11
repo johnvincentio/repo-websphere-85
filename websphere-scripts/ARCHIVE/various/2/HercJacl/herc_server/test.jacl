@@ -1,0 +1,9 @@
+
+puts "Start server";
+
+# $AdminControl startServer server1 ebt_vincentjNode03;
+$AdminControl startServer localhost ebt_vincentjNode03;
+
+puts "done";
+	
+	

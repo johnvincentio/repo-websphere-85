@@ -1,0 +1,7 @@
+global AppName
+global AppWeight
+global ClassLoaderMode
+
+set AppName {WPCP_Express_Runtime}
+set AppWeight {11}
+set ClassLoaderMode PARENT_LAST

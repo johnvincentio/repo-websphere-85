@@ -1,0 +1,24 @@
+
+#--------------------------------------------------------------------
+# Set global constants
+#--------------------------------------------------------------------
+
+set M_TRACE_ENABLED false;
+set M_SERVER "";
+set M_NODE "";
+set M_CELL "";
+
+set M_OK 1;
+set M_ERROR 0;
+
+#--------------------------------------------------------------------
+# Get global constants
+#--------------------------------------------------------------------
+
+proc JVget_server {} {global M_SERVER;  return $M_SERVER;}
+proc JVget_node {} {global M_NODE; return $M_NODE;}
+proc JVget_cell {} {global M_CELL; return $M_CELL;}
+
+proc JVscript_trace_enable {} {global M_TRACE_ENABLED; set M_TRACE_ENABLED true;}
+proc JVscript_trace_disable {} {global M_TRACE_ENABLED; set M_TRACE_ENABLED false;}
+

@@ -1,0 +1,91 @@
+
+#------------------------------------------------------------------
+# script to handle iRAC Server Configuration
+#------------------------------------------------------------------
+
+source /opt/jvconfig/websphere/jacl/99/JVSourceAll.jacl;
+
+#------------------------------------------------------------------
+# handle other irac scripts
+#------------------------------------------------------------------
+
+source irac_trace.jacl;
+source irac_nsbString.jacl;
+source irac_nsbEjb.jacl;
+source irac_jaas.jacl;
+source irac_jvm.jacl;
+source irac_jdbc.jacl;
+source irac_jms.jacl;
+source irac_mq.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "irac.jacl; Starting";
+
+#--------------------------------------------------------------------
+#  load properties file
+#--------------------------------------------------------------------
+
+set myPropertiesFile "irac.properties";
+JVputInfo "Loading Properties file $myPropertiesFile";
+set fileprops [JVloadProperties $myPropertiesFile];
+JVputTrace "JVloadProperties.jacl; code $fileprops";
+if {$fileprops == 0} {
+    JVputError "Load Properties failed";
+    exit 1;
+}
+JVputInfo "Loaded Properties file";
+
+#--------------------------------------------------------------------
+# get properties
+#--------------------------------------------------------------------
+
+set myServerName [JVgetProperty $fileprops "ServerName"];
+set myNodeName [JVgetProperty $fileprops "NodeName"];
+set myCellName [JVgetProperty $fileprops "CellName"];
+
+#--------------------------------------------------------------------
+# show server info
+#--------------------------------------------------------------------
+
+JVputInfo "---------------------------------------------------------------";
+JVputInfo " ";
+JVputInfo " Scope:                                                        ";
+JVputInfo "    cell                $myCellName                            ";
+JVputInfo "    node                $myNodeName                            ";
+JVputInfo "    server              $myServerName                          ";
+JVputInfo "---------------------------------------------------------------";
+
+irac_trace $myNodeName $myServerName "on";
+
+JVputInfo "Handle String Name Space Bindings";
+irac_nsbString $myCellName;
+
+JVputInfo "Handle EJB Name Space Bindings";
+set bindingLocation "SINGLESERVER";
+irac_nsbEjb $myCellName $myNodeName $myServerName $bindingLocation;
+
+JVputInfo "Handle JAAS";
+irac_jaas $myCellName;
+
+JVputInfo "Handle JVM";
+irac_jvm $myNodeName $myServerName;
+
+JVputInfo "Handle JDBC";
+irac_jdbc $myNodeName $myServerName;
+
+JVputInfo "Handle JMS";
+irac_jms $myNodeName $myServerName;
+
+JVputInfo "Handle MQ";
+irac_mq $myNodeName;
+
+irac_trace $myNodeName $myServerName "off";
+
+JVsave;
+puts "after save";
+
+exit 0;

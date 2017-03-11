@@ -1,0 +1,9 @@
+#------------------------------------------------------------------
+# script to handle Testing for Server Configuration
+#------------------------------------------------------------------
+
+source ../libs/JVUtils.jacl;
+
+proc hercTest {pServerName pNodeName pCellName} {
+
+}

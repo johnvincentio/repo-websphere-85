@@ -1,0 +1,101 @@
+set NodeName {@NodeName@}
+set ServerName {@ServerName@}
+
+set ServerId [$AdminConfig getid /Node:$NodeName/Server:$ServerName]
+if {$ServerId == ""} {
+    puts stdout "ERROR: Server $ServerName does not exist, no Action taken"
+	exit 1
+} else {
+	####################################################################################
+	#  create server attributes processDefinition JavaVirtualMachine systemProperties
+	#####################################################################################
+	set SysPropName "ws.ext.dirs"
+	set TmpVar "@WpsInstallLocation@"
+	append ValueToRemove $TmpVar "/wpcp/v5.0/runtime/lib/ext/wpcpstrings.jar"
+	set SysPropRequired "false"
+	set SysPropDescription "Extended path"
+    set SysPropValue ""
+	puts "Update '/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:$SysPropName/'"
+
+	set ServerId [$AdminConfig getid /Server:$ServerName/]
+    set JavaVirtualMachineId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/]
+	if {$JavaVirtualMachineId == ""} {
+		puts stdout "ERROR: /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/ does not exist"
+		exit 1
+	}
+	if {[llength $JavaVirtualMachineId] != 1} {
+		puts stdout "ERROR: more then one /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/"
+		exit 1
+	}
+
+	set FlagObjectExist "False"
+	foreach TmpSysPropObjectId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:/] {
+		set TmpObjectName [$AdminConfig showAttribute $TmpSysPropObjectId name]
+		if {[string compare $TmpObjectName $SysPropName] == 0} {
+			set SysPropId $TmpSysPropObjectId
+			set FlagObjectExist "True"
+			break;
+		}
+	}
+
+	################ remove Object #################################
+	set FlagChangeNecessary "false"
+	if {$FlagObjectExist == "True"} {
+		puts stdout "Old: SystemProperty {name [$AdminConfig showAttribute $SysPropId name]} {value [$AdminConfig showAttribute $SysPropId value]}"
+		set TmpObjectValue [$AdminConfig showAttribute $TmpSysPropObjectId value]
+
+    	if {$TmpObjectValue != ""} {
+	    	set TmpList [split $TmpObjectValue "@PATH.SEP@"]
+		    foreach Tmp $TmpList {
+			    set Tmp [string trim $Tmp " "]
+			    if {[string compare $Tmp $ValueToRemove] != 0} {
+	    			append SysPropValue $Tmp "@PATH.SEP@"
+		    	} else {
+                    puts stdout "Removed value $Tmp"
+                    set FlagChangeNecessary "true"
+                }
+		    }
+        }
+
+		if {$FlagChangeNecessary == "true"} {
+	        set attrs [list [list name $SysPropName] [list value $SysPropValue] [list required $SysPropRequired] [list description $SysPropDescription]]
+			$AdminConfig modify $SysPropId $attrs 
+		} else {
+			puts stdout "Value is OK, no action taken"
+		}
+	} else {
+		puts stdout "SystemProperty $SysPropName does not exist to be updated."
+	}
+	
+	################ check for success  ####################################
+	if {$FlagChangeNecessary == "true"} {
+		set FlagObjectExist "False"
+		set SysPropId ""
+		foreach TmpSysPropObjectId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:/] {
+			set TmpObjectName [$AdminConfig showAttribute $TmpSysPropObjectId name]
+			if {[string compare $TmpObjectName $SysPropName] == 0} {
+				set SysPropId $TmpSysPropObjectId
+				set FlagObjectExist "true"
+				break;
+			}
+		}
+		if {$FlagObjectExist == "true"} {
+			puts stdout "New: SystemProperty {name [$AdminConfig showAttribute $SysPropId name]} {value [$AdminConfig showAttribute $SysPropId value]}"
+			set TmpObjectValue [$AdminConfig showAttribute $TmpSysPropObjectId value]
+			if {[string compare $TmpObjectValue $SysPropValue] != 0} {
+				puts stdout "ERROR: JVM Property could not be modified."	
+				exit 1
+			} else {
+				puts stdout "JVM Property successfully created/modified."
+				$AdminConfig save
+			}
+		} else {
+			puts stdout "JVM Property could not be modified."	
+			exit 1
+		}
+	}
+	puts stdout " "
+}
+
+exit 0
+

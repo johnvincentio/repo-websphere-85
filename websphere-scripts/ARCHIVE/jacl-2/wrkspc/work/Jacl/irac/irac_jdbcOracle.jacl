@@ -1,0 +1,21 @@
+
+source libs/data/JVcreateJDBCProviderByTemplate.jacl;
+source libs/data/JVcreateDatasourceOracle.jacl;
+source libs/data/JVmodifyVariable.jacl;
+
+proc irac_jdbcOracle {NodeName ServerName} {
+
+   JVmodifyVariable "ORACLE_JDBC_DRIVER_PATH" "/usr/local/bin/Oracle/jdbc";
+
+   set templName    "Oracle JDBC Driver";
+   set provName     "Junk Oracle JDBC Driver";
+   JVcreateJDBCProviderByTemplate $NodeName $ServerName $templName $provName;
+
+   set dsName       "Nero Pool";
+   set dsJNDI       "jdbc/NeroResource";
+   set dsDesc       "Data source for the Nero Pool";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set dbURL        "jdbc:oracle:thin:@alpha:1521:orcl";
+   set secAuthAlias $NodeName/OracleNero;
+   JVcreateDatasourceOracle $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $dbURL $secAuthAlias;
+}

@@ -1,0 +1,20 @@
+
+#--------------------------------------------------------------------
+# Handle properties file
+#--------------------------------------------------------------------
+
+proc JVloadProperties {propFileName} {
+	global M_ERROR;
+
+	java::import java.io.FileInputStream;
+	java::import java.util.Properties;
+
+	set fileprop [java::new Properties];
+	if {[catch {java::new FileInputStream $propFileName} fileStream]} {
+		JVputError "Cannot find properties file $propFileName; $fileStream";
+		return $M_ERROR;
+	}
+	$fileprop load $fileStream;
+	return $fileprop;
+}
+

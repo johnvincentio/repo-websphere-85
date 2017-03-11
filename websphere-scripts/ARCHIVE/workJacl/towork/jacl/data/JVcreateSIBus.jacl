@@ -1,0 +1,49 @@
+
+proc JVcreateSIBus {nodeName serverName SIBusName} {
+
+  #--------------------------------------------------------------------
+  # Set up globals  
+  #--------------------------------------------------------------------
+
+  global AdminTask
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create a bus in the current cell.  As well as creating a bus, the
+  # createSIBus command will create a default topic space on the bus.
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Create SI bus                                    "
+  puts "---------------------------------------------------------------"
+  puts " Scope:                                                        "
+  puts "    node                $nodeName                              "
+  puts " SI bus:                                                       "
+  puts "    name                $SIBusName                             "
+  puts "---------------------------------------------------------------"
+  puts ""
+ 
+  set bus [$AdminConfig getid /SIBus:$SIBusName]
+
+  if {[llength $bus] == 0} {
+    JVputTrace "Create a new SI bus named $SIBusName."
+    $AdminTask createSIBus [list -bus $SIBusName -description "Messaging bus for samples"]
+  } else {
+    JVputInfo "The $SIBusName already exists."
+  }
+
+  #--------------------------------------------------------------------
+  # Add SI bus member
+  #--------------------------------------------------------------------
+
+  JVaddSIBusMember $nodeName $serverName $SIBusName
+
+  #--------------------------------------------------------------------
+  # Enable SIB service
+  #--------------------------------------------------------------------
+
+  JVenableService $nodeName $serverName SIBService
+
+}
+

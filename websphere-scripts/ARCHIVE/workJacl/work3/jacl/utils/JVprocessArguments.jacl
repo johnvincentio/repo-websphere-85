@@ -1,0 +1,100 @@
+
+#--------------------------------------------------------------------
+# Processes the script arguments.
+# The arguments are validated, and the global variables are set
+# based on their values.
+#
+# Params:
+#      argc           The number of arguments passed to the script.
+#      argv           The arguments passed to the script.
+#--------------------------------------------------------------------
+
+proc JVprocessArguments {argc argv} {
+	global AdminConfig M_NODE M_CELL M_SERVER VALID_OPTIONS M_OK M_ERROR;
+
+	JVputTrace ">>> processArguments; $argc $argv";
+	set VALID_OPTIONS   [list -cell -node -server -man];
+
+	for {set i 0} {$i < $argc} {incr i} {
+		if {[lsearch $VALID_OPTIONS [lindex $argv $i]] == -1} {
+			JVusageError "[lindex $argv $i] is not a valid option.  Valid options are: $VALID_OPTIONS.";
+			return $M_ERROR;
+		}
+		if {[lindex $argv $i] == "-cell"} {
+			incr i;
+			if { ([lsearch $VALID_OPTIONS [lindex $argv $i]] == -1) && ($i != $argc) } {
+				set M_CELL [lindex $argv $i];
+			} else {
+				JVusageError "The cell name is not specified.";
+				return $M_ERROR;
+			}
+		}
+		if {[lindex $argv $i] == "-node"} {
+			incr i;
+			if { ([lsearch $VALID_OPTIONS [lindex $argv $i]] == -1) && ($i != $argc) } {
+				set M_NODE [lindex $argv $i];
+			} else {
+				JVusageError "The node name is not specified.";
+				return $M_ERROR;
+			}
+		}
+		if {[lindex $argv $i] == "-server"} {
+			incr i;
+			if { ([lsearch $VALID_OPTIONS [lindex $argv $i]] == -1) && ($i != $argc) } {
+				set M_SERVER [lindex $argv $i];
+			} else {
+				JVusageError "The server name is not specified.";
+				return $M_ERROR;
+			}
+		}
+		if {[lindex $argv $i] == "-man"} {
+			displayHelpMessage;
+			return $M_ERROR;
+		}
+	}
+	JVputTrace "Check cell name $M_CELL";
+	if {$M_CELL == ""} {
+		set cells [$AdminConfig list Cell]
+		if { [llength $cells] == 1 } {
+			set M_CELL [$AdminConfig showAttribute $cells name];
+		} elseif { [llength $cells] == 0 } {
+			JVusageError "The configuration has no cells.";
+			return $M_ERROR;
+		} else {
+			JVusageError "The configuration has more than one cell.  Use the -cell option to specify a cell.";
+			return $M_ERROR;
+		}
+	} elseif { [llength [$AdminConfig getid /Cell:$M_CELL]] == 0 } {
+		JVusageError "$M_CELL is not a valid cell name.";
+		return $M_ERROR;
+	}
+
+	JVputTrace "Check node name $M_NODE";
+	if {$M_NODE == ""} {
+		set nodes [$AdminConfig getid /Cell:$M_CELL/Node:/];
+		if { [llength $nodes] == 1 } {
+			set M_NODE [$AdminConfig showAttribute $nodes name];
+		} elseif { [llength $nodes] == 0 } {
+			JVusageError "The $M_CELL cell has no nodes.";
+			return $M_ERROR;
+		} else {
+			JVusageError "The configuration has more than one node.  Use the -node option to specify a node.";
+			return $M_ERROR;
+		}
+	} elseif { [llength [$AdminConfig getid /Cell:$M_CELL/Node:$M_NODE]] == 0} {
+		JVusageError "$M_NODE is not a valid node name.";
+		return $M_ERROR;
+	}
+
+  	JVputTrace "Check server name $M_SERVER";
+	if {$M_SERVER == ""} {
+		set M_SERVER "server1";
+	}
+	if { [llength [$AdminConfig getid /Cell:$M_CELL/Node:$M_NODE/Server:$M_SERVER]] == 0 } {
+		JVusageError "$M_SERVER is not a valid server name.";
+		return $M_ERROR;
+	}
+	JVputTrace "<<< processArguments";
+	return $M_OK;
+}
+

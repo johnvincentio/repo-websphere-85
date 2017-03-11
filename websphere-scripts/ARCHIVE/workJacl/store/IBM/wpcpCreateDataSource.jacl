@@ -1,0 +1,109 @@
+set NodeName {@NodeName@}
+set ServerName {@ServerName@}
+
+#vars are set in profileXXXDataSource.jacl
+
+append JndiName "jdbc/" $JNDIName
+
+set ParentJDBCProviderId [$AdminConfig getid /JDBCProvider:$JDBCProviderName/]
+if {$ParentJDBCProviderId == ""} {
+    puts stdout "ERROR: /JDBCProvider:$JDBCProviderName/ is missing."
+    exit 1
+}
+
+#Create the data source
+set DataSourceId [$AdminConfig getid /JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/]
+if {$DataSourceId != ""} {
+    puts stdout "/JDBCProvider:$JDBCProviderName/DataSource:$DataSourceName/ is already there. No action taken"
+    exit
+}
+set DataSourceAttrs01 [subst {{name "$DataSourceName"} {jndiName $JndiName} {authDataAlias $JaasAuthDataAlias} {statementCacheSize 10} {datasourceHelperClassname $DatasourceHelperClassname} {description "JDBC DataSource for $DbName"}}]
+set DataSourceId [$AdminConfig create DataSource $ParentJDBCProviderId $DataSourceAttrs01]
+puts stdout "DataSource $DataSourceName for '$DbType' created: $DataSourceId"
+
+#Create the propertySet object
+set J2EEResourcePropertySetId [$AdminConfig create J2EEResourcePropertySet $DataSourceId {}]
+puts "J2EEResourcePropertySet created: $J2EEResourcePropertySetId"
+
+#Create the J2EEResourceProperty objects
+switch -exact -- $DbType {
+	cloudscape {
+                set attrs01 [subst {{name databaseName} {type java.lang.String} {value "$DbName"} {required "true"} {description "This is a required property. This property must be set and it identifies which database to access. For example, g:/db/wombat."}}]
+                set attrs02 [subst {{name description} {type java.lang.String} {value ""} {required "false"} {description "Description of the Data Source. Not used by the Data Source object. Used for informational purpose only."}}]
+                set attrs03 [subst {{name connectionAttributes} {type java.lang.String} {value ""} {required "false"} {description "Connection attributes specific to Cloudscape. Please see Cloudscape documentation for a complete list of features."}}]
+                set attrs04 [subst {{name enableMultithreadedAccessDetection} {type java.lang.Boolean} {value "false"} {required "false"} {description "Indicates whether or not to detect multithreaded access to a Connection and its corresponding Statements, ResultSets, and MetaDatas."}}]
+                set attrs05 [subst {{name shutdownDatabase} {type java.lang.String} {value ""} {required "false"} {description "If set to the string 'shutdown', this will cause the database to shutdown when a java.sql.Connection object is obtained from the Data Source. E.g., If the Data Source is an XADataSource, a getXAConnection().getConnection() is necessary to cause the database to shutdown"}}]
+                set attrs06 [subst {{name dataSourceName} {type java.lang.String} {value ""} {required "false"} {description "Name for ConnectionPooledDataSource or XADataSource. Not used by the data source object. Used for informational purpose only."}}]
+                set attrs07 [subst {{name createDatabase} {type java.lang.String} {value ""} {required "false"} {description "If set to the string 'create', this will cause a new database of DatabaseName if that database does not already exist. The database is created when a connection object is obtained from the Data Source."}}]
+                set NoOfJ2eeObjects 7
+        }
+        db2 {
+                set attrs01 [subst {{name databaseName} {type java.lang.String} {value $DbName} {required "true"} {description "This is a required property. The database name. For example, enter sample to make your Data Source point to jdbc:db2:sample."}}]
+                set NoOfJ2eeObjects 1
+        }
+        oracle {
+                set attrs01 [subst {{name URL} {type java.lang.String} {value "$DbUrl"} {required "true"} {description "This is a required property. The URL indicating the database from which the Data Source will obtain connections, such as 'jdbc:oracle:thin:@localhost:1521:sample'."}}]
+                set NoOfJ2eeObjects 1
+	}
+        informix {
+                set attrs01 [subst {{name serverName} {type java.lang.String} {value "$DbServerName"} {required "true"} {description "The name of the Informix instance on the server. Example: ol_myserver."}}]
+                set attrs02 [subst {{name ifxIFXHOST} {type java.lang.String} {value "$DbHostName"} {required "true"} {description "The physical name of the database server. Example: myserver.mydomain.com."}}]
+                set attrs03 [subst {{name databaseName} {type java.lang.String} {value "$DbName"} {required "true"} {description "The name of the database from which the data source obtains connections. Example: Sample."}}]
+                set attrs04 [subst {{name portNumber} {type java.lang.String} {value "$DbPort"} {required "true"} {description "The port on which the instances listen. Example: 1526."}}]
+                set attrs05 [subst {{name informixLockModeWait} {type java.lang.Integer} {value 2} {required "true"} {description "This is a required property.By default, Informix throws an exception when it cannot acquire a lock, rather than waiting for the current owner of the lock to release it. To modify this behavior, set this property to the number of seconds to wait for a lock. The default is 2 seconds. Any negative value means to wait forever"}}]
+                set NoOfJ2eeObjects 5
+        }
+        sqlserver {
+                #Create the J2EEResourceProperty objects
+                set attrs01 [subst {{name selectMethod} {type java.lang.String} {value "cursor"} {required "true"} {description "Refer to the MS SQL Server JDBC Driver documentation for the list of connection attributes."}}]
+                set attrs02 [subst {{name serverName} {type java.lang.String} {value "$DbHostName"} {required "true"} {description "Refer to the MS SQL Server JDBC Driver documentation for the list of connection attributes."}}]
+                set attrs03 [subst {{name databaseName} {type java.lang.String} {value "$DbName"} {required "true"} {description "This is a required property. The database name. For example, enter sample to make your Data Source point to jdbc:db2:sample."}}]
+                set NoOfJ2eeObjects 3
+                #
+                # The WAS Driver Needs some additional Attributes, so set them if using the WAS embedded JDBCSQL Provider
+                if { $FlagWasProvider == "True" } {
+                   set attrs04 [subst {{name disable2Phase } {type java.lang.Boolean} {value "false"} {required "false"} {description "When false, two phase connections are used. When true, one phase connections are used. Do not change this value because this value is set for with this provider."}}]
+                   set NoOfJ2eeObjects 4
+                }
+        }
+        default {
+		puts stdout "ERROR: DataBase Format '$DbType' is not supported"
+		exit 1
+	}
+}
+for {set i 1} {$i <= $NoOfJ2eeObjects} {incr i} {
+    set VarAttrs ""
+    if {$i < 10} {append VarAttrs $ "attrs0" $i} else {append VarAttrs $ "attrs" $i}
+	set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId [subst $VarAttrs]]
+	puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+}
+
+#Create the connection pool object...
+set ConnectionPoolId [$AdminConfig create ConnectionPool $DataSourceId {{connectionTimeout 1800} {maxConnections 10} {minConnections 1} {reapTime 180} {unusedTimeout 1800} {agedTimeout 0} {purgePolicy "EntirePool"}}]
+puts "ConnectionPool created: $ConnectionPoolId"
+
+#Finding the Resource Adapter
+set ParentServerId [$AdminConfig getid /Node:$NodeName/]
+set J2CResourceAdapterId [$AdminConfig list J2CResourceAdapter $ParentServerId]
+
+# create CMPConnectorFactory
+if {$CmpConnectorFactoryName != ""} {
+        puts "CMPConnectorFactory created: $CmpConnectorFactoryName"
+        $AdminConfig create CMPConnectorFactory $J2CResourceAdapterId "{name $CmpConnectorFactoryName} {authMechanismPreference BASIC_PASSWORD} {cmpDatasource $DataSourceId}"
+}
+
+set FlagExist "False"
+foreach TmpDataSource [$AdminConfig list DataSource] {
+	set TmpDataSourceName [$AdminConfig showAttribute $TmpDataSource name]
+	if {[string compare $TmpDataSourceName $DataSourceName] == 0} {
+		set FlagExist "True"
+        break;
+	}
+}
+if {$FlagExist == "True"} {
+	puts stdout "DataSource $DataSourceName for '$DbType' and all required attributes successfully created."
+    $AdminConfig save
+} else {
+	puts stdout "ERROR: DataSource $DataSourceName for '$DbType' could not be created."
+	exit 1
+}

@@ -1,0 +1,44 @@
+
+proc JVcreateSharedLibrary {nodeName serverName libName classpath} {
+
+  #--------------------------------------------------------------------
+  # set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create shared library 
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Create shared library                            "
+  puts "---------------------------------------------------------------"
+  puts " Scope:                                                        "
+  puts "    node                $nodeName                              "
+  puts "    server              $serverName                            "
+  puts " Shared library:                                               "
+  puts "    name                $libName                               "
+  puts "    classpath           $classpath                             "
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  set server [$AdminConfig getid /Node:$nodeName/Server:$serverName]
+  
+  #--------------------------------------------------------------------
+  # Check if the library already exists
+  #--------------------------------------------------------------------
+  set library [$AdminConfig getid /Node:$nodeName/Server:$serverName/Library:$libName]
+  if {[llength $library] != 0} {
+    JVputInfo "The $libName library already exists."
+    return
+  }
+  
+  set name_attr      [list name $libName]
+  set classPath_attr [list classPath $classpath] 
+  set params [list $name_attr $classPath_attr]
+  $AdminConfig create Library $server $params
+
+}
+

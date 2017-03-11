@@ -1,0 +1,30 @@
+
+proc JVundeployApp {AppName} {   
+
+	global AdminApp;
+ 
+#--------------------------------------------------------------------
+#	Undeploy App
+#--------------------------------------------------------------------
+
+	puts "";
+	puts "---------------------------------------------------------------";
+	puts "              Undeploy an App                                  ";
+	puts "---------------------------------------------------------------";
+	puts " App:                                                          ";
+	puts "    Name                $AppName                               ";
+	puts "---------------------------------------------------------------";
+	puts "";
+
+	if {[JVisAppDeployed $AppName]} {
+		puts "Deployed app found...";
+	} else {
+		puts "Not deployed.";
+		return;
+	}
+
+	if {[catch {$AdminApp uninstall $AppName} SysPropId]} {
+		JVputError "Cannot undeploy app; $SysPropId";
+		return;
+	}
+}

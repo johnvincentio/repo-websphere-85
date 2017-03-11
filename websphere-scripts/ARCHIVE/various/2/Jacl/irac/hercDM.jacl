@@ -1,0 +1,56 @@
+
+#------------------------------------------------------------------
+# script to handle Herc Server Configuration
+#------------------------------------------------------------------
+
+source ../libs/JVUtils.jacl;
+source ../libs/JVcreateJAASAuthenticationAlias.jacl;
+source ../libs/JVcreateJDBCProviderDB2Advanced.jacl;
+source ../libs/JVcreateDatasourceMDB.jacl;
+source ../libs/JVcreateDatasourceSQLServer.jacl;
+
+proc hercDM {pServerName pNodeName pCellName} {
+
+#--------------------------------------------------------------------
+#  Create MS Access (MDB) Type IV JDBC Provider
+#--------------------------------------------------------------------
+
+set templName    "User-defined JDBC Provider";
+set provName     "MS Access JDBC Driver";
+set provDesc     "HXTT Type IV JDBC Driver for MS Access";
+set nativePath	 "";
+set cPath        "\${WAS_LIBS_DIR}/AccessJDBCDriver/Access_JDBC30.jar";
+set implCName    "com.hxtt.sql.HxttConnectionPoolDataSource";
+JVcreateJDBCProviderDB2Advanced $pNodeName $pServerName $templName $provName $provDesc $nativePath $cPath $implCName;
+
+#--------------------------------------------------------------------
+# Create HERC Master MDB Datasource
+#--------------------------------------------------------------------
+
+set templName    "DB2 UDB for iSeries (Toolbox)";
+set provName     "MS Access JDBC Driver";
+set dsName       "HERCDB_MSAccess";
+set dsJNDI       "jdbc/herc/HERCMaster";
+set dsDesc       "HERC Master MDB Database";
+set dsAuthMech   "BASIC_PASSWORD";
+set secAuthAlias "";
+set url          "jdbc:access:////c:/development/REDESIGN Web Dev Tables HERC.mdb";
+JVcreateDatasourceMDB $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $url;
+
+#--------------------------------------------------------------------
+# Create HERC SQL Locations Table Datasource
+#--------------------------------------------------------------------
+
+set templName    "WebSphere embedded ConnectJDBC for SQL Server DataSource";
+set provName     "iRAC SQLServer"
+set dsName       "jdbc_com_hertz_irac_SQLServerHERCLocations";
+set dsJNDI       "jdbc/com/hertz/irac/SQLServerHERCLocations";
+set dsDesc       "Herc locations SQLServer table used for nightly mapping uploads"
+set dsAuthMech   "BASIC_PASSWORD";
+set secAuthAlias "sqlserver";
+set dbName       "herclocs";
+set dbSrvName    "Area51SQL";
+set dbPort       "2433";
+JVcreateDatasourceSQLServer $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort;
+
+}

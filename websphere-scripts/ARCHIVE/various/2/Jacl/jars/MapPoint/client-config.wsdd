@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment name="defaultClientConfig"
+            xmlns="http://xml.apache.org/axis/wsdd/"
+            xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+ <!-- 
+ 	use SimpleHTTPSender in the java_1_3 package if your Servlet Engine is running under Java 1.3 
+ <transport name="http" pivot="java:java_1_3.SimpleHTTPSender"/>
+ -->
+ 
+ <!-- 
+ 	use SimpleHTTPSender in the java_1_4 package if your Servlet Engine is running under Java 1.4 
+ -->
+    <transport name="http" pivot="java:java_1_3.SimpleHTTPSender"/>
+ 
+ <transport name="local" pivot="java:org.apache.axis.transport.local.LocalSender"/>
+</deployment>
+

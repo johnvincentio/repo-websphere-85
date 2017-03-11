@@ -1,0 +1,346 @@
+##  WAS 5.0 - Security - Config
+##  install/config/templates/was/SecurityConfigLDAP.jacl
+##-------------------------------------------------------------------------------
+## This file provides scripts to configure  WebSphere Application Server security
+##		LDAP
+##-------------------------------------------------------------------------------
+
+proc setProperties {} {
+
+	##----- Global Security Panel
+	global enabled enforceJava2Security useDomainQualifiedUserNames cacheTimeout issuePermissionWarning activeProtocol
+	global interactiveFlag inputauthmech inputUR
+	##----- LTPA Panel
+	global LTPAPassword LTPATimeout LTPAKeyFile
+	##----- SSO Panel
+	global SSOEnabled SSORequiresSSL SSODomainName
+	##----- LDAP Panel
+	global LDAPServerId LDAPPassword LDAPServerType LDAPHostName LDAPPort 
+	global LDAPBaseDN LDAPBindDN LDAPBindPassword
+
+	global LDAPsearchTimeout LDAPreuseConnection LDAPIgnoreCase LDAPsslEnabled LDAPsslConfig
+	##----- Advanced LDAP Panel
+	global LDAPUserFilter LDAPGroupFilter LDAPUserIdMap LDAPGroupIdMap LDAPGroupMemberIdMap LDAPCertificateMapMode LDAPCertificateFilter
+	
+	##----- LDAP Properties for Portal Server Security
+	global LDAPAdminAlias LDAPAdminUId LDAPAdminPwd LDAPAdminDescription
+
+
+	set enabled {true}
+	set inputUR {LDAP}
+	### Note: We have a hidden key 'enforceJava2Security' and as long as you don't add it
+	###	to wpconfig.properties, the installer will use "false").
+	set enforceJava2Security {@enforceJava2Security@}
+	set useDomainQualifiedUserNames {@useDomainQualifiedUserNames@}
+	set cacheTimeout {@cacheTimeout@}
+	set issuePermissionWarning {@issuePermissionWarning@}
+	set inputauthmech {@activeAuthMechanism@}
+	set activeProtocol {@activeProtocol@}
+	
+	set LTPAPassword {@LTPAPassword@}
+	set LTPATimeout {@LTPATimeout@}
+#	set LTPAKeyFile {@LTPAKeyFile@}
+	
+	set SSOEnabled {@SSOEnabled@}
+	set SSORequiresSSL {@SSORequiresSSL@}
+	set SSODomainName {@SSODomainName@}
+
+#	set LDAPServerId {@LdapUserPrefix@=@WasUserid@,@UserSuffix@}
+	set LDAPServerId {@WasUserid@}
+#	puts "---info--- set LDAPServerId: $LDAPServerId"
+	set LDAPPassword {@WasPassword@}
+	set LDAPServerType {@LDAPServerType@}
+	set LDAPHostName {@LDAPHostName@}
+	set LDAPPort {@LDAPPort@}
+	set LDAPBaseDN {@LDAPSuffix@}
+	set LDAPBindDN {@LDAPBindID@}
+	set LDAPBindPassword {@LDAPBindPassword@}
+	set LDAPsearchTimeout {@LDAPsearchTimeout@}
+	set LDAPreuseConnection {@LDAPreuseConnection@}
+	set LDAPIgnoreCase {@LDAPIgnoreCase@}
+	set LDAPsslEnabled {@LDAPsslEnabled@}
+	set LDAPsslConfig {}
+	
+	#LDAPUserFilter=(&(uid=%v)(objectclass=inetOrgPerson))
+	set LDAPUserFilter {(&(@LdapUserPrefix@=%v)(objectclass=@LDAPUserObjectClass@))}
+	#LDAPGroupFilter=(&(cn=%v)(objectclass=groupOfUniqueNames))
+	set LDAPGroupFilter {(&(@LdapGroupPrefix@=%v)(objectclass=@LDAPGroupObjectClass@))}
+	#LDAPUserIdMap=*:uid
+	set LDAPUserIdMap {*:@LdapUserPrefix@}
+	#LDAPGroupIdMap=*:cn
+	set LDAPGroupIdMap {*:@LdapGroupPrefix@}
+	#LDAPGroupMemberIdMap=groupOfNames:member;groupOfUniqueNames:uniqueMember
+	set LDAPGroupMemberIdMap {@LDAPGroupObjectClass@:@LDAPGroupMember@}
+	
+	set LDAPCertificateMapMode {EXACT_DN}
+	set LDAPCertificateFilter {}
+	
+	set LDAPAdminAlias {@NodeName@/wpsldap}
+	set LDAPAdminUId {@LDAPAdminUId@}
+	set LDAPAdminPwd {@LDAPAdminPwd@}
+	set LDAPAdminDescription {WPS-LDAP}
+}
+
+#######################################
+# Config the Global Security
+#######################################
+proc configGlobalSecurity {} {
+	global AdminConfig security_item validationResult
+	global enabled enforceJava2Security useDomainQualifiedUserNames cacheTimeout issuePermissionWarning
+	global activeProtocol inputUR inputauthmech
+	
+	puts stdout "===== in configGlobalSecurity"
+	set attrib {}
+	
+	if {$enabled != {}} {
+		lappend attrib [list enabled $enabled]
+	}
+	if {$enforceJava2Security != {}} {
+		lappend attrib [list enforceJava2Security $enforceJava2Security]
+	}
+	if {$useDomainQualifiedUserNames != {}} {
+		lappend attrib [list useDomainQualifiedUserNames $useDomainQualifiedUserNames]
+	}
+	if {$cacheTimeout != {}} {
+		lappend attrib [list cacheTimeout $cacheTimeout]
+	}
+	if {$issuePermissionWarning != {}} {
+		lappend attrib [list issuePermissionWarning $issuePermissionWarning]
+	}
+	if {$activeProtocol != {}} {
+		lappend attrib [list activeProtocol $activeProtocol]
+	}
+	if {$inputauthmech != {}} {
+		setAuthMech $inputauthmech
+	}
+	if {$inputUR != {}} {
+		setActiveUserRegistry $inputUR
+	}
+	if {[llength attrib] != 0} {
+		$AdminConfig modify $security_item $attrib
+		if {[string match [validateGlobalSecurity] false]} {
+			set validationResult false
+		}
+	}
+}
+
+proc configLTPA {} {
+	global AdminConfig LTPA LTPAPassword LTPATimeout
+	
+	puts stdout "===== in configLTPA"
+	set attrib {}
+	
+	if {$LTPAPassword != {}} {
+		setLTPAPassword $LTPAPassword
+	} else {
+		puts stdout "Error: LTPA password needs to be set"
+		exit 1
+	}
+
+	if {$LTPATimeout != {}} {
+		lappend attrib [list timeout $LTPATimeout]
+	}
+
+	$AdminConfig modify $LTPA $attrib
+	if {[string match [validateLTPA] false]} {
+		set validationResult false
+	}
+}
+
+proc configSSO {} {
+	global AdminConfig
+	global SSOEnabled SSORequiresSSL SSODomainName
+	set attrib {}
+	
+	if {$SSOEnabled != {}} {
+		lappend attrib [list enabled $SSOEnabled]
+	}
+	if {$SSORequiresSSL != {}} {
+		lappend attrib [list requiresSSL $SSORequiresSSL]
+	}
+	if {$SSODomainName != {}} {
+		lappend attrib [list domainName $SSODomainName]
+	}
+	if {[llength attrib] != 0} {
+		setSSO $attrib
+	}
+}
+
+proc configLDAP {} {
+	global validationResult
+	global LDAPServerId LDAPPassword LDAPServerType LDAPHostName LDAPPort LDAPBaseDN LDAPBindDN LDAPBindPassword
+	global LDAPsearchTimeout LDAPreuseConnection LDAPIgnoreCase LDAPsslEnabled LDAPsslConfig
+    
+	puts stdout "===== in configLDAP"
+	set attrib {}
+	
+	if {$LDAPServerId != {} && $LDAPPassword != {}} {
+		lappend attrib [list serverId $LDAPServerId] [list serverPassword $LDAPPassword]
+	} else {
+		puts stdout "Error: WasUserid/WasPassword needs to be set"
+		exit 1
+	}
+
+	if {$LDAPServerType != {}} {
+		lappend attrib [list type $LDAPServerType]
+		updateLDAPFilter $LDAPServerType
+	}
+	if {$LDAPHostName != {} && $LDAPPort != {}} {  
+		lappend attrib [list hosts [list [list [list host $LDAPHostName] [list port $LDAPPort]]]] [list realm $LDAPHostName:$LDAPPort]  
+	}
+	if {$LDAPBaseDN != {}} {
+	 	lappend attrib [list baseDN $LDAPBaseDN]
+	}
+### for ACTIVE_DIRECTORY
+	if {[string match $LDAPServerType ACTIVE_DIRECTORY]} {
+		if {$LDAPServerId != {}} {
+			lappend attrib [list bindDN $LDAPServerId]
+		}
+		if {$LDAPPassword != {}} {
+			lappend attrib [list bindPassword $LDAPPassword]
+		}
+	} else {
+		if {$LDAPBindDN != {}} {
+#			set LDAPBindDN {@LdapUserPrefix@=@LDAPBind-ID@,@UserSuffix@}
+			lappend attrib [list bindDN $LDAPBindDN]
+		}
+		if {$LDAPBindPassword != {}} {
+			lappend attrib [list bindPassword $LDAPBindPassword]
+		}
+	}
+	if {$LDAPsearchTimeout != {}} {
+		lappend attrib [list searchTimeout $LDAPsearchTimeout]
+	}
+	if {$LDAPreuseConnection != {}} {
+		lappend attrib [list reuseConnection $LDAPreuseConnection]
+	}
+	if {$LDAPIgnoreCase != {}} {
+		lappend attrib [list ignoreCase $LDAPIgnoreCase]
+	}
+	if {$LDAPsslEnabled != {}} {
+		lappend attrib [list sslEnabled	$LDAPsslEnabled]
+	}
+	if {$LDAPsslConfig != {}} {
+		lappend attrib [list sslConfig $LDAPsslConfig]
+	}
+	if {[llength attrib] != 0} {
+		setLDAPUserRegistry $attrib
+		if {[string match [validateLDAPUserRegistry] false]} {
+			set validationResult false
+		}
+	}
+}
+
+proc configAdvancedLDAP {} {
+	global LDAPUserFilter LDAPGroupFilter LDAPUserIdMap LDAPGroupIdMap LDAPGroupMemberIdMap LDAPSearchTimeout
+	global LDAPCertificateMapMode LDAPCertificateFilter
+	
+	puts stdout "===== in configAdvancedLDAP"
+	set attrib {}
+	
+	if {$LDAPUserFilter != {}} {
+		lappend attrib [list userFilter $LDAPUserFilter]
+	}
+	if {$LDAPGroupFilter != {}} {
+		lappend attrib [list groupFilter $LDAPGroupFilter]
+	}
+	if {$LDAPUserIdMap != {}} {
+			lappend attrib [list userIdMap $LDAPUserIdMap]
+	}
+	if {$LDAPGroupIdMap != {}} {
+		lappend attrib [list groupIdMap $LDAPGroupIdMap]
+	}
+	if {$LDAPGroupMemberIdMap != {}} {
+		lappend attrib [list groupMemberIdMap $LDAPGroupMemberIdMap]
+	}
+	if {$LDAPCertificateMapMode != {}} {
+		lappend attrib [list certificateMapMode $LDAPCertificateMapMode]
+	}
+	if {$LDAPCertificateFilter != {}} {
+		lappend attrib [list certificateFilter $LDAPCertificateFilter]
+	}
+	if {[llength attrib] != 0} {
+		setLDAPFilter $attrib
+	}
+}
+
+#######################################
+# Create a new J2C authentication entry
+#######################################
+proc createJAASAuthDataPortal {} {
+	global AdminConfig LDAPAdminAlias LDAPAdminUId LDAPAdminPwd LDAPAdminDescription
+
+	puts stdout "===== in createJAASAuthDataPortal"
+	# set the security object (in 'SecConfigProcs.jacl')
+	set security_root [$AdminConfig list Security]
+	puts "JAAS alias: $LDAPAdminAlias"
+	deleteJAASAuthData $LDAPAdminAlias
+	# set the attributes for the new object
+	set auth_alias [list alias $LDAPAdminAlias]
+	set auth_userId [list userId $LDAPAdminUId]
+	set auth_password [list password $LDAPAdminPwd]
+	set auth_descr [list description $LDAPAdminDescription]
+	# put the new object together
+	set auth_entry [list $auth_alias $auth_userId $auth_password $auth_descr]
+	# create the new object
+	puts "Create the new object $LDAPAdminAlias"
+	$AdminConfig create JAASAuthData $security_root $auth_entry
+	# saving the configuration
+#	$AdminConfig save
+}
+
+#######################################
+# Create a new JAAS Configuration Entry
+#######################################
+proc createJAASConfigEntry {JAASalias} {
+	global AdminConfig
+
+	puts stdout "===== in createJAASConfigEntry"
+	set loop true
+	set appConfigAttrib {}
+	set appLoginConfigId [lindex [$AdminConfig list JAASConfiguration] 0]
+	puts stdout "appLoginConfigId=$appLoginConfigId"
+	set appLoginAlias $JAASalias
+	while {$loop} {
+		if {$appLoginAlias != {}} {
+			set returnCode [validateAppLoginAlias $appLoginAlias]
+			if {$returnCode == 1} { 
+				break
+			}
+			lappend appConfigAttrib [list alias $appLoginAlias]
+			set newEntry [$AdminConfig create JAASConfigurationEntry $appLoginConfigId $appConfigAttrib] 
+			puts stdout "appLoginConfigId=$appLoginConfigId, newEntry=$newEntry"                           
+#			configJAASLoginModule $appLoginConfigId $appLoginAlias
+		}
+	}
+}
+
+
+############################################################
+#
+#  Main procedure
+#
+############################################################
+
+set validationResult true
+
+setProperties
+
+configLTPA
+configSSO
+configLDAP
+configAdvancedLDAP
+createJAASAuthDataPortal
+createJAASConfigEntry Portal_Login
+createJAASConfigEntry Portal_SubjectRebuild
+configGlobalSecurity
+
+set validationResult [validation]
+
+if {[string match $validationResult true]} {
+	saveConfig
+	puts stdout "\n\nValidation success.  Configuration saved."
+} else {
+	puts stdout "\n\nValidation failed. Please correct the missing/incorrect fields."
+	exit 1
+}

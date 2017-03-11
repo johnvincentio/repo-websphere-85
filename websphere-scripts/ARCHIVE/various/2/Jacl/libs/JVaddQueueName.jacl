@@ -1,0 +1,51 @@
+
+proc JVaddQueueName {nodeName qnName qnAppend} {
+
+   global AdminConfig;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create Queue Name                                ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                    $nodeName   ";
+   puts " Queue:                                 ";
+   puts "    Name                    $qnName     ";
+   puts "    Append                  $qnAppend   ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+#--------------------------------------------------------------------
+# Get JMS Server
+#--------------------------------------------------------------------
+
+   puts "Get the JMS Server";
+   set jmss [lindex [$AdminConfig list JMSServer] 0]
+   if {[llength $jmss] == 0} {
+      puts "Could not find the JMS Server";
+      return;
+   }
+
+#--------------------------------------------------------------------
+# Create Listener Port
+#--------------------------------------------------------------------
+
+   puts "Create Queue Name $qnName";
+   set queueNames [$AdminConfig showAttribute $jmss queueNames];
+# parse the semi-colon-separated string into a jacl list
+   set queueList [split $queueNames \;];
+# make sure the specified queue is added to it
+   if { [lsearch $queueList $qnName]==-1 } {  
+      if { $qnAppend } {
+         set queueList $qnName;
+      } else {
+         lappend queueList $qnName;
+      }
+# join the list back together
+      set queueNames [join $queueList \; ];
+      set attrs "{queueNames $queueNames}";
+      set newQN [$AdminConfig modify $jmss $attrs];
+   } else {
+# do nothing because the queue is already present
+   }
+}

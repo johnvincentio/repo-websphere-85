@@ -1,0 +1,25 @@
+
+#--------------------------------------------------------------------
+# Stop the Server
+#--------------------------------------------------------------------
+
+proc JVserverStop {NodeName ServerName} {
+	global AdminControl;
+
+	puts "";
+	puts "---------------------------------------------------------------";
+	puts "              Stop Server                                      ";
+	puts "---------------------------------------------------------------";
+	puts " Scope:                                                        ";
+	puts "    node                $NodeName                              ";
+	puts "    server              $ServerName                            ";
+	puts "---------------------------------------------------------------";
+	puts "";
+
+	if {[JVserverIsStarted $NodeName $ServerName]} {
+		$AdminControl stopServer $ServerName $NodeName;
+		return;
+	}
+	puts "Server is not running";
+	return;
+}

@@ -1,0 +1,65 @@
+
+#--------------------------------------------------------------------
+# Create Connection Factory (use builtin_rra)
+#--------------------------------------------------------------------
+  
+set dsName       "BANKDS"
+set cfName       "BANKDS_CF"
+set cfAuthMech   "BASIC_PASSWORD"
+set secAuthAlias "N_O_N_E"
+set cfi          "javax.resource.cci.ConnectionFactory"
+JVcreateConnectionFactory $myNodeName $myServerName $provName $dsName $cfName $cfAuthMech $secAuthAlias $cfi
+
+#--------------------------------------------------------------------
+# Create SIBus
+#--------------------------------------------------------------------
+
+set SIBusName [getSamplesBusName $myNodeName]
+JVcreateSIBus $myNodeName $myServerName $SIBusName
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+set jmsCFName    "BankJMSConnFactory"
+set jmsCFJNDI    "jms/BankJMSConnFactory"
+set jmsCFDesc    "WebSphere Bank Sample JMS ConnectionFactory"
+set jmsCFType    ""
+set secAuthAlias "$myCellName/samples"
+JVcreateSIBJMSConnectionFactory $myNodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName
+
+#--------------------------------------------------------------------
+# Create SIB JMS Queue that references a SIB Queue
+#--------------------------------------------------------------------
+  
+set jmsQName   "BankJMSQueue"
+set jmsQJNDI   "jms/BankJMSQueue"
+set jmsQDesc   "WebSphere Bank Sample Queue (WebSphere Bank receives a message from this Queue)"
+set SIBQName   "BankJSQueue"
+JVcreateSIBJMSQueue $myNodeName $jmsQName $jmsQJNDI $jmsQDesc $SIBQName
+
+#--------------------------------------------------------------------
+# Create SIB Queue
+#--------------------------------------------------------------------
+
+JVcreateSIBQueue $myNodeName $myServerName $SIBQName $SIBusName
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Queue
+#--------------------------------------------------------------------
+
+set activationSpecName     "BankActivationSpec"
+set activationSpecJndiName "eis/$activationSpecName"
+set destinationType        "javax.jms.Queue"
+set secAuthAlias           "$myCellName/samples"
+JVcreateSIBJMSActivationSpec $myNodeName $activationSpecName $activationSpecJndiName $jmsQJNDI $destinationType $secAuthAlias $SIBusName
+
+#------------------------------------------------------------------
+# all done
+#------------------------------------------------------------------
+
+JVsave;
+puts "after save";
+JVputInfo "create.jacl; Complete";
+exit 0;
+

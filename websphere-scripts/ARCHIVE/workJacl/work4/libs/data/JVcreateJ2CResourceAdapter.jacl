@@ -1,0 +1,37 @@
+
+proc JVcreateJ2CResourceAdapter {nodeName serverName} {
+  global AdminConfig;
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Create J2C resource adapter                      "
+  puts "---------------------------------------------------------------"
+  puts " Scope:                                                        "
+  puts "    node                $nodeName                              "
+  puts "    server              $serverName                            "
+  puts " Resource adapter:                                             "
+  puts "    name                WebSphere Relational Resource Adapter  "
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  set rraID [$AdminConfig getid "/Node:$nodeName/Server:$serverName/J2CResourceAdapter:WebSphere Relational Resource Adapter/"]
+  if {[llength $rraID] == 0} {
+
+    JVputTrace "Get the J2C templates."
+    set template [lindex [$AdminConfig listTemplates J2CResourceAdapter "WebSphere Relational Resource Adapter"] 0]
+    if {[llength $template] == 0} {
+      JVthrow "The WebSphere Relational Resource Adapter J2CResourceAdapter template could not be found."
+    }
+
+    set serverID [$AdminConfig getid /Node:$nodeName/Server:$serverName]
+    if {[llength $serverID] == 0} {
+      JVthrow "The ID for /Node:$nodeName/Server:$serverName could not be found."
+    }
+
+    JVputTrace "Create the J2C adapter using the $template template."
+    $AdminConfig createUsingTemplate J2CResourceAdapter $serverID {{name "WebSphere Relational Resource Adapter"} {description "Built-in Relational Resource Adapter for Container Managed Persistence"}} $template
+  } else {
+    JVputInfo "The J2C resource adapter already exists."
+  }
+}
+

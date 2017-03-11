@@ -1,0 +1,28 @@
+
+#------------------------------------------------------------------
+# Create JDBC Resources
+#------------------------------------------------------------------
+
+proc capstone_jdbc_distributor {NodeName ServerName templName provName dbURL} {
+
+#--------------------------------------------------------------------
+# Create Datasource
+#--------------------------------------------------------------------
+
+   set dsName       "Distributor Pool";
+   set dsJNDI       "jdbc/DistributorResource";
+   set dsDesc       "Data source for the Distributor Pool";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias $NodeName/JVDistributor;
+   JVcreateDatasourceOracle $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $dbURL $secAuthAlias;
+
+#--------------------------------------------------------------------
+# Create Connection Factory
+#--------------------------------------------------------------------
+
+   set cfName       "DistributorPoolCF";
+   set cfi          "javax.resource.cci.ConnectionFactory";
+   JVcreateConnectionFactory $NodeName $ServerName $provName $dsName $cfName $dsAuthMech $secAuthAlias $cfi;
+
+}
+

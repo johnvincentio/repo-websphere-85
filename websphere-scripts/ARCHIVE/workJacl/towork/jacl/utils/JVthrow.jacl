@@ -1,0 +1,3 @@
+
+proc JVthrow {msg} {return -code error [JVformatError $msg];}
+

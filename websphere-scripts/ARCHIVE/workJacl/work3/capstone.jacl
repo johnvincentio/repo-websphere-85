@@ -1,0 +1,258 @@
+
+#------------------------------------------------------------------
+# script to handle Capstone Server Configuration
+#------------------------------------------------------------------
+
+#JVsave;
+#puts "after save";
+#exit 0;
+
+
+#------------------------------------------------------------------
+# handle included scripts
+#------------------------------------------------------------------
+
+source jacl/utils/JVconstants.jacl;
+source jacl/utils/JVdisplayHelpMessage.jacl;
+source jacl/utils/JVdump_threads.jacl;
+source jacl/utils/JVformatError.jacl;
+source jacl/utils/JVgetProperty.jacl;
+source jacl/utils/JVloadProperties.jacl;
+source jacl/utils/JVprocessArguments.jacl;
+source jacl/utils/JVputError.jacl;
+source jacl/utils/JVputInfo.jacl;
+source jacl/utils/JVputTrace.jacl;
+source jacl/utils/JVsave.jacl;
+source jacl/utils/JVsetAppServerClassLoadingPolicy.jacl;
+source jacl/utils/JVsetAppServerJVMClasspath.jacl;
+source jacl/utils/JVsetAppServerWebSphereClasspath.jacl;
+source jacl/utils/JVshowServer.jacl;
+source jacl/utils/JVthrow.jacl;
+source jacl/utils/JVtrace_off.jacl;
+source jacl/utils/JVtrace_on.jacl;
+source jacl/utils/JVusageError.jacl;
+
+source jacl/data/JVaddSIBusMember.jacl;
+source jacl/data/JVcreateConnectionFactory.jacl;
+source jacl/data/JVcreateDatasource.jacl;
+source jacl/data/JVOldcreateDatasource.jacl;
+source jacl/data/JVcreateJ2CResourceAdapter.jacl;
+source jacl/data/JVcreateJAASAuthenticationAlias.jacl;
+source jacl/data/JVcreateJDBCProvider.jacl;
+source jacl/data/JVcreateLibraryRef.jacl;
+source jacl/data/JVcreateMailSession.jacl;
+source jacl/data/JVcreateScheduler.jacl;
+source jacl/data/JVcreateSharedLibrary.jacl;
+source jacl/data/JVcreateSIBJMSActivationSpec.jacl;
+source jacl/data/JVcreateSIBJMSConnectionFactory.jacl;
+source jacl/data/JVcreateSIBJMSQueue.jacl;
+source jacl/data/JVcreateSIBJMSTopic.jacl;
+source jacl/data/JVcreateSIBQueue.jacl;
+source jacl/data/JVcreateSIBus.jacl;
+source jacl/data/JVcreateWorkManager.jacl;
+source jacl/data/JVenableService.jacl;
+source jacl/data/JVgetEndPointPort.jacl;
+source jacl/data/JVgetSamplesBusName.jacl;
+source jacl/data/JVinstallApp.jacl;
+source jacl/data/JVisAppInstalled.jacl;
+source jacl/data/JVmodifyClassLoader.jacl;
+
+source jacl/data/JVmodifyVariable.jacl;
+
+#------------------------------------------------------------------
+# unproven 
+#------------------------------------------------------------------
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "create.jacl; Starting";
+
+#--------------------------------------------------------------------
+# get server, node and cell info from the command line
+#--------------------------------------------------------------------
+
+JVputInfo "Processing Command Arguments";
+set returnCode [JVprocessArguments $argc $argv];
+#JVputTrace "create.jacl; code $returnCode";
+if {$returnCode != 1} {
+	JVputError "JVprocessArguments failed";
+	exit 1;
+}
+
+#--------------------------------------------------------------------
+# show server info
+#--------------------------------------------------------------------
+
+JVshowServer;
+set myServerName [JVget_server];
+set myNodeName [JVget_node];
+set myCellName [JVget_cell];
+
+#--------------------------------------------------------------------
+#  load properties file
+#--------------------------------------------------------------------
+
+set myPropertiesFile "jacl.properties";
+JVputInfo "Loading Properties file $myPropertiesFile";
+set fileprops [JVloadProperties $myPropertiesFile];
+JVputTrace "JVloadProperties.jacl; code $fileprops";
+if {$fileprops == 0} {
+	JVputError "Load Properties failed";
+	exit 1;
+}
+JVputInfo "Loaded Properties file";
+
+#--------------------------------------------------------------------
+# get properties
+#--------------------------------------------------------------------
+
+set myUser [JVgetProperty $fileprops "username"];
+JVputInfo "Property user :$myUser:";
+set myPassword [JVgetProperty $fileprops "password"];
+JVputInfo "Property password :$myPassword:";
+set myFred [JVgetProperty $fileprops "fred"];
+JVputInfo "Property fred :$myFred:";
+
+#--------------------------------------------------------------------
+# set Oracle JDBC variable entry
+#--------------------------------------------------------------------
+
+set myName "ORACLE_JDBC_DRIVER_PATH";
+set myValue "/usr/local/bin/Oracle/jdbc";
+JVmodifyVariable $myName $myValue;
+
+
+#--------------------------------------------------------------------
+# Create J2C Resource Adapter
+#--------------------------------------------------------------------
+
+# createJ2CResourceAdapter $myNodeName $myServerName;
+
+#--------------------------------------------------------------------
+# Setup security cell
+#--------------------------------------------------------------------
+#
+#   this works OK.
+#
+#set secAuthAlias "OracleNero"		# needs node_name
+set secAuthAlias $myNodeName/OracleNero;
+set secDescript  "Capstone Nero Oracle Database User"
+set secUserID    "JVNERO"
+set secPassword  "capstone"
+#JVcreateJAASAuthenticationAlias $myCellName $secAuthAlias $secDescript $secUserID $secPassword
+
+#
+#--------------------------------------------------------------------
+# Create JDBC Provider
+#--------------------------------------------------------------------
+  
+#
+#  this works just fine.
+#
+set templName    "Oracle JDBC Driver"
+set provName     "Oracle JDBC Driver"
+#JVcreateJDBCProvider $myNodeName $myServerName $templName $provName
+
+#
+#  try this - probably OK, but the alternative works just fine.
+#
+#set provName     "Oracle JDBC Driver"
+#set templName    "Oracle JDBC Driver"
+#set dsName       "Nero_Pool"
+#set dsJNDI       "jdbc/NeroResource"
+#set dsDesc       "Data_source_for_the_Nero Pool"
+#set dsAuthMech   "BASIC_PASSWORD"
+#set dbURL        "jdbc:oracle:thin:@alpha:1521:orcl"
+#JVOldcreateDataSource $myNodeName $myServerName $dsName $provName $dbURL $dsJNDI Capstone Oracle $dsAuthMech $secAuthAlias
+
+#JVsave;
+#puts "after save";
+#exit 0;
+
+#--------------------------------------------------------------------
+# Create Datasource
+#--------------------------------------------------------------------
+#
+#  works just great
+#
+set provName     "Oracle JDBC Driver"
+set templName    "Oracle JDBC Driver"
+set dsName       "Nero Pool"
+set dsJNDI       "jdbc/NeroResource"
+set dsDesc       "Data source for the Nero Pool"
+set dsAuthMech   "BASIC_PASSWORD"
+set dbURL        "jdbc:oracle:thin:@alpha:1521:orcl"
+#JVcreateDatasource $myNodeName $myServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $dbURL $secAuthAlias
+  
+#JVsave;
+#puts "after save";
+#exit 0;
+
+#--------------------------------------------------------------------
+# Create Connection Factory (use builtin_rra)
+#--------------------------------------------------------------------
+  
+#set dsName       "BANKDS"
+#set cfName       "jmsSupplierMdb1QueueConnectionFactory"
+set cfName       "jmsSupplierMdb1QueueConnectionFactory"
+set cfAuthMech   "BASIC_PASSWORD"
+#set secAuthAlias "N_O_N_E"
+set cfi          "javax.resource.cci.ConnectionFactory"
+JVcreateConnectionFactory $myNodeName $myServerName $provName $dsName $cfName $cfAuthMech $secAuthAlias $cfi
+
+#--------------------------------------------------------------------
+# Create SIBus
+#--------------------------------------------------------------------
+
+set SIBusName [JVgetSamplesBusName $myNodeName]
+JVcreateSIBus $myNodeName $myServerName $SIBusName
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+set jmsCFName    "MNOPJMSConnFactory"
+set jmsCFJNDI    "jms/MNOPJMSConnFactory"
+set jmsCFDesc    "WebSphere MNOP Sample JMS ConnectionFactory"
+
+#set jmsCFName    "BankJMSConnFactory"
+#set jmsCFJNDI    "jms/BankJMSConnFactory"
+#set jmsCFDesc    "WebSphere Bank Sample JMS ConnectionFactory"
+set jmsCFType    ""
+#set secAuthAlias "$myCellName/samples"
+JVcreateSIBJMSConnectionFactory $myNodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName
+
+#--------------------------------------------------------------------
+# Create SIB JMS Queue that references a SIB Queue
+#--------------------------------------------------------------------
+  
+set jmsQName   "MNOPJMSQueue"
+set jmsQJNDI   "jms/MNOPJMSQueue"
+set jmsQDesc   "WebSphere MNOP Sample Queue (WebSphere MNOP receives a message from this Queue)"
+set SIBQName   "MNOPJSQueue"
+JVcreateSIBJMSQueue $myNodeName $jmsQName $jmsQJNDI $jmsQDesc $SIBQName
+
+#--------------------------------------------------------------------
+# Create SIB Queue
+#--------------------------------------------------------------------
+
+JVcreateSIBQueue $myNodeName $myServerName $SIBQName $SIBusName
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Queue
+#--------------------------------------------------------------------
+
+set activationSpecName     "MNOPActivationSpec"
+set activationSpecJndiName "eis/$activationSpecName"
+set destinationType        "javax.jms.Queue"
+#set secAuthAlias           "$myCellName/samples"
+JVcreateSIBJMSActivationSpec $myNodeName $activationSpecName $activationSpecJndiName $jmsQJNDI $destinationType $secAuthAlias $SIBusName
+
+
+JVsave;
+puts "after save";
+exit 0;
+

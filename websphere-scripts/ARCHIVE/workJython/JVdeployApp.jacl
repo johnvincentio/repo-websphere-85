@@ -1,0 +1,39 @@
+proc JVdeployApp {NodeName ServerName EarFile EarDir AppName options}
+
+   global AdminApp;
+ 
+#--------------------------------------------------------------------
+#	Deploy App
+#--------------------------------------------------------------------
+
+	set EarPath "$EarDir/$EarFile";
+
+	puts "";
+	puts "---------------------------------------------------------------";
+	puts "              Deploy an App                                    ";
+	puts "---------------------------------------------------------------";
+	puts " Scope:                                                        ";
+	puts "    Node                $NodeName                              ";
+	puts "    Node                $NodeName                              ";
+	puts " App:                                                          ";
+	puts "    Name                $EarFile                               ";
+	puts "    File                $EarPath                               ";
+	puts "    usedefaultbindings  true                                   ";
+	puts "    noejbdeploy         true                                   ";
+	if { $options != "" } {
+		puts "    additional options  $options                           ";
+	}
+	puts "---------------------------------------------------------------";
+	puts "";
+
+	if {[JVisAppDeployed $AppName]} {
+		puts "Already deployed.";
+		return;
+	}
+
+	lappend options -usedefaultbindings -nocreateMBeansForResources -appname $AppName -node $NodeName -server $ServerName -nodeployejb;
+	if {[catch {$AdminApp install $EarPath $options} ErrId]} {
+		JVputError "Cannot deploy app; $Errid";
+		return;
+	}
+}

@@ -1,0 +1,7 @@
+global AppName
+global AppWeight
+global ClassLoaderMode
+
+set AppName {pdmauthor}
+set AppWeight {13}
+set ClassLoaderMode PARENT_LAST

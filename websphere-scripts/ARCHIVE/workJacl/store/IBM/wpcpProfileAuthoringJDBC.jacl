@@ -1,0 +1,17 @@
+global NewJDBCProviderName 
+global NewImplementationClassName 
+global JDBCProviderName 
+global JDBCLib
+
+set NewJDBCProviderName {wpcp50JDBC}
+set JDBCProviderName {wpcp50JDBC}
+set NewImplementationClassName {@DbDriverDs@}
+set JDBCLib {@DbLibrary@}
+set DbType {@DbType@}
+
+switch -exact -- $DbType {
+	sqlserver  {
+        set JDBCLib {${WAS_LIBS_DIR}/sqlserver.jar@PATH.SEP@${WAS_LIBS_DIR}/base.jar@PATH.SEP@${WAS_LIBS_DIR}/util.jar@PATH.SEP@${WAS_LIBS_DIR}/spy.jar}
+        set NewImplementationClassName {com.ibm.websphere.jdbcx.sqlserver.SQLServerDataSource}
+        }
+}

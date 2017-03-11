@@ -1,0 +1,6 @@
+
+proc JVgetProperty {props myProp} {
+	return [$props getProperty $myProp];
+}
+
+

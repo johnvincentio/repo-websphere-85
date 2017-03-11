@@ -1,0 +1,17 @@
+source libs/data/JVsetAppServerWebSphereClasspath.jacl;
+source libs/data/JVsetAppServerJVMClassPath.jacl;
+
+proc irac_jvm {nodeName serverName} {
+
+JVsetAppServerJVMClassPath $nodeName $serverName "C:\\irac\\wrkspc\\iRACSrc3.0_INT\\MapPointEAR\\lib";
+JVsetAppServerJVMClassPath $nodeName $serverName "C:\\irac\\wrkspc\\iRACSrc3.0_INT\\libs\\log4j.jar";
+JVsetAppServerJVMClassPath $nodeName $serverName "C:\\irac\\wrkspc\\iRACSrc3.0_INT\\libs\\jcifs-1.1.2.jar";
+
+JVsetAppServerWebSphereClasspath $nodeName $serverName "C:\\Program Files\\IBM\\SQLLIB\\java\\db2java.zip" "DB2 V8";
+#JVsetAppServerWebSphereClasspath $nodeName $serverName "C:\\irac\\wrkspc\\iRACSrc3.0_INT\\libs\\log4j.jar" "";
+#JVsetAppServerWebSphereClasspath $nodeName $serverName "C:\\irac\\wrkspc\\iRACSrc3.0_INT\\libs\\jcifs-1.1.2.jar" "";
+JVsetAppServerWebSphereClasspath $nodeName $serverName "C:\\Program Files\\Microsoft SQL Server 2000 Driver for JDBC\\lib\\msbase.jar" "";
+JVsetAppServerWebSphereClasspath $nodeName $serverName "C:\\Program Files\\Microsoft SQL Server 2000 Driver for JDBC\\lib\\mssqlserver.jar" "";
+JVsetAppServerWebSphereClasspath $nodeName $serverName "C:\\Program Files\\Microsoft SQL Server 2000 Driver for JDBC\\lib\\msutil.jar" "";
+
+}

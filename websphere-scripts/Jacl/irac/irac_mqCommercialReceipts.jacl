@@ -1,0 +1,47 @@
+
+#------------------------------------------------------------------
+#  Create MQ Resources for CommercialReceipts
+#------------------------------------------------------------------
+
+proc irac_mqCommercialReceipts {NodeName} {
+
+#--------------------------------------------------------------------
+# Create MQ Queue Connection Factory
+#--------------------------------------------------------------------
+  
+   set MQJMSProvider      "WebSphere MQ JMS Provider";
+   set qcfChannel         "SYSTEM.DEF.SVRCONN";
+   set qcfName            "MQConnectionFactoryCommercialReceipts";
+   set qcfDesc            "MQ Queue Connection Factory for Commercial Receipts";
+   set qcfHost            "mq01.dev.irac.ecom.ad.hertz.com";
+   set qcfPort            "1414";
+   set qcfMgr             "ISQMQIRT01";
+   set qcfJNDI            "jms/com/hertz/commercialreceipt/connFactory/MQ1";
+   JVcreateMQQueueConnectionFactory $NodeName $MQJMSProvider $qcfChannel $qcfName $qcfDesc $qcfHost $qcfPort $qcfMgr $qcfJNDI;
+   
+#--------------------------------------------------------------------
+# Create MQ Queue MQQueueDestCommecialReceiptsRequest
+#--------------------------------------------------------------------
+
+   set mqQname            "MQQueueDestCommecialReceiptsRequest";
+   set mqqDesc            "MQ Request Queue for Commercial Receipts";
+   set mqqJNDI            "jms/com/hertz/commercialreceipt/request/MQ1";
+   set mqqPersistence     "QUEUE_DEFINED";
+   set mqqExpiry          "APPLICATION_DEFINED";
+   set mqqBname           "ISQOQGAR01";
+   set mqqUser            "";
+   JVcreateMQQueue $NodeName $MQJMSProvider $qcfName $qcfMgr $qcfHost $qcfPort $qcfChannel $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname $mqqUser;   
+
+#--------------------------------------------------------------------
+# Create MQ Queue MQQueueDestCommercialReceiptsResponse
+#--------------------------------------------------------------------
+
+   set mqQname            "MQQueueDestCommercialReceiptsResponse";
+   set mqqDesc            "MQ Response Queue for Commercial Receipts";
+   set mqqJNDI            "jms/com/hertz/commercialreceipt/response/MQ1";
+   set mqqPersistence     "APPLICATION_DEFINED";
+   set mqqExpiry          "APPLICATION_DEFINED";
+   set mqqBname           "ISQIQGARIRT01";
+   set mqqUser            "";
+   JVcreateMQQueue $NodeName $MQJMSProvider $qcfName $qcfMgr $qcfHost $qcfPort $qcfChannel $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname $mqqUser;   
+}

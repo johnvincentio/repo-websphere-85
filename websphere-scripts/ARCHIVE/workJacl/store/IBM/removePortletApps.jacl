@@ -1,0 +1,21 @@
+set searchString {_PA_}
+
+puts stdout "Entered removePortletApps.  About to drop portlet EAs, marked by _PA_"
+foreach TmpAppName [$AdminApp list] {
+        puts stdout "Checking app: $TmpAppName"
+	if {[string first $searchString $TmpAppName] >= 0} {
+                puts stdout "Removing portlet app: $TmpAppName"
+                $AdminApp uninstall $TmpAppName
+	}
+}
+puts stdout "About to verify portlet removal"
+foreach TmpAppName2 [$AdminApp list] {
+        puts stdout "Checking app: $TmpAppName2"
+	if {[string first $searchString $TmpAppName2] >= 0} {
+                puts stdout "Warning: could not remove portlet application: $TmpAppName2"
+	}
+}
+puts stdout "removePortletApps complete, about to save configuration"
+$AdminConfig save
+
+

@@ -1,0 +1,67 @@
+
+#------------------------------------------------------------------
+# script to undeploy Apps from a WS 6 Server
+#------------------------------------------------------------------
+
+#------------------------------------------------------------------
+# handle included scripts
+#------------------------------------------------------------------
+
+source ../../../../Framework/Jacl/libs/JVUtils.jacl;
+source ../../../../Framework/Jacl/libs/JVundeployApp.jacl;
+source ../../../../Framework/Jacl/libs/JVlistDeployedApps.jacl;
+source ../../../../Framework/Jacl/libs/JVisAppDeployed.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "Starting";
+
+#--------------------------------------------------------------------
+# Deploy the apps
+#--------------------------------------------------------------------
+
+JVputInfo "Undeploy Apps";
+
+set myApp "DynamicNavigationEAR";
+JVundeployApp $myApp;
+
+set myApp "EmailEAR";
+JVundeployApp $myApp;
+
+set myApp "ErrorFrameworkEAR";
+JVundeployApp $myApp;
+
+set myApp "HercAdminToolWebEAR";
+JVundeployApp $myApp;
+
+set myApp "InternationalizationEAR";
+JVundeployApp $myApp;
+
+set myApp "IracAppMonitorEAR";
+JVundeployApp $myApp;
+
+set myApp "MapPointEAR";
+JVundeployApp $myApp;
+
+set myApp "RentalManEJBEAR";
+JVundeployApp $myApp;
+
+set myApp "ServicePumpsWebEAR";
+JVundeployApp $myApp;
+
+set myApp "Web1EAR";
+JVundeployApp $myApp;
+
+set myApp "WebsiteAutoShutdownEAR";
+JVundeployApp $myApp;
+
+JVputInfo "Save configuration";
+JVsave;
+
+JVlistDeployedApps;
+
+JVputInfo "Script completed";
+exit 0;

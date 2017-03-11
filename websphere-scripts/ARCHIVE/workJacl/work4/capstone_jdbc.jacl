@@ -1,0 +1,48 @@
+
+#------------------------------------------------------------------
+# Create JDBC Resources
+#------------------------------------------------------------------
+
+source libs/data/JVmodifyVariable.jacl;
+source libs/data/JVcreateJDBCProviderByTemplate.jacl;
+source libs/data/JVcreateDatasource.jacl;
+
+proc capstone_jdbc {NodeName ServerName} {
+
+#--------------------------------------------------------------------
+# set Oracle JDBC variable entry
+#--------------------------------------------------------------------
+
+   JVmodifyVariable "ORACLE_JDBC_DRIVER_PATH" "/usr/local/bin/Oracle/jdbc";
+
+#
+#--------------------------------------------------------------------
+# Create JDBC Provider
+#--------------------------------------------------------------------
+  
+   set templName    "Oracle JDBC Driver";
+   set provName     "Capstone Oracle JDBC Driver";
+   JVcreateJDBCProviderByTemplate $NodeName $ServerName $templName $provName;
+
+#--------------------------------------------------------------------
+# Create Datasource
+#--------------------------------------------------------------------
+
+   set dsName       "Nero Pool";
+   set dsJNDI       "jdbc/NeroResource";
+   set dsDesc       "Data source for the Nero Pool";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set dbURL        "jdbc:oracle:thin:@alpha:1521:orcl";
+   set secAuthAlias $NodeName/OracleNero;
+   JVcreateDatasource $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $dbURL $secAuthAlias;
+
+   set dsName       "JMS Pool";
+   set dsJNDI       "jdbc/JMSResource";
+   set dsDesc       "Data source for the JMS Pool";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set dbURL        "jdbc:oracle:thin:@alpha:1521:orcl";
+   set secAuthAlias $NodeName/OracleJms;
+   JVcreateDatasource $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $dbURL $secAuthAlias;
+
+}
+

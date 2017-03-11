@@ -1,0 +1,39 @@
+
+proc JVcreateSIBJMSTopic {NodeName jmsTName jmsTJNDI jmsTDesc SIBTName SIBTopicSpace} {
+
+   global AdminConfig;
+   global AdminTask;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create SIB JMS topic                             ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts " SIB JMS topic:                                                ";
+   puts "    name                $jmsTName                              ";
+   puts "    JNDI                $jmsTJNDI                              ";
+   puts "    description         $jmsTDesc                              ";
+   puts "    SIB topic           $SIBTName                              ";
+   puts "    SIB topic space     $SIBTopicSpace                         ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+#--------------------------------------------------------------------
+# Create SIB JMS topic that references a SIB TopicSpace
+#--------------------------------------------------------------------
+
+   set scope [$AdminConfig getid /Node:$NodeName/];
+   foreach topic [$AdminTask listSIBJMSTopics $scope] {
+      set name [$AdminConfig showAttribute $topic name];
+      if { $name == $jmsTName } {
+         JVputInfo "The $jmsTName SIB JMS topic already exists.";
+         return;
+      }
+   }
+
+   JVputTrace "Create a new SIB JMS topic named $jmsTName.";
+   set params [list -name $jmsTName -jndiName $jmsTJNDI -description $jmsTDesc -topicName $SIBTName -topicSpace $SIBTopicSpace];
+   $AdminTask createSIBJMSTopic $scope $params;
+}
+

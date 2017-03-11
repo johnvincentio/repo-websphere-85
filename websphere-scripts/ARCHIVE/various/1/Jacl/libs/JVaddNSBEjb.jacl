@@ -1,0 +1,65 @@
+
+proc JVaddNSBEjb {cellName nodeName serverName nsbName nameInNameSpace bindingLocation JndiName} {
+
+#--------------------------------------------------------------------
+# Set up globals  
+#--------------------------------------------------------------------
+
+   global AdminConfig M_OK M_ERROR;
+
+#--------------------------------------------------------------------
+# Create Name Space Binding String
+#--------------------------------------------------------------------
+
+   if {$JndiName == ""} {set JndiName $nameInNameSpace;}
+   if {$nsbName == ""} {set nsbName $nameInNameSpace;}
+   set aliasName $nsbName;
+   regsub -all "/" $aliasName "_" nsbName;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create EJB Name Space Binding                    ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    cell                $cellName                              ";
+   puts "    Node Name           $nodeName                              ";
+   puts "    Server Name         $serverName                            ";
+   puts " EJB Name Space Binding:                                       ";
+   puts "    Binding Id          $nsbName                               ";
+   puts "    Name in Name Space  $nameInNameSpace                       ";
+   puts "    bindingLocation     $bindingLocation                       ";
+   puts "    JndiName            $JndiName                              ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+#--------------------------------------------------------------------
+# Get the config id for the cell's security object
+#--------------------------------------------------------------------
+
+   JVputTrace "Get the cell's id.";
+   if {[catch {$AdminConfig getid /Cell:$cellName/} cellId]} {
+      JVputError "Cannot get /Cell:$cellName; $cellId";
+      return $M_ERROR;
+   }
+   if {$cellId == ""} {
+      JVputError "ERROR: /Cell:$cellName is missing.";
+      return $M_ERROR;
+   }
+   JVputTrace "cellId $cellId";
+
+   if {$bindingLocation == "SINGLESERVER"} {
+      set attrs "{name $nsbName} {nameInNameSpace $nameInNameSpace} {applicationNodeName $nodeName} {bindingLocation SINGLESERVER} {applicationServerName $serverName} {ejbJndiName $JndiName}";
+      if [catch {$AdminConfig create EjbNameSpaceBinding $cellId $attrs} results] {
+         JVputError "ERROR: Could not create; $results.";
+         return $M_ERROR;
+     }
+   } else {
+      set attrs "{name $nsbName} {nameInNameSpace $nameInNameSpace}  {bindingLocation SERVERCLUSTER} {applicationServerName $serverName} {ejbJndiName $JndiName}";
+      if [catch {$AdminConfig create EjbNameSpaceBinding $cellId $attrs} results] {
+         JVputError "ERROR: Could not create; $results.";
+         return $M_ERROR;
+      }
+   }
+   JVputInfo "Created Name Space Binding $nsbName";
+   return $M_OK;
+}

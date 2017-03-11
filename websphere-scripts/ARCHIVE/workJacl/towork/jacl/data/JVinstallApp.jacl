@@ -1,0 +1,41 @@
+
+proc JVinstallApp {nodeName serverName earName appName options} {
+
+  #--------------------------------------------------------------------
+  # Set up globals
+  #--------------------------------------------------------------------
+
+  global AdminApp
+
+  #--------------------------------------------------------------------
+  # Install the application
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Install application                              "
+  puts "---------------------------------------------------------------"
+  puts " Scope:                                                        "
+  puts "    node                $nodeName                              "
+  puts "    server              $serverName                            "
+  puts " EAR:                                                          "
+  puts "    name                $earName                               "
+  puts "    application         $appName                               "
+  puts "    destination         \$(APP_INSTALL_ROOT)/\$(CELL)          "
+  puts "    usedefaultbindings  true                                   "
+  puts "    noejbdeploy         true                                   "
+  if { $options != "" } {
+    puts "    additional options  $options                               "
+  }
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  if {[isAppInstalled $appName]} {
+    return
+  }
+
+  lappend options -usedefaultbindings -nocreateMBeansForResources -appname $appName -installed.ear.destination "\$(APP_INSTALL_ROOT)/\$(CELL)" -node $nodeName -server $serverName -nodeployejb
+  $AdminApp install $earName $options
+
+}
+

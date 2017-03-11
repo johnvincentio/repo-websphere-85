@@ -1,0 +1,113 @@
+set ServerName "WebSphere_Portal"
+
+set ServerId [$AdminConfig getid /Server:$ServerName/]
+set FlagHttpTransportFound "false"
+foreach TmpHttpTransportId [$AdminConfig list HTTPTransport $ServerId] {
+	set EndPointId [$AdminConfig showAttribute $TmpHttpTransportId address]
+	set TmpPort [$AdminConfig showAttribute $EndPointId port]
+    puts stdout "TempPort = $TmpPort"
+    break
+}
+
+set PropertyFileSpec "C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1/config/props.tmp"
+set fpWrite [open $PropertyFileSpec w]
+set LineData "TempPort = $TmpPort"
+puts $fpWrite $LineData
+close $fpWrite
+
+
+set ServerName "WebSphere_Portal"
+
+#set HostPort 9081
+set HostPort $TmpPort
+
+set CellName localhost
+set VirtualHostName "default_host"
+
+#--------------------------------------------------------------
+# Check if HostAlias for Port "HostPort" in VirtualHost "VirtualHostName" is there
+#--------------------------------------------------------------
+set VirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+set HostAliasList [$AdminConfig show $VirtualHostId aliases]
+set HostAlias {}
+set FlagExist "False"
+if {$HostAliasList != ""} {
+	set HostAliasList [string trim [string trim $HostAliasList "{}"]]
+	set HostAliasList [string range $HostAliasList [string first "(" $HostAliasList] [string length $HostAliasList]]
+	set TmpList [split $HostAliasList ")"]
+	foreach Tmp $TmpList {
+		set Tmp [string trim $Tmp " "]
+		append Tmp ")"
+		if { [string length $Tmp] > 1} {
+			lappend HostAlias $Tmp
+		}
+	}
+	foreach TmpHostAlias $HostAlias {
+		if {[catch {$AdminConfig showAttribute $TmpHostAlias port} TmpPort]} {
+			puts stdout $TmpPort
+			puts stdout "ERROR: In '/VirtualHost:$VirtualHostName/'."
+			puts stdout "This is not a valid HostAlias."
+			puts stdout $TmpHostAlias
+			set LocalFlagErr true
+		} else {
+			if {[string compare $TmpPort $HostPort] == 0} {
+				set FlagExist "True"
+				break
+			}
+		}
+	}
+}
+
+if {$FlagExist == "True"} {
+	puts stdout "HostAlias with port $HostPort in '/VirtualHost:$VirtualHostName/' already there, no Action taken"
+} else {
+	#--------------------------------------------------------------
+	# Create HostAlias for Port "HostPort"
+	#--------------------------------------------------------------
+	set attrs [subst {{hostname *} {port $HostPort}}]
+	set HostAliasList [$AdminConfig create HostAlias $VirtualHostId $attrs]
+	if {$HostAliasList == ""} {
+		puts stdout "ERROR: HostAlias with port $HostPort in '/VirtualHost:$VirtualHostName/' could not be created."
+	} else {
+		#--------------------------------------------------------------
+		# check for success
+		#--------------------------------------------------------------
+		set VirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+		set HostAliasList [$AdminConfig show $VirtualHostId aliases]
+		set HostAlias {}
+		set FlagExist "False"
+		if {$HostAliasList != ""} {
+			set HostAliasList [string trim [string trim $HostAliasList "{}"]]
+			set HostAliasList [string range $HostAliasList [string first "(" $HostAliasList] [string length $HostAliasList]]
+			set TmpList [split $HostAliasList ")"]
+			foreach Tmp $TmpList {
+				set Tmp [string trim $Tmp " "]
+				append Tmp ")"
+				if { [string length $Tmp] > 1} {
+					lappend HostAlias $Tmp
+				}
+			}
+			foreach TmpHostAlias $HostAlias {
+				if {[catch {$AdminConfig showAttribute $TmpHostAlias port} TmpPort]} {
+					puts stdout $TmpPort
+					puts stdout "ERROR: In '/VirtualHost:$VirtualHostName/'."
+					puts stdout "This is not a valid HostAlias."
+					puts stdout $TmpHostAlias
+					set LocalFlagErr true
+				} else {
+					if {[string compare $TmpPort $HostPort] == 0} {
+						set FlagExist "True"
+						break
+					}
+				}
+			}
+		}
+	}
+
+	if {$FlagExist == "True"} {
+		puts stdout "HostAlias with port $HostPort in '/VirtualHost:$VirtualHostName/' successfully created."
+		$AdminConfig save
+	} else {
+		puts stdout "ERROR: HostAlias with port $HostPort in '/VirtualHost:$VirtualHostName/' could not be created."
+	}
+}

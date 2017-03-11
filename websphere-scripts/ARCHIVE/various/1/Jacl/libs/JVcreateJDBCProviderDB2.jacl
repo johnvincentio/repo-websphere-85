@@ -1,0 +1,94 @@
+
+proc JVcreateJDBCProviderDB2 {nodeName serverName templateName providerName nativePath} {
+
+#--------------------------------------------------------------------
+# Set up globals
+#--------------------------------------------------------------------
+  
+	global AdminConfig;
+
+#--------------------------------------------------------------------
+# Create Provider
+#--------------------------------------------------------------------
+
+	puts ""
+	puts "---------------------------------------------------------------";
+	puts "              Create JDBC provider                             ";
+	puts "---------------------------------------------------------------";
+	puts " Scope:                                                        ";
+	puts "    node                $nodeName                              ";
+	puts "    server              $serverName                            ";
+	puts " JDBC provider:                                                ";
+	puts "    template            $templateName                          ";
+	puts "    name                $providerName                          ";
+	puts "    native path         $nativePath                            ";
+	puts "---------------------------------------------------------------";
+	puts "";
+
+#--------------------------------------------------------------------
+# Get all templates whose name contain templateName
+#--------------------------------------------------------------------
+
+	set templates [$AdminConfig listTemplates JDBCProvider $templateName];
+  
+#--------------------------------------------------------------------
+# Get the template that is named templateName
+#--------------------------------------------------------------------
+
+	foreach templateEntry $templates {
+		set name [$AdminConfig showAttribute $templateEntry name];
+#		JVputTrace "Checking for match with $name";
+		if {$name == $templateName} {
+			set template $templateEntry;
+			break;
+		}
+	}
+
+	if {![info exists template]} {
+		JVthrow "The $templateName JDBC provider template could not be found.";
+	}
+
+#--------------------------------------------------------------------
+# Get the config id for the node 
+#--------------------------------------------------------------------
+  
+	JVputTrace "Get the ID for /Node:$nodeName/Server:$serverName.";
+ 	set scope [$AdminConfig getid /Node:$nodeName/Server:$serverName];
+	if {[llength $scope] == 0} {
+		JVthrow "The ID for /Node:$nodeName/Server:$serverName could not be found.";
+	}
+
+#--------------------------------------------------------------------
+# Create a new JDBCProvider using this template 
+#--------------------------------------------------------------------
+
+	set jdbcProvider [$AdminConfig getid /Node:$nodeName/Server:$serverName/JDBCProvider:$providerName];
+	if {[llength $jdbcProvider] == 0} {
+		JVputTrace "Create the $providerName JDBC provider.";
+		set name_attr [list name $providerName];
+		set attrs [list $name_attr];
+		set newProv [$AdminConfig createUsingTemplate JDBCProvider $scope $attrs $template];
+    
+#--------------------------------------------------------------------
+# Remove the default Datasource that is added when the JDBC Provider
+# was created 
+#--------------------------------------------------------------------
+    
+		JVputTrace "Remove the default data source from $providerName.";
+		set defaultDS [$AdminConfig getid /Node:$nodeName/Server:$serverName/JDBCProvider:$providerName/DataSource:/];
+		$AdminConfig remove $defaultDS;
+
+#--------------------------------------------------------------------
+# Modify the JDBCProvider for native libraries
+#--------------------------------------------------------------------
+
+		JVputTrace "Modifying the native libraries";
+		set jdbcProviderId [$AdminConfig getid /Node:$nodeName/Server:$serverName/JDBCProvider:$providerName];
+		if {[llength $nativePath] != 0} {
+			set attrs [subst {{nativepath $nativePath} }];
+			$AdminConfig modify $jdbcProviderId $attrs
+		}
+	} else {
+		JVputInfo "The $providerName JDBC provider already exists.";
+	}
+} 

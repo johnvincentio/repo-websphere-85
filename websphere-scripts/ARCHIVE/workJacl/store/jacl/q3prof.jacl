@@ -1,0 +1,52 @@
+
+proc JV_Test {} {
+global AdminConfig
+puts "Stage 1"
+set ABC "localhost(cells/localhost/nodes/localhost:node.xml#Node_1)"
+#set ABC "localhost(cells/localhost/nodes/localhost:resources.xml)"
+puts "Stage 2"
+set DEF "{name REP1}"
+puts "Stage 3"
+set newrep [$AdminConfig create ResourceEnvironmentProvider $ABC $DEF]
+
+# $AdminConfig save
+puts "Stage 100"
+}
+
+proc JV_create_resource_provider { JVNode JVCell JVProvider } {
+global AdminConfig
+puts ">>> JV_create_resource_provider"
+set node [$AdminConfig getid /Cell:$JVCell/Node:$JVNode/]
+puts "node $node"
+set wax [$AdminConfig required ResourceEnvironmentProvider]
+puts "wax $wax"
+puts "Stage 2"
+set n1 [list name $JVProvider]
+puts "Stage 3"
+puts "n1 $n1"
+set repAttrs [list $n1]
+puts "repAttrs $repAttrs"
+puts "Stage 4"
+set listall [$AdminConfig list ResourceEnvironmentProvider]
+puts "listall $listall"
+puts "Stage 5"
+set newrep [$AdminConfig create ResourceEnvironmentProvider $node $repAttrs]
+puts "Stage 100"
+}
+
+#proc JV_create_resource { JVNode JVServer } {
+#  global AdminControl
+##  global AdminConfig
+#  puts "Stage 1"
+##  set newrep [$AdminConfig  getid  /Cell:mycell/Node:$JVNode/ResourceEnvironmentProvider:REP1/]
+# puts "newrep $newrep"
+# $AdminConfig required ResourceEnvEntry
+
+#set name [list name REE1]
+#set jndiName [list jndiName myjndi]
+#set newref [$AdminConfig getid /Cell:mycell/Node:mynode/Referenceable:/]
+#set ref [list referenceable $newref]
+#set reeAttrs [list $name $jndiName $ref]
+
+#$AdminConfig create ResourceEnvEntry $newrep $reeAttrs
+#} 

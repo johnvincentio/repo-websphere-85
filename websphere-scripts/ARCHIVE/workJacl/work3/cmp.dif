@@ -1,0 +1,508 @@
+ 
+                Directory_1: /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell
+                Directory_2: /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell
+
+Files compare has been started at Sat Aug  6 12:06:23 EDT 2005
+
+/opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell
+Nextfile admin-authz.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/admin-authz.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/admin-authz.xml
+Compare has been completed for file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/admin-authz.xml
+Nextfile cell.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/cell.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/cell.xml
+6c6
+<   <topology.cell:Cell xmi:id="Cell_1" name="alphaNode05Cell" cellDiscoveryProtocol="TCP" cellType="STANDALONE">
+---
+>   <topology.cell:Cell xmi:id="Cell_1" name="alphaNode06Cell" cellDiscoveryProtocol="TCP" cellType="STANDALONE">
+ERROR during compare of file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/cell.xml
+Nextfile coregroupbridge.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/coregroupbridge.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/coregroupbridge.xml
+Compare has been completed for file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/coregroupbridge.xml
+Nextfile multibroker.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/multibroker.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/multibroker.xml
+Compare has been completed for file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/multibroker.xml
+Nextfile namestore.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/namestore.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/namestore.xml
+Compare has been completed for file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/namestore.xml
+Nextfile naming-authz.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/naming-authz.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/naming-authz.xml
+Compare has been completed for file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/naming-authz.xml
+Nextfile pmirm.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/pmirm.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/pmirm.xml
+Compare has been completed for file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/pmirm.xml
+Nextfile resources-pme502.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/resources-pme502.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/resources-pme502.xml
+Compare has been completed for file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/resources-pme502.xml
+Nextfile resources-pme.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/resources-pme.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/resources-pme.xml
+Compare has been completed for file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/resources-pme.xml
+Nextfile resources.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/resources.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/resources.xml
+34c34
+<   <resources.j2c:J2CResourceAdapter xmi:id="J2CResourceAdapter_1122836456913" name="SIB JMS Resource Adapter" archivePath="${WAS_INSTALL_ROOT}/installedConnectors/sib.api.jmsra.rar">
+---
+>   <resources.j2c:J2CResourceAdapter xmi:id="J2CResourceAdapter_1122955548286" name="SIB JMS Resource Adapter" archivePath="${WAS_INSTALL_ROOT}/installedConnectors/sib.api.jmsra.rar">
+36,60c36,60
+<     <propertySet xmi:id="J2EEResourcePropertySet_1122836456914"/>
+<     <deploymentDescriptor xmi:id="Connector_1122836456914" displayName="WebSphere Default Messaging Provider" vendorName="IBM" specVersion="1.5" eisType="JMS Provider" version="0.3">
+<       <displayNames xmi:id="DisplayName_1122836456914" value="WebSphere Default Messaging Provider"/>
+<       <displayNames xmi:id="DisplayName_1122836456915" value="WebSphere Default Messaging Provider"/>
+<       <displayNames xmi:id="DisplayName_1122836456916" value="WebSphere Default Messaging Provider"/>
+<       <displayNames xmi:id="DisplayName_1122836456917" value="WebSphere Default Messaging Provider"/>
+<       <resourceAdapter xmi:id="ResourceAdapter_1122836456914" transactionSupport="NoTransaction" reauthenticationSupport="false" resourceAdapterClass="com.ibm.ws.sib.api.jmsra.impl.JmsJcaResourceAdapterImpl">
+<         <outboundResourceAdapter xmi:id="OutboundResourceAdapter_1122836456914" reauthenticationSupport="false" transactionSupport="XATransaction">
+<           <connectionDefinitions xmi:id="ConnectionDefinition_1122836456914" managedConnectionFactoryClass="com.ibm.ws.sib.api.jmsra.impl.JmsJcaManagedQueueConnectionFactoryImpl" connectionFactoryInterface="javax.jms.QueueConnectionFactory" connectionFactoryImplClass="com.ibm.ws.sib.api.jms.impl.JmsQueueConnFactoryImpl" connectionInterface="javax.jms.QueueConnection" connectionImplClass="com.ibm.ws.sib.api.jms.impl.JmsQueueConnectionImpl">
+<             <configProperties xmi:id="ConfigProperty_1122836456914" name="BusName" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456915" name="ClientID" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456916" name="UserName" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456917" name="Password" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456918" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456919" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456920" name="ReadAhead" type="java.lang.String" value="Default"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456921" name="Target" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456922" name="TargetType" type="java.lang.String" value="BusMember"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456923" name="TargetSignificance" type="java.lang.String" value="Preferred"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456924" name="RemoteProtocol" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456925" name="TargetTransportChain" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456926" name="ProviderEndpoints" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456927" name="ConnectionProximity" type="java.lang.String" value="Bus"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456928" name="TemporaryQueueNamePrefix" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456929" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false"/>
+---
+>     <propertySet xmi:id="J2EEResourcePropertySet_1122955548287"/>
+>     <deploymentDescriptor xmi:id="Connector_1122955548287" displayName="WebSphere Default Messaging Provider" vendorName="IBM" specVersion="1.5" eisType="JMS Provider" version="0.3">
+>       <displayNames xmi:id="DisplayName_1122955548287" value="WebSphere Default Messaging Provider"/>
+>       <displayNames xmi:id="DisplayName_1122955548288" value="WebSphere Default Messaging Provider"/>
+>       <displayNames xmi:id="DisplayName_1122955548289" value="WebSphere Default Messaging Provider"/>
+>       <displayNames xmi:id="DisplayName_1122955548290" value="WebSphere Default Messaging Provider"/>
+>       <resourceAdapter xmi:id="ResourceAdapter_1122955548287" transactionSupport="NoTransaction" reauthenticationSupport="false" resourceAdapterClass="com.ibm.ws.sib.api.jmsra.impl.JmsJcaResourceAdapterImpl">
+>         <outboundResourceAdapter xmi:id="OutboundResourceAdapter_1122955548287" reauthenticationSupport="false" transactionSupport="XATransaction">
+>           <connectionDefinitions xmi:id="ConnectionDefinition_1122955548287" managedConnectionFactoryClass="com.ibm.ws.sib.api.jmsra.impl.JmsJcaManagedQueueConnectionFactoryImpl" connectionFactoryInterface="javax.jms.QueueConnectionFactory" connectionFactoryImplClass="com.ibm.ws.sib.api.jms.impl.JmsQueueConnFactoryImpl" connectionInterface="javax.jms.QueueConnection" connectionImplClass="com.ibm.ws.sib.api.jms.impl.JmsQueueConnectionImpl">
+>             <configProperties xmi:id="ConfigProperty_1122955548287" name="BusName" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548288" name="ClientID" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548289" name="UserName" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548290" name="Password" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548291" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548292" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548293" name="ReadAhead" type="java.lang.String" value="Default"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548294" name="Target" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548295" name="TargetType" type="java.lang.String" value="BusMember"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548296" name="TargetSignificance" type="java.lang.String" value="Preferred"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548297" name="RemoteProtocol" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548298" name="TargetTransportChain" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548299" name="ProviderEndpoints" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548300" name="ConnectionProximity" type="java.lang.String" value="Bus"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548301" name="TemporaryQueueNamePrefix" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548302" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false"/>
+62,80c62,80
+<           <connectionDefinitions xmi:id="ConnectionDefinition_1122836456915" managedConnectionFactoryClass="com.ibm.ws.sib.api.jmsra.impl.JmsJcaManagedTopicConnectionFactoryImpl" connectionFactoryInterface="javax.jms.TopicConnectionFactory" connectionFactoryImplClass="com.ibm.ws.sib.api.jms.impl.JmsTopicConnFactoryImpl" connectionInterface="javax.jms.TopicConnection" connectionImplClass="com.ibm.ws.sib.api.jms.impl.JmsTopicConnectionImpl">
+<             <configProperties xmi:id="ConfigProperty_1122836456930" name="BusName" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456931" name="ClientID" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456932" name="UserName" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456933" name="Password" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456934" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456935" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456936" name="DurableSubscriptionHome" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456937" name="ReadAhead" type="java.lang.String" value="Default"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456938" name="Target" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456939" name="TargetType" type="java.lang.String" value="BusMember"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456940" name="TargetSignificance" type="java.lang.String" value="Preferred"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456941" name="RemoteProtocol" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456942" name="TargetTransportChain" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456943" name="ProviderEndpoints" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456944" name="ConnectionProximity" type="java.lang.String" value="Bus"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456945" name="TemporaryTopicNamePrefix" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456946" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456947" name="ShareDurableSubscriptions" type="java.lang.String" value="InCluster"/>
+---
+>           <connectionDefinitions xmi:id="ConnectionDefinition_1122955548288" managedConnectionFactoryClass="com.ibm.ws.sib.api.jmsra.impl.JmsJcaManagedTopicConnectionFactoryImpl" connectionFactoryInterface="javax.jms.TopicConnectionFactory" connectionFactoryImplClass="com.ibm.ws.sib.api.jms.impl.JmsTopicConnFactoryImpl" connectionInterface="javax.jms.TopicConnection" connectionImplClass="com.ibm.ws.sib.api.jms.impl.JmsTopicConnectionImpl">
+>             <configProperties xmi:id="ConfigProperty_1122955548303" name="BusName" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548304" name="ClientID" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548305" name="UserName" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548306" name="Password" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548307" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548308" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548309" name="DurableSubscriptionHome" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548310" name="ReadAhead" type="java.lang.String" value="Default"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548311" name="Target" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548312" name="TargetType" type="java.lang.String" value="BusMember"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548313" name="TargetSignificance" type="java.lang.String" value="Preferred"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548314" name="RemoteProtocol" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548315" name="TargetTransportChain" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548316" name="ProviderEndpoints" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548317" name="ConnectionProximity" type="java.lang.String" value="Bus"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548318" name="TemporaryTopicNamePrefix" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548319" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548320" name="ShareDurableSubscriptions" type="java.lang.String" value="InCluster"/>
+82,101c82,101
+<           <connectionDefinitions xmi:id="ConnectionDefinition_1122836456916" managedConnectionFactoryClass="com.ibm.ws.sib.api.jmsra.impl.JmsJcaManagedConnectionFactoryImpl" connectionFactoryInterface="javax.jms.ConnectionFactory" connectionFactoryImplClass="com.ibm.ws.sib.api.jms.impl.JmsConnFactoryImpl" connectionInterface="javax.jms.Connection" connectionImplClass="com.ibm.ws.sib.api.jms.impl.JmsConnectionImpl">
+<             <configProperties xmi:id="ConfigProperty_1122836456948" name="BusName" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456949" name="ClientID" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456950" name="UserName" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456951" name="Password" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456952" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456953" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456954" name="DurableSubscriptionHome" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456955" name="ReadAhead" type="java.lang.String" value="Default"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456956" name="Target" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456957" name="TargetType" type="java.lang.String" value="BusMember"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456958" name="TargetSignificance" type="java.lang.String" value="Preferred"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456959" name="RemoteProtocol" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456960" name="TargetTransportChain" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456961" name="ProviderEndpoints" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456962" name="ConnectionProximity" type="java.lang.String" value="Bus"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456963" name="TemporaryQueueNamePrefix" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456964" name="TemporaryTopicNamePrefix" type="java.lang.String"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456965" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false"/>
+<             <configProperties xmi:id="ConfigProperty_1122836456966" name="ShareDurableSubscriptions" type="java.lang.String" value="InCluster"/>
+---
+>           <connectionDefinitions xmi:id="ConnectionDefinition_1122955548289" managedConnectionFactoryClass="com.ibm.ws.sib.api.jmsra.impl.JmsJcaManagedConnectionFactoryImpl" connectionFactoryInterface="javax.jms.ConnectionFactory" connectionFactoryImplClass="com.ibm.ws.sib.api.jms.impl.JmsConnFactoryImpl" connectionInterface="javax.jms.Connection" connectionImplClass="com.ibm.ws.sib.api.jms.impl.JmsConnectionImpl">
+>             <configProperties xmi:id="ConfigProperty_1122955548321" name="BusName" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548322" name="ClientID" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548323" name="UserName" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548324" name="Password" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548325" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548326" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548327" name="DurableSubscriptionHome" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548328" name="ReadAhead" type="java.lang.String" value="Default"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548329" name="Target" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548330" name="TargetType" type="java.lang.String" value="BusMember"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548331" name="TargetSignificance" type="java.lang.String" value="Preferred"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548332" name="RemoteProtocol" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548333" name="TargetTransportChain" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548334" name="ProviderEndpoints" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548335" name="ConnectionProximity" type="java.lang.String" value="Bus"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548336" name="TemporaryQueueNamePrefix" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548337" name="TemporaryTopicNamePrefix" type="java.lang.String"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548338" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false"/>
+>             <configProperties xmi:id="ConfigProperty_1122955548339" name="ShareDurableSubscriptions" type="java.lang.String" value="InCluster"/>
+103c103
+<           <authenticationMechanisms xmi:id="AuthenticationMechanism_1122836456920" authenticationMechanismType="BasicPassword" credentialInterface="javax.resource.spi.security.PasswordCredential"/>
+---
+>           <authenticationMechanisms xmi:id="AuthenticationMechanism_1122955548293" authenticationMechanismType="BasicPassword" credentialInterface="javax.resource.spi.security.PasswordCredential"/>
+105,111c105,111
+<         <inboundResourceAdapter xmi:id="InboundResourceAdapter_1122836456920">
+<           <messageAdapter xmi:id="MessageAdapter_1122836456920">
+<             <messageListeners xmi:id="MessageListener_1122836456920" messageListenerType="javax.jms.MessageListener">
+<               <activationSpec xmi:id="ActivationSpec_1122836456920" activationSpecClass="com.ibm.ws.sib.api.jmsra.impl.JmsJcaActivationSpecImpl">
+<                 <requiredConfigProperties xmi:id="RequiredConfigPropertyType_1122836456929" name="destination"/>
+<                 <requiredConfigProperties xmi:id="RequiredConfigPropertyType_1122836456937" name="destinationType"/>
+<                 <requiredConfigProperties xmi:id="RequiredConfigPropertyType_1122836456938" name="busName"/>
+---
+>         <inboundResourceAdapter xmi:id="InboundResourceAdapter_1122955548293">
+>           <messageAdapter xmi:id="MessageAdapter_1122955548293">
+>             <messageListeners xmi:id="MessageListener_1122955548293" messageListenerType="javax.jms.MessageListener">
+>               <activationSpec xmi:id="ActivationSpec_1122955548293" activationSpecClass="com.ibm.ws.sib.api.jmsra.impl.JmsJcaActivationSpecImpl">
+>                 <requiredConfigProperties xmi:id="RequiredConfigPropertyType_1122955548302" name="destination"/>
+>                 <requiredConfigProperties xmi:id="RequiredConfigPropertyType_1122955548311" name="destinationType"/>
+>                 <requiredConfigProperties xmi:id="RequiredConfigPropertyType_1122955548312" name="busName"/>
+116,122c116,122
+<         <adminObjects xmi:id="AdminObject_1122836456939" adminObjectInterface="javax.jms.Queue" adminObjectClass="com.ibm.ws.sib.api.jms.impl.JmsQueueImpl">
+<           <configProperties xmi:id="ConfigProperty_1122836456967" name="QueueName" type="java.lang.String"/>
+<           <configProperties xmi:id="ConfigProperty_1122836456968" name="DeliveryMode" type="java.lang.String" value="Application"/>
+<           <configProperties xmi:id="ConfigProperty_1122836456969" name="TimeToLive" type="java.lang.Long"/>
+<           <configProperties xmi:id="ConfigProperty_1122836456970" name="Priority" type="java.lang.Integer"/>
+<           <configProperties xmi:id="ConfigProperty_1122836456971" name="ReadAhead" type="java.lang.String" value="AsConnection"/>
+<           <configProperties xmi:id="ConfigProperty_1122836456972" name="BusName" type="java.lang.String"/>
+---
+>         <adminObjects xmi:id="AdminObject_1122955548313" adminObjectInterface="javax.jms.Queue" adminObjectClass="com.ibm.ws.sib.api.jms.impl.JmsQueueImpl">
+>           <configProperties xmi:id="ConfigProperty_1122955548340" name="QueueName" type="java.lang.String"/>
+>           <configProperties xmi:id="ConfigProperty_1122955548341" name="DeliveryMode" type="java.lang.String" value="Application"/>
+>           <configProperties xmi:id="ConfigProperty_1122955548342" name="TimeToLive" type="java.lang.Long"/>
+>           <configProperties xmi:id="ConfigProperty_1122955548343" name="Priority" type="java.lang.Integer"/>
+>           <configProperties xmi:id="ConfigProperty_1122955548344" name="ReadAhead" type="java.lang.String" value="AsConnection"/>
+>           <configProperties xmi:id="ConfigProperty_1122955548345" name="BusName" type="java.lang.String"/>
+124,131c124,131
+<         <adminObjects xmi:id="AdminObject_1122836456940" adminObjectInterface="javax.jms.Topic" adminObjectClass="com.ibm.ws.sib.api.jms.impl.JmsTopicImpl">
+<           <configProperties xmi:id="ConfigProperty_1122836456973" name="TopicSpace" type="java.lang.String" value="Default.Topic.Space"/>
+<           <configProperties xmi:id="ConfigProperty_1122836456974" name="TopicName" type="java.lang.String"/>
+<           <configProperties xmi:id="ConfigProperty_1122836456975" name="DeliveryMode" type="java.lang.String" value="Application"/>
+<           <configProperties xmi:id="ConfigProperty_1122836456976" name="TimeToLive" type="java.lang.Long"/>
+<           <configProperties xmi:id="ConfigProperty_1122836456977" name="Priority" type="java.lang.Integer"/>
+<           <configProperties xmi:id="ConfigProperty_1122836456978" name="ReadAhead" type="java.lang.String" value="AsConnection"/>
+<           <configProperties xmi:id="ConfigProperty_1122836456979" name="BusName" type="java.lang.String"/>
+---
+>         <adminObjects xmi:id="AdminObject_1122955548314" adminObjectInterface="javax.jms.Topic" adminObjectClass="com.ibm.ws.sib.api.jms.impl.JmsTopicImpl">
+>           <configProperties xmi:id="ConfigProperty_1122955548346" name="TopicSpace" type="java.lang.String" value="Default.Topic.Space"/>
+>           <configProperties xmi:id="ConfigProperty_1122955548347" name="TopicName" type="java.lang.String"/>
+>           <configProperties xmi:id="ConfigProperty_1122955548348" name="DeliveryMode" type="java.lang.String" value="Application"/>
+>           <configProperties xmi:id="ConfigProperty_1122955548349" name="TimeToLive" type="java.lang.Long"/>
+>           <configProperties xmi:id="ConfigProperty_1122955548350" name="Priority" type="java.lang.Integer"/>
+>           <configProperties xmi:id="ConfigProperty_1122955548351" name="ReadAhead" type="java.lang.String" value="AsConnection"/>
+>           <configProperties xmi:id="ConfigProperty_1122955548352" name="BusName" type="java.lang.String"/>
+135,154c135,154
+<     <connectionDefTemplateProps xmi:id="ConnectionDefTemplateProps_1122836456940" ConnectionDefinition="ConnectionDefinition_1122836456914">
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456940" name="BusName" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456941" name="ClientID" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456942" name="ConnectionProximity" type="java.lang.String" value="Bus" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456943" name="durableSubscriptionHome" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456944" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456945" name="Password" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456946" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456947" name="ProviderEndpoints" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456948" name="ReadAhead" type="java.lang.String" value="Default" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456949" name="RemoteProtocol" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456950" name="TargetTransportChain" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456951" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456952" name="shareDurableSubscriptions" type="java.lang.String" value="AsCluster" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456953" name="Target" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456954" name="TargetSignificance" type="java.lang.String" value="Preferred" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456955" name="TargetType" type="java.lang.String" value="BusMember" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456956" name="TemporaryQueueNamePrefix" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456957" name="temporaryTopicNamePrefix" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456958" name="UserName" type="java.lang.String" required="false"/>
+---
+>     <connectionDefTemplateProps xmi:id="ConnectionDefTemplateProps_1122955548313" ConnectionDefinition="ConnectionDefinition_1122955548287">
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548313" name="BusName" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548314" name="ClientID" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548315" name="ConnectionProximity" type="java.lang.String" value="Bus" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548316" name="durableSubscriptionHome" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548317" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548318" name="Password" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548319" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548320" name="ProviderEndpoints" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548321" name="ReadAhead" type="java.lang.String" value="Default" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548322" name="RemoteProtocol" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548323" name="TargetTransportChain" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548324" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548325" name="shareDurableSubscriptions" type="java.lang.String" value="AsCluster" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548326" name="Target" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548327" name="TargetSignificance" type="java.lang.String" value="Preferred" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548328" name="TargetType" type="java.lang.String" value="BusMember" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548329" name="TemporaryQueueNamePrefix" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548330" name="temporaryTopicNamePrefix" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548331" name="UserName" type="java.lang.String" required="false"/>
+156,175c156,175
+<     <connectionDefTemplateProps xmi:id="ConnectionDefTemplateProps_1122836456941" ConnectionDefinition="ConnectionDefinition_1122836456915">
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456959" name="BusName" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456960" name="ClientID" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456961" name="ConnectionProximity" type="java.lang.String" value="Bus" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456962" name="DurableSubscriptionHome" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456963" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456964" name="Password" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456965" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456966" name="ProviderEndpoints" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456967" name="ReadAhead" type="java.lang.String" value="Default" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456968" name="RemoteProtocol" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456969" name="TargetTransportChain" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456970" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456971" name="ShareDurableSubscriptions" type="java.lang.String" value="InCluster" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456972" name="Target" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456973" name="TargetSignificance" type="java.lang.String" value="Preferred" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456974" name="TargetType" type="java.lang.String" value="BusMember" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456975" name="temporaryQueueNamePrefix" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456976" name="TemporaryTopicNamePrefix" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456977" name="UserName" type="java.lang.String" required="false"/>
+---
+>     <connectionDefTemplateProps xmi:id="ConnectionDefTemplateProps_1122955548314" ConnectionDefinition="ConnectionDefinition_1122955548288">
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548332" name="BusName" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548333" name="ClientID" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548334" name="ConnectionProximity" type="java.lang.String" value="Bus" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548335" name="DurableSubscriptionHome" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548336" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548337" name="Password" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548338" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548339" name="ProviderEndpoints" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548340" name="ReadAhead" type="java.lang.String" value="Default" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548341" name="RemoteProtocol" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548342" name="TargetTransportChain" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548343" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548344" name="ShareDurableSubscriptions" type="java.lang.String" value="InCluster" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548345" name="Target" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548346" name="TargetSignificance" type="java.lang.String" value="Preferred" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548347" name="TargetType" type="java.lang.String" value="BusMember" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548348" name="temporaryQueueNamePrefix" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548349" name="TemporaryTopicNamePrefix" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548350" name="UserName" type="java.lang.String" required="false"/>
+177,196c177,196
+<     <connectionDefTemplateProps xmi:id="ConnectionDefTemplateProps_1122836456942" ConnectionDefinition="ConnectionDefinition_1122836456916">
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456978" name="BusName" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456979" name="ClientID" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456980" name="ConnectionProximity" type="java.lang.String" value="Bus" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456981" name="DurableSubscriptionHome" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456982" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456983" name="Password" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456984" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456985" name="ProviderEndpoints" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456986" name="ReadAhead" type="java.lang.String" value="Default" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456987" name="RemoteProtocol" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456988" name="TargetTransportChain" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456989" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456990" name="ShareDurableSubscriptions" type="java.lang.String" value="InCluster" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456991" name="Target" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456992" name="TargetSignificance" type="java.lang.String" value="Preferred" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456993" name="TargetType" type="java.lang.String" value="BusMember" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456994" name="TemporaryQueueNamePrefix" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456995" name="TemporaryTopicNamePrefix" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456996" name="UserName" type="java.lang.String" required="false"/>
+---
+>     <connectionDefTemplateProps xmi:id="ConnectionDefTemplateProps_1122955548315" ConnectionDefinition="ConnectionDefinition_1122955548289">
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548351" name="BusName" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548352" name="ClientID" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548353" name="ConnectionProximity" type="java.lang.String" value="Bus" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548354" name="DurableSubscriptionHome" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548355" name="NonPersistentMapping" type="java.lang.String" value="ExpressNonPersistent" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548356" name="Password" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548357" name="PersistentMapping" type="java.lang.String" value="ReliablePersistent" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548358" name="ProviderEndpoints" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548359" name="ReadAhead" type="java.lang.String" value="Default" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548360" name="RemoteProtocol" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548361" name="TargetTransportChain" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548362" name="ShareDataSourceWithCMP" type="java.lang.Boolean" value="false" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548363" name="ShareDurableSubscriptions" type="java.lang.String" value="InCluster" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548364" name="Target" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548365" name="TargetSignificance" type="java.lang.String" value="Preferred" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548366" name="TargetType" type="java.lang.String" value="BusMember" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548367" name="TemporaryQueueNamePrefix" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548368" name="TemporaryTopicNamePrefix" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548369" name="UserName" type="java.lang.String" required="false"/>
+198,217c198,217
+<     <activationSpecTemplateProps xmi:id="ActivationSpecTemplateProps_1122836456942" activationSpec="ActivationSpec_1122836456920">
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456997" name="acknowledgeMode" type="java.lang.String" value="Auto-acknowledge" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456998" name="busName" type="java.lang.String" required="true"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836456999" name="clientId" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457000" name="destination" type="javax.jms.Destination" required="true"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457001" name="destinationType" type="java.lang.String" required="true"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457002" name="durableSubscriptionHome" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457003" name="maxBatchSize" type="java.lang.Integer" value="1" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457004" name="maxConcurrency" type="java.lang.Integer" value="10" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457005" name="messageSelector" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457006" name="password" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457007" name="readAhead" type="java.lang.String" value="Default" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457008" name="shareDataSourceWithCMP" type="java.lang.Boolean" value="false" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457009" name="shareDurableSubscriptions" type="java.lang.String" value="InCluster" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457010" name="subscriptionDurability" type="java.lang.String" value="NonDurable" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457011" name="subscriptionName" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457012" name="targetTransportChain" type="java.lang.String" required="false"/>
+<       <resourceProperties xmi:id="J2EEResourceProperty_1122836457013" name="userName" type="java.lang.String" required="false"/>
+<       <complexPropertySet xmi:id="J2EEResourcePropertySet_1122836456943">
+<         <resourceProperties xmi:id="J2EEResourceProperty_1122836457014" name="destination" type="javax.jms.Destination" required="false"/>
+---
+>     <activationSpecTemplateProps xmi:id="ActivationSpecTemplateProps_1122955548316" activationSpec="ActivationSpec_1122955548293">
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548370" name="acknowledgeMode" type="java.lang.String" value="Auto-acknowledge" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548371" name="busName" type="java.lang.String" required="true"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548372" name="clientId" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548373" name="destination" type="javax.jms.Destination" required="true"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548374" name="destinationType" type="java.lang.String" required="true"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548375" name="durableSubscriptionHome" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548376" name="maxBatchSize" type="java.lang.Integer" value="1" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548377" name="maxConcurrency" type="java.lang.Integer" value="10" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548378" name="messageSelector" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548379" name="password" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548380" name="readAhead" type="java.lang.String" value="Default" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548381" name="shareDataSourceWithCMP" type="java.lang.Boolean" value="false" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548382" name="shareDurableSubscriptions" type="java.lang.String" value="InCluster" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548383" name="subscriptionDurability" type="java.lang.String" value="NonDurable" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548384" name="subscriptionName" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548385" name="targetTransportChain" type="java.lang.String" required="false"/>
+>       <resourceProperties xmi:id="J2EEResourceProperty_1122955548386" name="userName" type="java.lang.String" required="false"/>
+>       <complexPropertySet xmi:id="J2EEResourcePropertySet_1122955548317">
+>         <resourceProperties xmi:id="J2EEResourceProperty_1122955548387" name="destination" type="javax.jms.Destination" required="false"/>
+220,228c220,228
+<     <adminObjectTemplateProps xmi:id="AdminObjectTemplateProps_1122836456943" adminObject="AdminObject_1122836456939">
+<       <properties xmi:id="J2EEResourceProperty_1122836457015" name="BusName" type="java.lang.String" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457016" name="DeliveryMode" type="java.lang.String" value="Application" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457017" name="forwardRoutingPath" type="[Ljava.lang.String;" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457018" name="Priority" type="java.lang.Integer" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457019" name="QueueName" type="java.lang.String" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457020" name="ReadAhead" type="java.lang.String" value="AsConnection" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457021" name="reverseRoutingPath" type="[Ljava.lang.String;" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457022" name="TimeToLive" type="java.lang.Long" required="false"/>
+---
+>     <adminObjectTemplateProps xmi:id="AdminObjectTemplateProps_1122955548317" adminObject="AdminObject_1122955548313">
+>       <properties xmi:id="J2EEResourceProperty_1122955548388" name="BusName" type="java.lang.String" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548389" name="DeliveryMode" type="java.lang.String" value="Application" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548390" name="forwardRoutingPath" type="[Ljava.lang.String;" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548391" name="Priority" type="java.lang.Integer" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548392" name="QueueName" type="java.lang.String" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548393" name="ReadAhead" type="java.lang.String" value="AsConnection" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548394" name="reverseRoutingPath" type="[Ljava.lang.String;" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548395" name="TimeToLive" type="java.lang.Long" required="false"/>
+230,239c230,239
+<     <adminObjectTemplateProps xmi:id="AdminObjectTemplateProps_1122836456944" adminObject="AdminObject_1122836456940">
+<       <properties xmi:id="J2EEResourceProperty_1122836457023" name="BusName" type="java.lang.String" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457024" name="DeliveryMode" type="java.lang.String" value="Application" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457025" name="forwardRoutingPath" type="[Ljava.lang.String;" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457026" name="Priority" type="java.lang.Integer" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457027" name="ReadAhead" type="java.lang.String" value="AsConnection" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457028" name="reverseRoutingPath" type="[Ljava.lang.String;" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457029" name="TimeToLive" type="java.lang.Long" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457030" name="TopicName" type="java.lang.String" required="false"/>
+<       <properties xmi:id="J2EEResourceProperty_1122836457031" name="TopicSpace" type="java.lang.String" value="Default.Topic.Space" required="false"/>
+---
+>     <adminObjectTemplateProps xmi:id="AdminObjectTemplateProps_1122955548318" adminObject="AdminObject_1122955548314">
+>       <properties xmi:id="J2EEResourceProperty_1122955548396" name="BusName" type="java.lang.String" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548397" name="DeliveryMode" type="java.lang.String" value="Application" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548398" name="forwardRoutingPath" type="[Ljava.lang.String;" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548399" name="Priority" type="java.lang.Integer" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548400" name="ReadAhead" type="java.lang.String" value="AsConnection" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548401" name="reverseRoutingPath" type="[Ljava.lang.String;" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548402" name="TimeToLive" type="java.lang.Long" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548403" name="TopicName" type="java.lang.String" required="false"/>
+>       <properties xmi:id="J2EEResourceProperty_1122955548404" name="TopicSpace" type="java.lang.String" value="Default.Topic.Space" required="false"/>
+ERROR during compare of file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/resources.xml
+Nextfile security.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/security.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/security.xml
+13c13
+<   <userRegistries xmi:type="security:LDAPUserRegistry" xmi:id="LDAPUserRegistry_1" serverId="" serverPassword="{xor}" realm="" ignoreCase="true" type="IBM_DIRECTORY_SERVER" sslEnabled="false" sslConfig="alphaNode05/DefaultSSLSettings" baseDN="" bindDN="" bindPassword="{xor}" searchTimeout="120" reuseConnection="true">
+---
+>   <userRegistries xmi:type="security:LDAPUserRegistry" xmi:id="LDAPUserRegistry_1" serverId="" serverPassword="{xor}" realm="" ignoreCase="true" type="IBM_DIRECTORY_SERVER" sslEnabled="false" sslConfig="alphaNode06/DefaultSSLSettings" baseDN="" bindDN="" bindPassword="{xor}" searchTimeout="120" reuseConnection="true">
+51c51
+<         <serverAuthentication xmi:id="IIOPTransport_1" sslConfig="alphaNode05/DefaultSSLSettings"/>
+---
+>         <serverAuthentication xmi:id="IIOPTransport_1" sslConfig="alphaNode06/DefaultSSLSettings"/>
+66c66
+<         <serverAuthentication xmi:id="IIOPTransport_2" sslConfig="alphaNode05/DefaultSSLSettings"/>
+---
+>         <serverAuthentication xmi:id="IIOPTransport_2" sslConfig="alphaNode06/DefaultSSLSettings"/>
+74c74
+<         <serverAuthentication xmi:id="IIOPTransport_3" sslConfig="alphaNode05/DefaultSSLSettings"/>
+---
+>         <serverAuthentication xmi:id="IIOPTransport_3" sslConfig="alphaNode06/DefaultSSLSettings"/>
+80c80
+<         <serverAuthentication xmi:id="IIOPTransport_4" sslConfig="alphaNode05/DefaultSSLSettings"/>
+---
+>         <serverAuthentication xmi:id="IIOPTransport_4" sslConfig="alphaNode06/DefaultSSLSettings"/>
+84c84
+<   <repertoire xmi:id="SSLConfig_1" alias="alphaNode05/DefaultSSLSettings">
+---
+>   <repertoire xmi:id="SSLConfig_1" alias="alphaNode06/DefaultSSLSettings">
+162d161
+<   <authDataEntries xmi:id="JAASAuthData_1122950101394" alias="alphaNode05/OracleNero" userId="JVNERO" password="{xor}PD4vLCswMTo=" description="Nero Oracle User for the Capstone Project"/>
+ERROR during compare of file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/security.xml
+Nextfile variables.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/variables.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/variables.xml
+Compare has been completed for file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/variables.xml
+Nextfile virtualhosts.xml
+File \< is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/virtualhosts.xml
+File \> is /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv02/config/cells/alphaNode06Cell/virtualhosts.xml
+347c347
+<     <aliases xmi:id="HostAlias_1" hostname="*" port="9083"/>
+---
+>     <aliases xmi:id="HostAlias_1" hostname="*" port="9084"/>
+349c349
+<     <aliases xmi:id="HostAlias_3" hostname="*" port="9446"/>
+---
+>     <aliases xmi:id="HostAlias_3" hostname="*" port="9447"/>
+692,693c692,693
+<     <aliases xmi:id="HostAlias_4" hostname="*" port="9063"/>
+<     <aliases xmi:id="HostAlias_5" hostname="*" port="9046"/>
+---
+>     <aliases xmi:id="HostAlias_4" hostname="*" port="9064"/>
+>     <aliases xmi:id="HostAlias_5" hostname="*" port="9047"/>
+ERROR during compare of file /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/CapstoneSrv01/config/cells/alphaNode05Cell/virtualhosts.xml
+
+Files compare has been completed at Sat Aug  6 12:06:23 EDT 2005
+

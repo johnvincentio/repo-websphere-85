@@ -1,0 +1,22 @@
+#
+#  comment
+#
+com/hertz/irac/mappoint/enviroment DEV
+string/com/hertz/irac/Db2ClientVersion all
+string/com/hertz/irac/mappoint/MapPointRenderURL http://renderv3.staging.mappoint.net/Render-30/RenderService.asmx
+string/com/hertz/irac/mappoint/MapPointFindURL http://findv3.staging.mappoint.net/Find-30/FindService.asmx
+string/com/hertz/irac/mappoint/MapPointRouteURL http://routev3.staging.mappoint.net/Route-30/RouteService.asmx
+string/com/hertz/irac/mapquest/MapQuestGeocodeURL geocode.access.mapquest.com
+string/com/hertz/irac/mapquest/MapQuestMapURL map.access.mapquest.com
+string/com/hertz/irac/mapquest/MapQuestSpatialURL spatial.access.mapquest.com
+string/com/hertz/irac/mapquest/MapQuestRouteURL route.access.mapquest.com
+string/com/hertz/irac/mapquest/DataBaseTableName MQA.MQ_33459_Hztst_Locations
+string/com/hertz/irac/MapProvider MQ
+string/com/hertz/isd/Environment DEV
+string/com/hertz/irac/DataHome C:\DATA_FOR_IRAC
+string/com/hertz/irac/AdminToolSecurityAuditDevFile C:/iRAC/tmp/AdminToolSecurityAuditDevFile
+string/com/hertz/irac/AdminToolSecurityAuditQualFile C:/iRAC/tmp/AdminToolSecurityAuditQualFile
+string/com/hertz/irac/AdminToolSecurityAuditPreProdFile C:/iRAC/tmp/AdminToolSecurityAuditPPFile
+string/com/hertz/irac/HertzagentCommissionFile C:/tmp/HertzagentCommission
+string/com/hertz/irac/reservation/AirPlusURL https://dbitest.airplus.com/dbi/servlet/load
+string/com/hertz/irac/AutoSpellchecker c:/temp/

@@ -1,0 +1,82 @@
+
+proc JVcreateConnectionFactory {NodeName ServerName providerName dsName cfName cfAuthMech authAlias cfi} {
+
+   global AdminConfig;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create connection factory                        ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts "    server              $ServerName                            ";
+   puts " JDBC provider:                                                ";
+   puts "    name                $providerName                          ";
+   puts " Datasource:                                                   ";
+   puts "    name                $dsName                                ";
+   puts " Connection factory:                                           ";
+   puts "    name                $cfName                                ";
+   puts "    auth mechanism      $cfAuthMech                            ";
+   puts "    auth alias          $authAlias                             ";
+   puts "    interface           $cfi                                   ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   set cf [$AdminConfig getid "/Node:$NodeName/Server:$ServerName/J2CResourceAdapter:WebSphere Relational Resource Adapter/CMPConnectorFactory:$cfName"];
+   if {[llength $cf] != 0} {
+      JVputInfo "The $cfName connection factory already exists.";
+      return;
+   }
+
+#--------------------------------------------------------------------
+# Get IDs that we will need to make the CF
+#--------------------------------------------------------------------
+
+   JVputTrace "Get the ID for the default relational resource adapter and the ID for the $dsName data source.";
+   set rraID [$AdminConfig getid "/Node:$NodeName/Server:$ServerName/J2CResourceAdapter:WebSphere Relational Resource Adapter/"];
+   set dsID [$AdminConfig getid /Node:$NodeName/Server:$ServerName/JDBCProvider:$providerName/DataSource:$dsName/];
+
+#--------------------------------------------------------------------
+# Create CF using default RRA
+#--------------------------------------------------------------------
+
+   JVputTrace "Create the $cfName connection factory for the $dsName database.";
+   set name_attr       [list name $cfName];
+   set authmech_attr   [list authMechanismPreference $cfAuthMech];
+   set cmpds_attr      [list cmpDatasource $dsID];
+
+#--------------------------------------------------------------------
+# Get ConnectionDefinition
+#--------------------------------------------------------------------
+
+   set dd [$AdminConfig showAttribute $rraID deploymentDescriptor];
+   set radapter [$AdminConfig showAttribute $dd resourceAdapter];
+   set out  [$AdminConfig showAttribute $radapter outboundResourceAdapter];
+   set cdlist [lindex [$AdminConfig showAttribute $out connectionDefinitions] 0];
+
+   JVputTrace "Locate the $cfi connection factory interface.";
+   foreach cd $cdlist {
+      set intf [$AdminConfig showAttribute $cd connectionFactoryInterface] ;
+      if {$intf == $cfi } {
+         break;
+      }
+   }
+   set cd_attr [list connectionDefinition $cd];
+
+   JVputTrace "Create a new connection factory named $cfName.";
+
+# check if mapping needed
+
+   if { !($authAlias == "N_O_N_E") } {
+      set map_auth_attr [list authDataAlias $authAlias];
+      set map_attrs     [list $map_auth_attr];
+      set mapping_attr  [list mapping $map_attrs];
+      set attrs         [list $name_attr $authmech_attr $cmpds_attr $mapping_attr $cd_attr];
+   } else {
+      set attrs         [list $name_attr $authmech_attr $cmpds_attr $cd_attr];
+   }
+#   puts "*** rraID :$rraID:****";
+#   puts "*** attrs :$attrs:****";
+   set newCF [$AdminConfig create CMPConnectorFactory $rraID $attrs];
+}
+

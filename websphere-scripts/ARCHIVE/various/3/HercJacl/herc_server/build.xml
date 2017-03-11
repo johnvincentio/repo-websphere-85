@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!DOCTYPE project [
+  <!ENTITY wsAntCommands SYSTEM "../ws-server.xml">
+]>
+
+<project name="Deploy WS apps to a WS Server" default="usage" basedir=".">
+
+	&wsAntCommands;
+
+	<property name="my.soap.port" value="8885"/>	<!-- this must be changed as per your server -->
+	<property name="my.node.name" value="ebt_vincentjNode06"/>	<!-- this must be changed as per your server -->
+
+	<property name="my.deploy.jacl.file" value="apps_deploy.jacl"/>
+	<property name="my.undeploy.jacl.file" value="apps_undeploy.jacl"/>
+	<property name="my.listdeploy.jacl.file" value="apps_deployed_list.jacl"/>
+
+	<property name="my.server.start.jacl.file" value="apps_start_server.jacl"/>
+	<property name="my.server.stop.jacl.file" value="apps_stop_server.jacl"/>
+	<property name="my.server.restart.jacl.file" value="apps_restart_server.jacl"/>
+
+	<target name="usage">
+		<echo message="This ant script Deploys/Undeploys WS apps to a WS Server, and List Deployed Apps"/>
+		<echo message="Please select a deployment option."/>
+	</target>
+
+	<target name="deploy_all">
+		<echo>Starting deployment script</echo>
+		<antcall target="jacl">
+			<param name="jacl.file" value="${my.deploy.jacl.file}"/>
+			<param name="jacl.server.port.soap" value="${my.soap.port}"/>
+		</antcall>
+		<echo>Finished deployment script</echo>
+	</target>
+
+	<target name="undeploy_all">
+		<echo>Starting undeployment script</echo>
+		<antcall target="jacl">
+			<param name="jacl.file" value="${my.undeploy.jacl.file}"/>
+			<param name="jacl.server.port.soap" value="${my.soap.port}"/>
+		</antcall>
+		<echo>Finished undeployment script</echo>
+	</target>
+
+	<target name="listdeploy_all">
+		<echo>Starting list deployed apps script</echo>
+		<antcall target="jacl">
+			<param name="jacl.file" value="${my.listdeploy.jacl.file}"/>
+			<param name="jacl.server.port.soap" value="${my.soap.port}"/>
+		</antcall>
+		<echo>Finished list deployed apps script</echo>
+	</target>
+
+<!-- manage the server -->
+
+	<target name="server_start">	<!-- cannot start the server as needs to connect to a server before start server -->
+		<antcall target="jacl_server">
+			<param name="jacl.file" value="${my.server.start.jacl.file}"/>
+			<param name="jacl.server.node.name" value="${my.node.name}"/>
+		</antcall>
+	</target>
+
+	<target name="server_stop">
+		<antcall target="jacl_server">
+			<param name="jacl.file" value="${my.server.stop.jacl.file}"/>
+			<param name="jacl.server.node.name" value="${my.node.name}"/>
+		</antcall>
+	</target>
+
+	<target name="server_restart">
+		<antcall target="jacl_server">
+			<param name="jacl.file" value="${my.server.restart.jacl.file}"/>
+			<param name="jacl.server.node.name" value="${my.node.name}"/>
+		</antcall>
+	</target>
+
+	<target name="test">
+		<antcall target="jacl_server">
+			<param name="jacl.file" value="test.jacl"/>
+			<param name="jacl.server.node.name" value="${my.node.name}"/>
+		</antcall>
+	</target>
+
+</project> 

@@ -1,0 +1,37 @@
+
+#------------------------------------------------------------------
+#  Create JMS Resources
+#------------------------------------------------------------------
+
+proc irac_jmsDataCollection {NodeName ServerName SIBusName} {
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+   set jmsCFName    "JMSQueueConnectionFactoryDataCollection";
+   set jmsCFJNDI    "jms/com/hertz/irac/connFactory/DataCollectionCF";
+   set jmsCFDesc    "JMS Queue Connection Factory for DataCollection";
+   set jmsCFType    "queue";
+   set secAuthAlias "(none)"
+   JVcreateSIBJMSConnectionFactory $NodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName;
+
+#--------------------------------------------------------------------
+# Create SIB JMS Queue that references a SIB Queue
+#--------------------------------------------------------------------
+  
+   set jmsQName   "JMSQueueDestDataCollection";
+   set jmsQJNDI   "jms/com/hertz/irac/dest/DataCollectionQueue";
+   set jmsQDesc   "JMS Queue Destination for DataCollection";
+   append SIBQName "_SYSTEM.Exception.Destination." $NodeName "." $ServerName "-" $SIBusName;
+   JVcreateSIBJMSQueue $NodeName $jmsQName $jmsQJNDI $jmsQDesc $SIBQName $SIBusName;
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Queue
+#--------------------------------------------------------------------
+
+   set activationSpecName     "dataCollection";
+   set activationSpecJndiName "eis/$activationSpecName";
+   set destinationType        "javax.jms.Queue";
+   JVcreateSIBJMSActivationSpec $NodeName $activationSpecName $activationSpecJndiName $jmsQJNDI $destinationType $secAuthAlias $SIBusName;
+}

@@ -1,0 +1,171 @@
+#
+# "This sample program is provided AS IS and may be used, executed, copied and modified without royalty payment by customer(a) for its own 
+# instruction and study, (b) in order to develop applications designed to run with an IBM WebSphere product, either for customer's own internal use 
+# or for redistribution by customer, as part of such an application, in customer's own products."
+#
+# Product 5724i63,  (C) COPYRIGHT International Business Machines Corp., 2004
+# All Rights Reserved * Licensed Materials - Property of IBM
+#
+#----------------------------------------------------------------------
+# install.jacl - JACL procedures for configuring resources and
+#              installing the sample
+#----------------------------------------------------------------------
+#
+#   This script is not intended to be run alone.
+#
+#----------------------------------------------------------------------
+
+source $env(was.install.root)/samples/bin/AdminUtil.jacl
+
+proc configure_Adventure {cellName nodeName serverName} {
+
+  #--------------------------------------------------------------------
+  # Configure the sample
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "************* Configure Adventure Builder Sample **************"
+
+  #--------------------------------------------------------------------
+  # Create J2C Resource Adapter
+  #--------------------------------------------------------------------
+  
+  createJ2CResourceAdapter $nodeName $serverName
+
+  #--------------------------------------------------------------------
+  # Setup security cell
+  #--------------------------------------------------------------------
+
+  set secAuthAlias "$cellName/samples"
+  set secDescript  "JAAS Alias for WebSphere Samples"
+  set secUserID    "samples"
+  set secPassword  "s1amples"
+  createJAASAuthenticationAlias $cellName $secAuthAlias $secDescript $secUserID $secPassword
+
+  #--------------------------------------------------------------------
+  # Create JDBC Provider
+  #--------------------------------------------------------------------
+  
+  set templName    "Cloudscape JDBC Provider (XA)"
+  # All Samples that need XA JDBC Provider should use/share this one
+  set provName     "Samples Cloudscape JDBC Provider (XA)"
+  createJDBCProvider $nodeName $serverName $templName $provName
+  
+  #--------------------------------------------------------------------
+  # Create Datasource
+  #--------------------------------------------------------------------
+  
+  set templName    "Cloudscape JDBC Driver XA DataSource"
+  set dsName       "AdventureDB"
+  set dsJNDI       "jdbc/adventure/AdventureDB"
+  set dsDesc       "Adventure Builder AdventureDB Datasource"
+  set dsAuthMech   "BASIC_PASSWORD"
+  set dbName       "\${APP_INSTALL_ROOT}/\${CELL}/ConsumerWebsite.ear/Database/AdventureDB"
+  set secAuthAlias "$cellName/samples"
+  set connAttrs    "upgrade=true"
+  createDatasource $nodeName $serverName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $dbName $secAuthAlias $connAttrs
+  
+  #--------------------------------------------------------------------
+  # Create Datasource
+  #--------------------------------------------------------------------
+  
+  set templName    "Cloudscape JDBC Driver XA DataSource"
+  set dsName       "CatalogDB"
+  set dsJNDI       "jdbc/CatalogDB"
+  set dsDesc       "Adventure Builder CatalogDB Datasource"
+  set dsAuthMech   "BASIC_PASSWORD"
+  set dbName       "\${APP_INSTALL_ROOT}/\${CELL}/ConsumerWebsite.ear/Database/CatalogDB"
+  set secAuthAlias "$cellName/samples"
+  set connAttrs    "upgrade=true"
+  createDatasource $nodeName $serverName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $dbName $secAuthAlias $connAttrs
+
+  #--------------------------------------------------------------------
+  # Create Connection Factory (use builtin_rra)
+  #--------------------------------------------------------------------
+  
+  set dsName       "AdventureDB"
+  set cfName       "Adventure_CF"
+  set cfAuthMech   "BASIC_PASSWORD"
+  set secAuthAlias "$cellName/samples"
+  set cfi          "javax.resource.cci.ConnectionFactory"
+  createConnectionFactory $nodeName $serverName $provName $dsName $cfName $cfAuthMech $secAuthAlias $cfi
+
+  #--------------------------------------------------------------------
+  # Create Connection Factory (use builtin_rra)
+  #--------------------------------------------------------------------
+  
+  set dsName       "CatalogDB"
+  set cfName       "Catalog_CF"
+  set cfAuthMech   "BASIC_PASSWORD"
+  set secAuthAlias "$cellName/samples"
+  set cfi          "javax.resource.cci.ConnectionFactory"
+  createConnectionFactory $nodeName $serverName $provName $dsName $cfName $cfAuthMech $secAuthAlias $cfi
+
+  #--------------------------------------------------------------------
+  # Create SIBus
+  #--------------------------------------------------------------------
+
+  set SIBusName [getSamplesBusName $nodeName]
+  createSIBus $nodeName $serverName $SIBusName
+
+  #--------------------------------------------------------------------
+  # Create SIB JMS Connection Factory
+  #--------------------------------------------------------------------
+
+  set jmsCFName    "Adventure Builder JMS Queue Connection Factory"
+  set jmsCFJNDI    "jms/opc/QueueConnectionFactory"
+  set jmsCFDesc    "JMS Queue Connection Factory for Adventure Builder"
+  set jmsCFType    "queue"
+  set secAuthAlias "$cellName/samples"
+  createSIBJMSConnectionFactory $nodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName
+
+  #--------------------------------------------------------------------
+  # Create JMS Queue that references a SIB Queue
+  #--------------------------------------------------------------------
+
+  set jmsQName  "WorkFlowMgrQueue"
+  set jmsQJNDI  "jms/opc/WorkFlowMgrQueue"
+  set jmsQDesc  "Adventure Builder WorkFlowMgrQueue"
+  set SIBQName  "SIB_ABQ"
+  createSIBJMSQueue $nodeName $jmsQName $jmsQJNDI $jmsQDesc $SIBQName
+
+  #--------------------------------------------------------------------
+  # Create SIB Queue JMS Destination
+  #--------------------------------------------------------------------
+
+  set SIBQName "SIB_ABQ"
+  createSIBQueue $nodeName $serverName $SIBQName $SIBusName
+
+  #--------------------------------------------------------------------
+  # Create Activation Spec 
+  #--------------------------------------------------------------------
+
+  set jmsQJNDI               "jms/opc/WorkFlowMgrQueue"
+  set activationSpecName     "WorkFlowManagerBean"
+  set activationSpecJNDIName "eis/$activationSpecName"
+  set destinationType        "javax.jms.Queue"
+  set secAuthAlias           "$cellName/samples"
+  createSIBJMSActivationSpec $nodeName $activationSpecName $activationSpecJNDIName $jmsQJNDI $destinationType $secAuthAlias $SIBusName
+
+}
+
+proc install_Adventure {cellName nodeName serverName} {
+
+  #--------------------------------------------------------------------
+  # Set up globals
+  #--------------------------------------------------------------------
+  
+  global env
+
+  #--------------------------------------------------------------------
+  # Install the sample
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "************* Install Adventure Builder Sample ****************"
+
+  installApp $nodeName $serverName $env(was.install.root)/samples/lib/Adventure/ConsumerWebsite.ear ConsumerWebsite {}
+  installApp $nodeName $serverName $env(was.install.root)/samples/lib/Adventure/OPC.ear OPC {}
+
+}
+

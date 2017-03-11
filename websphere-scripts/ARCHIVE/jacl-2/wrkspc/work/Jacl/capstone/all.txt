@@ -1,0 +1,648 @@
+Starting script capstone.jacl at SOAP Port 8881
+WASX7209I: Connected to process "server1" on node alphaNode03 using SOAP connector;  The type of process is: UnManagedProcess
+INFO: Starting
+INFO: Loading Properties file capstone.properties
+TRACE: JVloadProperties.jacl; code java0x7
+INFO: Loaded Properties file
+INFO: ---------------------------------------------------------------
+INFO:  
+INFO:  Scope:                                                        
+INFO:     cell                alphaNode03Cell                            
+INFO:     node                alphaNode03                            
+INFO:     server              server1                          
+INFO: ---------------------------------------------------------------
+
+---------------------------------------------------------------
+              Create J2C resource adapter                      
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ Resource adapter:                                             
+    name                WebSphere Relational Resource Adapter  
+---------------------------------------------------------------
+
+INFO: The J2C resource adapter already exists.
+INFO: JAAS
+
+---------------------------------------------------------------
+              Create JAAS authentication alias                 
+---------------------------------------------------------------
+ Scope:                                                        
+    cell                alphaNode03Cell                              
+ Authentication alias:                                         
+    alias               alphaNode03/JVSupplier                             
+    user ID             JVSUPPLIER                                   
+    password            capstone                              
+    description         Capstone Supplier Oracle Database User                              
+---------------------------------------------------------------
+
+TRACE: Get the cell's security object.
+TRACE: Create the alphaNode03/JVSupplier JAASAuthData object.
+
+---------------------------------------------------------------
+              Create JAAS authentication alias                 
+---------------------------------------------------------------
+ Scope:                                                        
+    cell                alphaNode03Cell                              
+ Authentication alias:                                         
+    alias               alphaNode03/JVDistributor                             
+    user ID             JVDISTRIBUTOR                                   
+    password            capstone                              
+    description         Capstone Distributor Oracle Database User                              
+---------------------------------------------------------------
+
+TRACE: Get the cell's security object.
+TRACE: Create the alphaNode03/JVDistributor JAASAuthData object.
+
+---------------------------------------------------------------
+              Create JAAS authentication alias                 
+---------------------------------------------------------------
+ Scope:                                                        
+    cell                alphaNode03Cell                              
+ Authentication alias:                                         
+    alias               alphaNode03/JVRetailer                             
+    user ID             JVRETAILER                                   
+    password            capstone                              
+    description         Capstone Retailer Oracle Database User                              
+---------------------------------------------------------------
+
+TRACE: Get the cell's security object.
+TRACE: Create the alphaNode03/JVRetailer JAASAuthData object.
+
+---------------------------------------------------------------
+              Create JAAS authentication alias                 
+---------------------------------------------------------------
+ Scope:                                                        
+    cell                alphaNode03Cell                              
+ Authentication alias:                                         
+    alias               alphaNode03/JVManufacturer                             
+    user ID             JVMANUFACTURER                                   
+    password            capstone                              
+    description         Capstone Manufacturer Oracle Database User                              
+---------------------------------------------------------------
+
+TRACE: Get the cell's security object.
+TRACE: Create the alphaNode03/JVManufacturer JAASAuthData object.
+
+---------------------------------------------------------------
+              Create JAAS authentication alias                 
+---------------------------------------------------------------
+ Scope:                                                        
+    cell                alphaNode03Cell                              
+ Authentication alias:                                         
+    alias               alphaNode03/JVNero                             
+    user ID             JVNERO                                   
+    password            capstone                              
+    description         Capstone Nero Oracle Database User                              
+---------------------------------------------------------------
+
+TRACE: Get the cell's security object.
+TRACE: Create the alphaNode03/JVNero JAASAuthData object.
+
+---------------------------------------------------------------
+              Create JAAS authentication alias                 
+---------------------------------------------------------------
+ Scope:                                                        
+    cell                alphaNode03Cell                              
+ Authentication alias:                                         
+    alias               alphaNode03/JVJms                             
+    user ID             JVJMS                                   
+    password            capstone                              
+    description         Capstone JMS Oracle Database User                              
+---------------------------------------------------------------
+
+TRACE: Get the cell's security object.
+TRACE: Create the alphaNode03/JVJms JAASAuthData object.
+INFO: JDBC
+
+---------------------------------------------------------------
+              Modify Variable                                  
+---------------------------------------------------------------
+    Variable Name:   ORACLE_JDBC_DRIVER_PATH                                  
+     Variable Value:   /usr/local/bin/Oracle/jdbc                               
+---------------------------------------------------------------
+
+INFO: VariableSubstitutionEntry ORACLE_JDBC_DRIVER_PATH does exist, will set value.
+
+---------------------------------------------------------------
+              Create JDBC provider                             
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    template            Oracle JDBC Driver                          
+    name                Capstone Oracle JDBC Driver                          
+---------------------------------------------------------------
+
+TRACE: Get the ID for /Node:alphaNode03/Server:server1.
+TRACE: Create the Capstone Oracle JDBC Driver JDBC provider.
+TRACE: Remove the default data source from Capstone Oracle JDBC Driver.
+INFO: JDBC; Nero
+
+---------------------------------------------------------------
+              Create data source                               
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    template            Oracle JDBC Driver                          
+    name                NeroPool                                
+    JNDI                jdbc/NeroResource                                
+    description         Data source for the Nero Pool                                
+    dsAuthMech          BASIC_PASSWORD                            
+    database URL        jdbc:oracle:thin:@alpha:1521:orcl                                
+    auth alias          alphaNode03/JVNero                             
+---------------------------------------------------------------
+
+TRACE: Get the Oracle JDBC Driver data source template.
+TRACE: Get the ID for the Capstone Oracle JDBC Driver provider.
+TRACE: Create a new data source named NeroPool.
+
+---------------------------------------------------------------
+              Create connection factory                        
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    name                NeroPool                                
+ Connection factory:                                           
+    name                NeroPoolCF                                
+    auth mechanism      BASIC_PASSWORD                            
+    auth alias          alphaNode03/JVNero                             
+    interface           javax.resource.cci.ConnectionFactory                                   
+---------------------------------------------------------------
+
+TRACE: Get the ID for the default relational resource adapter and the ID for the NeroPool data source.
+TRACE: Create the NeroPoolCF connection factory for the NeroPool database.
+TRACE: Locate the javax.resource.cci.ConnectionFactory connection factory interface.
+TRACE: Create a new connection factory named NeroPoolCF.
+INFO: JDBC; Supplier
+
+---------------------------------------------------------------
+              Create data source                               
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    template            Oracle JDBC Driver                          
+    name                SupplierPool                                
+    JNDI                jdbc/SupplierResource                                
+    description         Data source for the Supplier Pool                                
+    dsAuthMech          BASIC_PASSWORD                            
+    database URL        jdbc:oracle:thin:@alpha:1521:orcl                                
+    auth alias          alphaNode03/JVSupplier                             
+---------------------------------------------------------------
+
+TRACE: Get the Oracle JDBC Driver data source template.
+TRACE: Get the ID for the Capstone Oracle JDBC Driver provider.
+TRACE: Create a new data source named SupplierPool.
+
+---------------------------------------------------------------
+              Create connection factory                        
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    name                SupplierPool                                
+ Connection factory:                                           
+    name                SupplierPoolCF                                
+    auth mechanism      BASIC_PASSWORD                            
+    auth alias          alphaNode03/JVSupplier                             
+    interface           javax.resource.cci.ConnectionFactory                                   
+---------------------------------------------------------------
+
+TRACE: Get the ID for the default relational resource adapter and the ID for the SupplierPool data source.
+TRACE: Create the SupplierPoolCF connection factory for the SupplierPool database.
+TRACE: Locate the javax.resource.cci.ConnectionFactory connection factory interface.
+TRACE: Create a new connection factory named SupplierPoolCF.
+INFO: JDBC; Distributor
+
+---------------------------------------------------------------
+              Create data source                               
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    template            Oracle JDBC Driver                          
+    name                Distributor Pool                                
+    JNDI                jdbc/DistributorResource                                
+    description         Data source for the Distributor Pool                                
+    dsAuthMech          BASIC_PASSWORD                            
+    database URL        jdbc:oracle:thin:@alpha:1521:orcl                                
+    auth alias          alphaNode03/JVDistributor                             
+---------------------------------------------------------------
+
+TRACE: Get the Oracle JDBC Driver data source template.
+TRACE: Get the ID for the Capstone Oracle JDBC Driver provider.
+TRACE: Create a new data source named Distributor Pool.
+
+---------------------------------------------------------------
+              Create connection factory                        
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    name                Distributor Pool                                
+ Connection factory:                                           
+    name                DistributorPoolCF                                
+    auth mechanism      BASIC_PASSWORD                            
+    auth alias          alphaNode03/JVDistributor                             
+    interface           javax.resource.cci.ConnectionFactory                                   
+---------------------------------------------------------------
+
+TRACE: Get the ID for the default relational resource adapter and the ID for the Distributor Pool data source.
+TRACE: Create the DistributorPoolCF connection factory for the Distributor Pool database.
+TRACE: Locate the javax.resource.cci.ConnectionFactory connection factory interface.
+TRACE: Create a new connection factory named DistributorPoolCF.
+INFO: JDBC; Retailer
+
+---------------------------------------------------------------
+              Create data source                               
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    template            Oracle JDBC Driver                          
+    name                RetailerPool                                
+    JNDI                jdbc/RetailerResource                                
+    description         Data source for the Retailer Pool                                
+    dsAuthMech          BASIC_PASSWORD                            
+    database URL        jdbc:oracle:thin:@alpha:1521:orcl                                
+    auth alias          alphaNode03/JVRetailer                             
+---------------------------------------------------------------
+
+TRACE: Get the Oracle JDBC Driver data source template.
+TRACE: Get the ID for the Capstone Oracle JDBC Driver provider.
+TRACE: Create a new data source named RetailerPool.
+
+---------------------------------------------------------------
+              Create connection factory                        
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    name                RetailerPool                                
+ Connection factory:                                           
+    name                RetailerPoolCF                                
+    auth mechanism      BASIC_PASSWORD                            
+    auth alias          alphaNode03/JVRetailer                             
+    interface           javax.resource.cci.ConnectionFactory                                   
+---------------------------------------------------------------
+
+TRACE: Get the ID for the default relational resource adapter and the ID for the RetailerPool data source.
+TRACE: Create the RetailerPoolCF connection factory for the RetailerPool database.
+TRACE: Locate the javax.resource.cci.ConnectionFactory connection factory interface.
+TRACE: Create a new connection factory named RetailerPoolCF.
+INFO: JDBC; Manufacturer
+
+---------------------------------------------------------------
+              Create data source                               
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    template            Oracle JDBC Driver                          
+    name                ManufacturerPool                                
+    JNDI                jdbc/ManufacturerResource                                
+    description         Data source for the Manufacturer Pool                                
+    dsAuthMech          BASIC_PASSWORD                            
+    database URL        jdbc:oracle:thin:@alpha:1521:orcl                                
+    auth alias          alphaNode03/JVManufacturer                             
+---------------------------------------------------------------
+
+TRACE: Get the Oracle JDBC Driver data source template.
+TRACE: Get the ID for the Capstone Oracle JDBC Driver provider.
+TRACE: Create a new data source named ManufacturerPool.
+
+---------------------------------------------------------------
+              Create connection factory                        
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    name                ManufacturerPool                                
+ Connection factory:                                           
+    name                ManufacturerPoolCF                                
+    auth mechanism      BASIC_PASSWORD                            
+    auth alias          alphaNode03/JVManufacturer                             
+    interface           javax.resource.cci.ConnectionFactory                                   
+---------------------------------------------------------------
+
+TRACE: Get the ID for the default relational resource adapter and the ID for the ManufacturerPool data source.
+TRACE: Create the ManufacturerPoolCF connection factory for the ManufacturerPool database.
+TRACE: Locate the javax.resource.cci.ConnectionFactory connection factory interface.
+TRACE: Create a new connection factory named ManufacturerPoolCF.
+INFO: JDBC; Jms
+
+---------------------------------------------------------------
+              Create data source                               
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    template            Oracle JDBC Driver                          
+    name                JMSPool                                
+    JNDI                jdbc/JMSPool                                
+    description         Data source for the JMS Pool                                
+    dsAuthMech          BASIC_PASSWORD                            
+    database URL        jdbc:oracle:thin:@alpha:1521:orcl                                
+    auth alias          alphaNode03/JVJms                             
+---------------------------------------------------------------
+
+TRACE: Get the Oracle JDBC Driver data source template.
+TRACE: Get the ID for the Capstone Oracle JDBC Driver provider.
+TRACE: Create a new data source named JMSPool.
+
+---------------------------------------------------------------
+              Create connection factory                        
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ JDBC provider:                                                
+    name                Capstone Oracle JDBC Driver                          
+ Datasource:                                                   
+    name                JMSPool                                
+ Connection factory:                                           
+    name                JMSPoolCF                                
+    auth mechanism      BASIC_PASSWORD                            
+    auth alias          alphaNode03/JVJms                             
+    interface           javax.resource.cci.ConnectionFactory                                   
+---------------------------------------------------------------
+
+TRACE: Get the ID for the default relational resource adapter and the ID for the JMSPool data source.
+TRACE: Create the JMSPoolCF connection factory for the JMSPool database.
+TRACE: Locate the javax.resource.cci.ConnectionFactory connection factory interface.
+TRACE: Create a new connection factory named JMSPoolCF.
+INFO: JMS
+
+---------------------------------------------------------------
+              Create SI bus                                    
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ SI bus:                                                       
+    name                alphaNode03CapstoneBus                             
+    description         Messaging bus for capstone                             
+    secure              false (true or false)           
+---------------------------------------------------------------
+
+INFO: Create a new SI bus named alphaNode03CapstoneBus.
+
+---------------------------------------------------------------
+              Add SI bus member                                
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ SI bus:                                                       
+    name                alphaNode03CapstoneBus                                 
+---------------------------------------------------------------
+
+TRACE: Add the server named server1 to the bus.
+
+---------------------------------------------------------------
+              Enable service                                   
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ Service:                                                      
+    name                SIBService                           
+---------------------------------------------------------------
+
+TRACE: Get the ID for the SIBService service.
+INFO: The SIBService service is already enabled.
+INFO: JMS; Supplier
+
+---------------------------------------------------------------
+              Create SIB JMS connection factory                
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+ Connection factory:                                           
+    name                SupplierMdb1QueueConnectionFactory                             
+    JNDI                jms/SupplierMdb1QueueConnectionFactory                             
+    description         Capstone SIB JMS ConnectionFactory                             
+    type                queue                             
+    auth alias                                       
+ SI bus:                                                       
+    name                alphaNode03CapstoneBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS connection factory named SupplierMdb1QueueConnectionFactory.
+
+---------------------------------------------------------------
+              Create SIB JMS queue                             
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+ SIB JMS queue:                                                
+    name                SupplierMdb1PhysicalQueue                              
+    JNDI                jms/SupplierMdb1Queue                              
+    description         Capstone WebSphere SupplierMdb1 Queue                              
+    SIB queue           SIBSupplierMdb1Queue                              
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS queue named SupplierMdb1PhysicalQueue.
+
+---------------------------------------------------------------
+              Create SIB queue                                 
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ SIB queue:                                                    
+    name                SIBSupplierMdb1Queue                              
+ SI bus:                                                       
+    name                alphaNode03CapstoneBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB queue named SIBSupplierMdb1Queue.
+
+---------------------------------------------------------------
+              Create SIB JMS activation spec                   
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+ Activation spec:                                              
+    name                SupplierMdb1QueueActivationSpec                    
+    JNDI                eis/SupplierMdb1QueueActivationSpec                
+    destination JNDI    jms/SupplierMdb1Queue                              
+    destination type    javax.jms.Queue                       
+    auth alias                                       
+ SI bus:                                                       
+    name                alphaNode03CapstoneBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS activation spec named SupplierMdb1QueueActivationSpec.
+INFO: JMS; Distributor 1
+
+---------------------------------------------------------------
+              Create SIB JMS connection factory                
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+ Connection factory:                                           
+    name                DistributorMdb1QueueConnectionFactory                             
+    JNDI                jms/DistributorMdb1QueueConnectionFactory                             
+    description         Capstone SIB JMS ConnectionFactory                             
+    type                queue                             
+    auth alias                                       
+ SI bus:                                                       
+    name                alphaNode03CapstoneBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS connection factory named DistributorMdb1QueueConnectionFactory.
+
+---------------------------------------------------------------
+              Create SIB JMS queue                             
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+ SIB JMS queue:                                                
+    name                DistributorMdb1PhysicalQueue                              
+    JNDI                jms/DistributorMdb1Queue                              
+    description         Capstone WebSphere DistributorMdb1 Queue                              
+    SIB queue           SIBDistributorMdb1Queue                              
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS queue named DistributorMdb1PhysicalQueue.
+
+---------------------------------------------------------------
+              Create SIB queue                                 
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ SIB queue:                                                    
+    name                SIBDistributorMdb1Queue                              
+ SI bus:                                                       
+    name                alphaNode03CapstoneBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB queue named SIBDistributorMdb1Queue.
+
+---------------------------------------------------------------
+              Create SIB JMS activation spec                   
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+ Activation spec:                                              
+    name                DistributorMdb1QueueActivationSpec                    
+    JNDI                eis/DistributorMdb1QueueActivationSpec                
+    destination JNDI    jms/DistributorMdb1Queue                              
+    destination type    javax.jms.Queue                       
+    auth alias                                       
+ SI bus:                                                       
+    name                alphaNode03CapstoneBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS activation spec named DistributorMdb1QueueActivationSpec.
+INFO: JMS; Distributor 2
+
+---------------------------------------------------------------
+              Create SIB JMS connection factory                
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+ Connection factory:                                           
+    name                DistributorMdb2QueueConnectionFactory                             
+    JNDI                jms/DistributorMdb2QueueConnectionFactory                             
+    description         Capstone SIB JMS ConnectionFactory                             
+    type                queue                             
+    auth alias                                       
+ SI bus:                                                       
+    name                alphaNode03CapstoneBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS connection factory named DistributorMdb2QueueConnectionFactory.
+
+---------------------------------------------------------------
+              Create SIB JMS queue                             
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+ SIB JMS queue:                                                
+    name                DistributorMdb2PhysicalQueue                              
+    JNDI                jms/DistributorMdb2Queue                              
+    description         Capstone WebSphere DistributorMdb2 Queue                              
+    SIB queue           SIBDistributorMdb2Queue                              
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS queue named DistributorMdb2PhysicalQueue.
+
+---------------------------------------------------------------
+              Create SIB queue                                 
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+    server              server1                            
+ SIB queue:                                                    
+    name                SIBDistributorMdb2Queue                              
+ SI bus:                                                       
+    name                alphaNode03CapstoneBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB queue named SIBDistributorMdb2Queue.
+
+---------------------------------------------------------------
+              Create SIB JMS activation spec                   
+---------------------------------------------------------------
+ Scope:                                                        
+    node                alphaNode03                              
+ Activation spec:                                              
+    name                DistributorMdb2QueueActivationSpec                    
+    JNDI                eis/DistributorMdb2QueueActivationSpec                
+    destination JNDI    jms/DistributorMdb2Queue                              
+    destination type    javax.jms.Queue                       
+    auth alias                                       
+ SI bus:                                                       
+    name                alphaNode03CapstoneBus                             
+---------------------------------------------------------------
+
+TRACE: Create a new SIB JMS activation spec named DistributorMdb2QueueActivationSpec.
+INFO: Save configuration
+
+---------------------------------------------------------------
+              Save                                             
+---------------------------------------------------------------
+
+INFO: Script completed
+wsadmin script is complete

@@ -1,0 +1,15 @@
+proc JVisAppInstalled {appName} {
+
+	global AdminApp;
+
+#--------------------------------------------------------------------
+# Check if the application is already deployed
+#--------------------------------------------------------------------
+
+	set deployedApps [$AdminApp list];
+	if { [lsearch $deployedApps $appName] != -1 } {
+		JVputInfo "The $appName application is already deployed.";
+		return true;
+	}
+	return false;
+}

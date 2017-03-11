@@ -1,0 +1,62 @@
+
+#------------------------------------------------------------------
+# handle included scripts
+#------------------------------------------------------------------
+
+source /opt/jvconfig/websphere/jacl/99/JVSourceAll.jacl;
+
+source myAddNSBEjb.jacl;
+source myAddNSBString.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "Starting";
+
+#--------------------------------------------------------------------
+#  load properties file
+#--------------------------------------------------------------------
+
+set myPropertiesFile "nsb.properties";
+JVputInfo "Loading Properties file $myPropertiesFile";
+set fileprops [JVloadProperties $myPropertiesFile];
+JVputTrace "JVloadProperties.jacl; code $fileprops";
+if {$fileprops == 0} {
+	JVputError "Load Properties failed";
+	exit 1;
+}
+JVputInfo "Loaded Properties file";
+
+#--------------------------------------------------------------------
+# get properties
+#--------------------------------------------------------------------
+
+set CellName [JVgetProperty $fileprops "JVCell"];
+set NodeName [JVgetProperty $fileprops "JVNode"];
+set ServerName [JVgetProperty $fileprops "JVServer"];
+
+JVputInfo "---------------------------------------------------------------";
+JVputInfo " ";
+JVputInfo " Scope:                                                        ";
+JVputInfo "    cell                $CellName                            ";
+JVputInfo "    node                $NodeName                            ";
+JVputInfo "    server              $ServerName                          ";
+JVputInfo "---------------------------------------------------------------";
+
+set bindingLocation "SINGLESERVER";
+#JVaddNSBEjb $CellName $NodeName $ServerName "" "ejb/old/com/hertz/irac/autoshutdown/WebsiteShutdownManagerHome" $bindingLocation  "";
+
+set myCell "localhost";
+set myNode "localhost";
+# myAddNSBEjb $myCell $myNode $ServerName "" "ejb/old_1/com/hertz/irac/autoshutdown/WebsiteShutdownManagerHome" $bindingLocation  "";
+
+myAddNSBEjb $CellName $myNode $ServerName "" "ejb/old2/com/hertz/irac/autoshutdown/WebsiteShutdownManagerHome" $bindingLocation  "";
+
+JVputInfo "Save configuration";
+JVsave;
+
+JVputInfo "Script completed";
+exit 0;
+

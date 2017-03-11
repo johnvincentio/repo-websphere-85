@@ -1,0 +1,347 @@
+
+proc JVcreateDatasourceAS400DB2 {NodeName ServerName providerName templateName dsName dsJNDI dsDesc dsAuthMech authAlias dbName dbSrvName dbHelper dbLibraries} {
+
+   global AdminConfig;
+
+#--------------------------------------------------------------------
+# Create DataSource
+#--------------------------------------------------------------------
+
+   if {$dsDesc == ""} {set dsDesc $dsJNDI;}
+   if {$dsName == ""} {set dsName $dsJNDI;}
+   set aliasName $dsName;
+   regsub -all "/" $aliasName "_" dsName;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create data source                               ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName           ";
+   puts "    server              $ServerName         ";
+   puts " JDBC provider:                             ";
+   puts "    name                $providerName       ";
+   puts " Datasource:                                ";
+   puts "    template            $templateName       ";
+   puts "    name                $dsName             ";
+   puts "    JNDI                $dsJNDI             ";
+   puts "    description         $dsDesc             ";
+   puts "    dsAuthMech          $dsAuthMech         ";
+   puts "    auth alias          $authAlias          ";
+   puts " Database:                                  ";
+   puts "    Name                $dbName             ";
+   puts "    Server              $dbSrvName          ";
+   puts "    HelperClass         $dbHelper           ";
+   puts "    Libraries           $dbLibraries        ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   set ds [$AdminConfig getid /Node:$NodeName/Server:$ServerName/JDBCProvider:$providerName/DataSource:$dsName]
+#   JVputTrace "***** ds $ds";
+   if {[llength $ds] != 0} {
+      JVputInfo "The $dsName data source already exists.";
+      return;
+   }
+  
+#--------------------------------------------------------------------
+# Get the config id for a DataSource Template
+# Use "lindex" in case there is more than one matching templates (we
+# just get the first one) 
+#--------------------------------------------------------------------
+
+   JVputTrace "Get the $templateName data source template.";
+   set template [lindex [$AdminConfig listTemplates DataSource $templateName] 0];
+ #  JVputTrace "***** template $template";
+   if {[llength $template] == 0} {
+      JVthrow "The $templateName data source template could not be found.";
+   }
+
+#--------------------------------------------------------------------
+# Get the config id for the provider 
+#--------------------------------------------------------------------
+  
+   JVputTrace "Get the ID for the $providerName provider.";
+   set providerID [$AdminConfig getid /Node:$NodeName/Server:$ServerName/JDBCProvider:$providerName];
+#   JVputTrace "***** providerID $providerID";
+   if {[llength $providerID] == 0} {
+      JVthrow "The ID for the /Node:$NodeName/Server:$ServerName/JDBCProvider:$providerName could not be found.";
+   }
+
+#--------------------------------------------------------------------
+# Create a new Datasource using this template 
+# Note: This datasource will use the built in default RRA
+#--------------------------------------------------------------------
+
+   JVputTrace "Create a new data source named $dsName.";
+   set rraID [$AdminConfig getid "/Node:$NodeName/Server:$ServerName/J2CResourceAdapter:WebSphere Relational Resource Adapter/"];
+#   JVputTrace "***** rraID $rraID";
+
+#--------------------------------------------------------------------
+#	Create the attributes
+#--------------------------------------------------------------------
+
+   set name_attr         [list name $dsName];
+   set jndiName_attr     [list jndiName $dsJNDI];
+   set desc_attr         [list description $dsDesc];
+   set authMechPref_attr [list authMechanismPreference $dsAuthMech];
+   set xaRecoveryAuthAlias_attr [list xaRecoveryAuthAlias ""];
+   set rra [list relationalResourceAdapter $rraID];
+   set dbHelper_attr [list datasourceHelperClassname $dbHelper];
+#   JVputTrace "***** name_attr $name_attr";
+#   JVputTrace "***** jndiName_attr $jndiName_attr";
+#   JVputTrace "***** desc_attr $desc_attr";
+#   JVputTrace "***** authMechPref_attr $authMechPref_attr";
+#   JVputTrace "***** xaRecoveryAuthAlias_attr $xaRecoveryAuthAlias_attr";
+#   JVputTrace "***** dbHelper_attr $dbHelper_attr";
+#   JVputTrace "***** rra $rra";
+
+#--------------------------------------------------------------------
+#	Create the properties
+#--------------------------------------------------------------------
+
+set props_01  [list [list name serverName] [list value $dbSrvName] [list type java.lang.String]];
+# name="serverName" type="java.lang.String" value="as4dev.hertz.com" required="true"/>
+
+set props_02  [list [list name access] [list value "all"] [list type java.lang.String]];
+# name="access" type="java.lang.String" value="all" required="false"/>
+
+set props_03  [list [list name blockSize] [list value "32"] [list type java.lang.Integer]];
+# name="blockSize" type="java.lang.Integer" value="32" required="false"/>
+
+set props_04  [list [list name blockCriteria] [list value "2"] [list type java.lang.Integer]];
+# name="blockCriteria" type="java.lang.Integer" value="2" required="false"/>
+
+set props_05  [list [list name cursorHold] [list value "false"] [list type java.lang.Boolean]];
+# name="cursorHold" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_06  [list [list name bidiStringType] [list value ""] [list type java.lang.Integer]];
+# name="bidiStringType" type="java.lang.Integer" value="" required="false"/>
+
+set props_07  [list [list name bigDecimal] [list value "true"] [list type java.lang.Boolean]];
+# name="bigDecimal" type="java.lang.Boolean" value="true" required="false"/>
+
+set props_08  [list [list name dataCompression] [list value "true"] [list type java.lang.Boolean]];
+# name="dataCompression" type="java.lang.Boolean" value="true" required="false"/>
+
+set props_09  [list [list name dataSourceName] [list value ""] [list type java.lang.String]];
+# name="dataSourceName" type="java.lang.String" value="" required="false"/>
+
+set props_10  [list [list name dataTruncation] [list value "true"] [list type java.lang.Boolean]];
+# name="dataTruncation" type="java.lang.Boolean" value="true" required="false"/>
+
+set props_11  [list [list name databaseName] [list value $dbName] [list type java.lang.String]];
+# name="databaseName" type="java.lang.String" value="" required="false"/>
+
+set props_12  [list [list name dateFormat] [list value ""] [list type java.lang.String]];
+# name="dateFormat" type="java.lang.String" value="" required="false"/>
+
+set props_13  [list [list name dateSeparator] [list value ""] [list type java.lang.String]];
+# name="dateSeparator" type="java.lang.String" value="" required="false"/>
+
+set props_14  [list [list name decimalSeparator] [list value ""] [list type java.lang.String]];
+# name="decimalSeparator" type="java.lang.String" value="" required="false"/>
+
+set props_15  [list [list name description] [list value $dsDesc] [list type java.lang.String]];
+# name="description" type="java.lang.String" value="" required="false"/>
+
+set props_16  [list [list name driver] [list value "toolbox"] [list type java.lang.String]];
+# name="driver" type="java.lang.String" value="toolbox" required="false"/>
+
+set props_17  [list [list name extendedDynamic] [list value "false"] [list type java.lang.Boolean]];
+# name="extendedDynamic" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_18  [list [list name extendedMetaData] [list value "false"] [list type java.lang.Boolean]];
+# name="extendedMetaData" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_19  [list [list name fullOpen] [list value "false"] [list type java.lang.Boolean]];
+# name="fullOpen" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_20  [list [list name lazyClose] [list value "false"] [list type java.lang.Boolean]];
+# name="lazyClose" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_21  [list [list name libraries] [list value "$dbLibraries"] [list type java.lang.String]];
+# name="libraries" type="java.lang.String" value="" required="false"/>
+
+set props_22  [list [list name lobThreshold] [list value "0"] [list type java.lang.Integer]];
+# name="lobThreshold" type="java.lang.Integer" value="0" required="false"/>
+
+set props_23  [list [list name naming] [list value "sql"] [list type java.lang.String]];
+# name="naming" type="java.lang.String" value="sql" required="false"/>
+
+set props_24  [list [list name package] [list value ""] [list type java.lang.String]];
+# name="package" type="java.lang.String" value="" required="false"/>
+
+set props_25  [list [list name packageAdd] [list value "true"] [list type java.lang.Boolean]];
+# name="packageAdd" type="java.lang.Boolean" value="true" required="false"/>
+
+set props_26  [list [list name packageCache] [list value "false"] [list type java.lang.Boolean]];
+# name="packageCache" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_27  [list [list name packageCriteria] [list value "default"] [list type java.lang.String]];
+# name="packageCriteria" type="java.lang.String" value="default" required="false"/>
+
+set props_28  [list [list name packageError] [list value "warning"] [list type java.lang.String]];
+# name="packageError" type="java.lang.String" value="warning" required="false"/>
+
+set props_29  [list [list name packageLibrary] [list value "QGPL"] [list type java.lang.String]];
+# name="packageLibrary" type="java.lang.String" value="QGPL" required="false"/>
+
+set props_30  [list [list name prefetch] [list value "true"] [list type java.lang.Boolean]];
+# name="prefetch" type="java.lang.Boolean" value="true" required="false"/>
+
+set props_31  [list [list name prompt] [list value "false"] [list type java.lang.Boolean]];
+# name="prompt" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_32  [list [list name proxyServer] [list value ""] [list type java.lang.String]];
+# name="proxyServer" type="java.lang.String" value="" required="false"/>
+
+set props_33  [list [list name remarks] [list value "system"] [list type java.lang.String]];
+# name="remarks" type="java.lang.String" value="system" required="false"/>
+
+set props_34  [list [list name secondaryUrl] [list value ""] [list type java.lang.String]];
+# name="secondaryUrl" type="java.lang.String" value="" required="false"/>
+
+set props_35  [list [list name secure] [list value "false"] [list type java.lang.String]];
+# name="secure" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_36  [list [list name serverTraceCategories] [list value "0"] [list type java.lang.Integer]];
+# name="serverTraceCategories" type="java.lang.Integer" value="0" required="false"/>
+
+set props_37  [list [list name sort] [list value "job"] [list type java.lang.String]];
+# name="sort" type="java.lang.String" value="job" required="false"/>
+
+set props_38  [list [list name sortLanguage] [list value ""] [list type java.lang.String]];
+# name="sortLanguage" type="java.lang.String" value="" required="false"/>
+
+set props_39  [list [list name sortTable] [list value ""] [list type java.lang.String]];
+# name="sortTable" type="java.lang.String" value="" required="false"/>
+
+set props_40  [list [list name sortWeight] [list value ""] [list type java.lang.String]];
+# name="sortWeight" type="java.lang.String" value=""  required="false"/>
+
+set props_41  [list [list name threadUsed] [list value "true"] [list type java.lang.Boolean]];
+# name="threadUsed" type="java.lang.Boolean" value="true" required="false"/>
+
+set props_42  [list [list name timeFormat] [list value ""] [list type java.lang.String]];
+# name="timeFormat" type="java.lang.String" value="" required="false"/>
+
+set props_43  [list [list name timeSeparator] [list value ""] [list type java.lang.String]];
+# name="timeSeparator" type="java.lang.String" value="" required="false"/>
+
+set props_44  [list [list name trace] [list value "false"] [list type java.lang.Boolean]];
+# name="trace" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_45  [list [list name translateBinary] [list value "false"] [list type java.lang.Boolean]];
+# name="translateBinary" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_46  [list [list name behaviorOverride] [list value ""] [list type java.lang.Integer]];
+# name="behaviorOverride" type="java.lang.Integer" value="" required="false"/>
+
+set props_47  [list [list name cursorSensitivity] [list value "asensitive"] [list type java.lang.String]];
+# name="cursorSensitivity" type="java.lang.String" value="asensitive" required="false"/>
+
+set props_48  [list [list name errors] [list value "basic"] [list type java.lang.String]];
+# name="errors" type="java.lang.String" value="basic" required="false"/>
+
+set props_49  [list [list name loginTimeout] [list value "0"] [list type java.lang.Integer]];
+# name="loginTimeout" type="java.lang.Integer" value="0" required="false"/>
+
+set props_50  [list [list name savePasswordWhenSerialized] [list value "false"] [list type java.lang.Boolean]];
+# name="savePasswordWhenSerialized" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_51  [list [list name keepAlive] [list value ""] [list type java.lang.Boolean]];
+# name="keepAlive" type="java.lang.Boolean" value="" required="false"/>
+
+set props_52  [list [list name receiveBufferSize] [list value ""] [list type java.lang.Integer]];
+# name="receiveBufferSize" type="java.lang.Integer" value="" required="false"/>
+
+set props_53  [list [list name sendBufferSize] [list value ""] [list type java.lang.Integer]];
+# name="sendBufferSize" type="java.lang.Integer" value="" required="false"/>
+
+set props_54  [list [list name soLinger] [list value ""] [list type java.lang.Integer]];
+# name="soLinger" type="java.lang.Integer" value="" required="false"/>
+
+set props_55  [list [list name soTimeout] [list value ""] [list type java.lang.Integer]];
+# name="soTimeout" type="java.lang.Integer" value="" required="false"/>
+
+set props_56  [list [list name tcpNoDelay] [list value ""] [list type java.lang.Boolean]];
+# name="tcpNoDelay" type="java.lang.Boolean" value="" required="false"/>
+
+set props_57  [list [list name bidiImplicitReordering] [list value "true"] [list type java.lang.Boolean]];
+# name="bidiImplicitReordering" type="java.lang.Boolean" value="true" />
+
+set props_58  [list [list name bidiNumericOrdering] [list value "false"] [list type java.lang.Boolean]];
+# name="bidiNumericOrdering" type="java.lang.Boolean" value="false" />
+
+set props_59  [list [list name maximumPrecision] [list value "31"] [list type java.lang.Integer]];
+# name="maximumPrecision" type="java.lang.Integer" value="31"/>
+
+set props_60  [list [list name maximumScale] [list value "31"] [list type java.lang.Integer]];
+# name="maximumScale" type="java.lang.Integer" value="31" />
+
+set props_61  [list [list name minimumDivideScale] [list value "0"] [list type java.lang.Integer]];
+# name="minimumDivideScale" type="java.lang.Integer" value="0" />
+
+set props_62  [list [list name packageCCSID] [list value "13488"] [list type java.lang.Integer]];
+# name="packageCCSID" type="java.lang.Integer" value="13488" />
+
+#set props_63  [list [list name qaqqiniLibrary] [list value "server default"] [list type java.lang.String]];
+# name="qaqqiniLibrary" type="java.lang.String" value="server default" />
+
+set props_64  [list [list name toolboxTrace] [list value "none"] [list type java.lang.String]];
+# name="toolboxTrace" type="java.lang.String" value="none" />
+
+set props_65  [list [list name translateHex] [list value "character"] [list type java.lang.String]];
+# name="translateHex" type="java.lang.String" value="character" />
+
+set props_66  [list [list name trueAutoCommit] [list value "false"] [list type java.lang.Boolean]];
+# name="trueAutoCommit" type="java.lang.Boolean" value="false" />
+
+set props_67  [list [list name enableMultithreadedAccessDetection] [list value "false"] [list type java.lang.Boolean]];
+# name="enableMultithreadedAccessDetection" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_68  [list [list name reauthentication] [list value "false"] [list type java.lang.Boolean]];
+# name="reauthentication" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_69  [list [list name jmsOnePhaseOptimization] [list value "false"] [list type java.lang.Boolean]];
+# name="jmsOnePhaseOptimization" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_70  [list [list name preTestSQLString] [list value "SELECT 1 FROM TABLE1"] [list type java.lang.String]];
+# name="preTestSQLString" type="java.lang.String" value="SELECT 1 FROM TABLE1" required="false"/>
+
+set props_71  [list [list name dbFailOverEnabled] [list value "false"] [list type java.lang.Boolean]];
+# name="dbFailOverEnabled" type="java.lang.Boolean" value="false" required="false"/>
+
+set props_72  [list [list name connRetriesDuringDBFailover] [list value "100"] [list type java.lang.Integer]];
+# name="connRetriesDuringDBFailover" type="java.lang.Integer" value="100" required="false"/>
+
+set props_73  [list [list name connRetryIntervalDuringDBFailover] [list value "3000"] [list type java.lang.Long]];
+# name="connRetryIntervalDuringDBFailover" type="java.lang.Long" value="3000" required="false"/>
+
+set props_74  [list [list name isolationLevelSwitchingSupport] [list value "false"] [list type java.lang.Boolean]];
+# name="isolationLevelSwitchingSupport" type="java.lang.Boolean" value="false" required="false"/>
+
+   set newprops  [list $props_01 $props_02 $props_03 $props_04 $props_05 $props_06 $props_07 $props_08 $props_09 $props_10 $props_11 $props_12 $props_13 $props_14 $props_15 $props_16 $props_17 $props_18 $props_19 $props_20 $props_21 $props_22 $props_23 $props_24 $props_25 $props_26 $props_27 $props_28 $props_29 $props_30 $props_31 $props_32 $props_33 $props_34 $props_35 $props_36 $props_37 $props_38 $props_39 $props_40 $props_41 $props_42 $props_43 $props_44 $props_45 $props_46 $props_47 $props_48 $props_49 $props_50 $props_51 $props_52 $props_53 $props_54 $props_55 $props_56 $props_57 $props_58 $props_59 $props_60 $props_61 $props_62 $props_64 $props_65 $props_66 $props_67 $props_68 $props_69 $props_70 $props_71 $props_72 $props_73 $props_74];
+
+   set resprops          [list resourceProperties $newprops];
+   set ps_attr           [list propertySet [list $resprops]];
+#   JVputTrace "***** newprops $newprops ";
+#   JVputTrace "***** resprops $resprops ";
+#   JVputTrace "***** ps_attr $ps_attr";
+
+# check if mapping needed
+
+   if { !($authAlias == "N_O_N_E") } {
+      set map_auth_attr   [list authDataAlias $authAlias];
+#      set map_configalias_attr [list mappingConfigAlias "DefaultPrincipalMapping"];
+      set map_configalias_attr [list mappingConfigAlias ""];
+      set map_attrs       [list $map_auth_attr $map_configalias_attr];
+      set mapping_attr    [list mapping $map_attrs];
+      set attrs           [list $name_attr $jndiName_attr $xaRecoveryAuthAlias_attr $dbHelper_attr $desc_attr $rra $authMechPref_attr $map_auth_attr $ps_attr $mapping_attr];
+   } else {
+      set attrs           [list $name_attr $jndiName_attr $desc_attr $rra $authMechPref_attr $ps_attr];
+   }
+#   JVputTrace "***** attrs $attrs";
+   set newDS [$AdminConfig createUsingTemplate DataSource $providerID $attrs $template];
+
+}

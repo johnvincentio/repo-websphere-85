@@ -1,0 +1,107 @@
+
+proc JVcreateMQTopicConnectionFactory {NodeName MQJMSProvider mqchannel tcfname tcfdesc mqhname mqport mqqmgr mqjndi} {   
+
+   global AdminConfig;
+
+#--------------------------------------------------------------------
+# Create MQ Topic connection factory
+#--------------------------------------------------------------------
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create MQ Topic connection factory               ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    Node                $NodeName                              ";
+   puts " Connection Factory:                                           ";
+   puts "    MQ JMS Provider     $MQJMSProvider                         ";
+   puts "    Channel             $mqchannel                             ";
+   puts "    Name                $tcfname                               ";
+   puts "    Description         $tcfdesc                               ";
+   puts "    Host                $mqhname                               ";
+   puts "    Port                $mqport                                ";
+   puts "    Queue Manager       $mqqmgr                                ";
+   puts "    JNDI                $mqjndi                                ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   puts "Checking if already exists";
+   set mqcfID [$AdminConfig getid "/Node:$NodeName/JMSProvider:$MQJMSProvider/MQTopicConnectionFactory:$tcfname"];
+   if {[llength $mqcfID] != 0} {
+      JVputInfo "The $tcfname MQ Connection Factory already exists.";
+      return;
+   }
+
+   puts "Getting MQ JMS Provider ID";
+   set mqcfID [$AdminConfig getid "/Node:$NodeName/JMSProvider:$MQJMSProvider"];
+#   puts "mqcfID $mqcfID";
+#   return;
+
+   puts "Setting core attributes";
+   set attrs01       [ list name "$tcfname"        ];
+   set attrs02       [ list jndiName $mqjndi       ];
+   set attrs03       [ list description "$tcfdesc" ];
+   set attrs04       [ list XAEnabled true         ];
+   set attrs05       [ list host $mqhname          ];
+   set attrs06       [ list port $mqport           ];
+   set attrs07       [ list transportType CLIENT   ];
+   set attrs08       [ list channel $mqchannel     ];
+   set attrs09       [ list queueManager $mqqmgr   ];
+   set core_attrs [ list $attrs01 $attrs02  $attrs03 $attrs04 $attrs05 $attrs06 $attrs07 $attrs08 $attrs09 ];
+
+   puts "Setting non-core attributes";
+   set attrs10       [ list brokerVersion MQSI            ];
+   set attrs11       [ list cloneSupport false            ];
+   set attrs12       [ list pubSubCleanup SAFE            ];
+   set attrs13       [ list pubSubCleanupInterval 3600000 ];
+   set attrs14       [ list msgSelection BROKER           ];
+   set attrs15       [ list publishAckInterval 25         ];
+   set attrs16       [ list sparseSubscriptions false     ];
+   set attrs17       [ list statRefreshInterval 60000     ];
+   set attrs18       [ list substore MIGRATE              ];
+   set attrs19       [ list multicast DISABLED            ];
+   set attrs20       [ list directAuth BASIC              ];
+   set attrs21       [ list failIfQuiesce true            ];
+   set attrs22       [ list pollingInterval 5000          ];
+   set attrs23       [ list rescanInterval 5000           ];
+   set attrs24       [ list useConnectionPooling true     ];
+   set noncore_attrs_1 [ list $attrs10 $attrs11  $attrs12 $attrs13 $attrs14 $attrs15 $attrs16 $attrs17 $attrs18 $attrs19 ];
+   set noncore_attrs_2 [ list $attrs20 $attrs21  $attrs22 $attrs23 $attrs24 ];
+
+   puts "Setting connection pool attributes";
+   set attrs50          [ list connectionTimeout 180  ];
+   set attrs51          [ list maxConnections 100     ];
+   set attrs52          [ list minConnections 1       ];
+   set attrs53          [ list reapTime 180           ];
+   set attrs54          [ list unusedTimeout 1800     ];
+   set attrs55          [ list agedTimeout 0          ]; 
+   set attrs56          [ list purgePolicy EntirePool ];
+   set connectionPool   [ list connectionPool [list $attrs50 $attrs51 $attrs52 $attrs53 $attrs54 $attrs55 $attrs56 ] ];
+
+   puts "Setting mapping attributes";
+   set attrs60     [ list mappingConfigAlias DefaultPrincipalMapping ];
+   set attrs61     [ list authDataAlias none     ];
+   set mapping     [ list mapping [list $attrs60 $attrs61 ] ];
+
+   puts "Setting session pool attributes";
+   set attrs70     [ list connectionTimeout 180  ];  
+   set attrs71     [ list maxConnections 100     ];
+   set attrs72     [ list minConnections 1       ];
+   set attrs73     [ list reapTime 180           ];
+   set attrs74     [ list unusedTimeout 1800     ];
+   set attrs75     [ list agedTimeout 0          ];     
+   set attrs76     [ list purgePolicy EntirePool ];
+   set sessionPool [ list sessionPool [ list $attrs70 $attrs71 $attrs72 $attrs73 $attrs74 $attrs75 $attrs76 ] ];
+
+#   set all_attrs	"$core_attrs $noncore_attrs_1 $noncore_attrs_2 $connectionPool $mapping $sessionPool";
+#   set all_attrs   [list $name_attr $jndiName_attr $desc_attr $rra $authMechPref_attr $ps_attr];
+
+   set all_attrs   [ list $attrs01 $attrs02 $attrs03 $attrs04 $attrs05 $attrs06 $attrs07 $attrs08 $attrs09 $attrs10 $attrs11 $attrs12 $attrs13 $attrs14 $attrs15 $attrs16 $attrs17 $attrs18 $attrs19 $attrs20 $attrs21 $attrs22 $attrs23 $attrs24 $connectionPool $mapping $sessionPool ];
+#   puts " all_attrs = $all_attrs";
+
+   puts "Creating MQ Connection Factory";
+   if { [ catch { $AdminConfig create MQTopicConnectionFactory $mqcfID $all_attrs } r ] != 0 } {
+      puts "\Error creating MQTopicConnectionFactory $mqcfID. Reason: $r\n";
+      return;
+   }
+}

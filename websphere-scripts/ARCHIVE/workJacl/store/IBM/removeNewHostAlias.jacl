@@ -1,0 +1,108 @@
+source @WpsInstallLocation@/config/work/was/msglog.jacl
+set logger [getLogger]
+set FileName "removeNewHostAlias.jacl"
+
+set HostPortList ""
+set CellName [lindex $argv 0]
+set VirtualHostName [lindex $argv 1]
+for {set i 2} {$i < $argc} {incr i} { 
+    lappend HostPortList [lindex $argv $i]
+}
+
+puts "CellName : $CellName"
+puts "VirtualHostName : $VirtualHostName"
+puts "HostPortList : $HostPortList"
+puts " "
+
+
+for {set i 0} {$i < [llength $HostPortList]} {incr i} { 
+	set HostPort [lindex $HostPortList $i]
+
+    #--------------------------------------------------------------
+    # Check if HostAlias for Port "HostPort" in VirtualHost "VirtualHostName" is there
+    #--------------------------------------------------------------
+    set VirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+    if {$VirtualHostId == ""} {
+        logMsgOneParm $logger "SEVERE" "$FileName" "Config.object.notexist.failure" "VirtualHost: /Cell:$CellName/VirtualHost:$VirtualHostName/"
+        logMsgOneParm $logger "SEVERE" "$FileName" "Config.object.create.failure" "HostAlias: /Cell:$CellName/VirtualHost:$VirtualHostName/HostAlias:/(Port $HostPort)"
+        exit 1
+    }
+    set HostAliasList [$AdminConfig show $VirtualHostId aliases]
+    set HostAlias {}
+    set FlagExist "False"
+    if {[lindex [lindex $HostAliasList 0] 1] != ""} {
+        set TmpList [split [lindex [lindex $HostAliasList 0] 1] ")"]
+	    foreach Tmp $TmpList {
+    		set Tmp [string trim $Tmp " "]
+	    	append Tmp ")"
+		    if { [string length $Tmp] > 1} {
+			    lappend HostAlias $Tmp
+    		}
+	    }
+	    foreach TmpHostAlias $HostAlias {
+		    if {[catch {$AdminConfig showAttribute $TmpHostAlias port} TmpPort]} {
+			    puts stdout $TmpPort
+    			puts stdout "ERROR: In '/VirtualHost:$VirtualHostName/'."
+	    		puts stdout "This is not a valid HostAlias."
+		    	puts stdout $TmpHostAlias
+			    set LocalFlagErr true
+    		} else {
+	    		if {[string compare $TmpPort $HostPort] == 0} {
+		    		set FlagExist "True"
+                    break
+                }
+    		}
+    	}
+    }
+
+
+    if {$FlagExist == "False"} {
+        logMsgOneParm $logger "WARNING" "$FileName" "Config.object.notexist.success" "HostAlias: /Cell:$CellName/VirtualHost:$VirtualHostName/HostAlias:/(Port $HostPort)"
+    } else {
+	    
+        # Remove HostAlias for Port "HostPort"
+        $AdminConfig remove $TmpHostAlias
+    	
+        # check for success
+        set VirtualHostId [$AdminConfig getid /Cell:$CellName/VirtualHost:$VirtualHostName/]
+        if {$VirtualHostId == ""} {
+            logMsgOneParm $logger "SEVERE" "$FileName" "Config.object.notexist.failure" "VirtualHost: /Cell:$CellName/VirtualHost:$VirtualHostName/"
+            logMsgOneParm $logger "SEVERE" "$FileName" "Config.object.create.failure" "HostAlias: /Cell:$CellName/VirtualHost:$VirtualHostName/HostAlias:/(Port $HostPort)"
+            exit 1
+        }
+        set HostAliasList [$AdminConfig show $VirtualHostId aliases]
+        set HostAlias {}
+        set FlagExist "False"
+        if {[lindex [lindex $HostAliasList 0] 1] != ""} {
+            set TmpList [split [lindex [lindex $HostAliasList 0] 1] ")"]
+            foreach Tmp $TmpList {
+			    set Tmp [string trim $Tmp " "]
+			    append Tmp ")"
+   				if { [string length $Tmp] > 1} {
+    				lappend HostAlias $Tmp
+	    		}
+		    }
+		    foreach TmpHostAlias $HostAlias {
+			    if {[catch {$AdminConfig showAttribute $TmpHostAlias port} TmpPort]} {
+				    puts stdout $TmpPort
+   					puts stdout "ERROR: In '/VirtualHost:$VirtualHostName/'."
+    				puts stdout "This is not a valid HostAlias."
+	    			puts stdout $TmpHostAlias
+		    		set LocalFlagErr true
+   				} else {
+    				if {[string compare $TmpPort $HostPort] == 0} {
+	    				set FlagExist "True"
+		    			break
+				    }
+			    }
+		    }
+	    }
+        
+    	if {$FlagExist == "False"} {
+            logMsgOneParm $logger "INFO" "$FileName" "Config.object.remove.success" "HostAlias: /Cell:$CellName/VirtualHost:$VirtualHostName/HostAlias:/(Port $HostPort)"
+		    $AdminConfig save
+    	} else {
+            logMsgOneParm $logger "SEVERE" "$FileName" "Config.object.remove.failure" "HostAlias: /Cell:$CellName/VirtualHost:$VirtualHostName/HostAlias:/(Port $HostPort)"
+	    }
+    }
+}

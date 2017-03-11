@@ -1,0 +1,236 @@
+##  WAS 5.0 - Security - Config
+##  /config/templates/was/SecurityConfigCUR.jacl
+##------------------------------------------------------------------------------
+## This file provides scripts to configure  WebSphere Application Server security
+##		Custom User Registry
+##------------------------------------------------------------------------------
+
+proc setProperties {} {
+
+	##----- Global Security Panel
+	global enabled enforceJava2Security useDomainQualifiedUserNames cacheTimeout issuePermissionWarning
+	global activeProtocol activeAuthMech activeUR
+	##----- LTPA Panel
+	global LTPAPassword LTPATimeout LTPAKeyFile
+	##----- SSO Panel
+	global SSOEnabled SSORequiresSSL SSODomainName
+	##----- Custom User Registry Panel
+	global CUServerId CUServerPassword CUClassName
+	
+	global DbType
+	set DbType {@DbType@}
+
+	set enabled {true}
+	set activeUR {Custom}
+	### Note: We have a hidden key 'enforceJava2Security' and as long as you don't add it
+	###	to wpconfig.properties, the installer will use "false").
+	set enforceJava2Security {@enforceJava2Security@}
+	set useDomainQualifiedUserNames {@useDomainQualifiedUserNames@}
+	set cacheTimeout {@cacheTimeout@}
+	set issuePermissionWarning {@issuePermissionWarning@}
+	set activeProtocol {@activeProtocol@}
+	set activeAuthMech {@activeAuthMechanism@}
+	
+	set LTPAPassword {@LTPAPassword@}
+	set LTPATimeout {@LTPATimeout@}
+#	set LTPAKeyFile {@LTPAKeyFile@}
+	
+	set SSOEnabled {@SSOEnabled@}
+	set SSORequiresSSL {@SSORequiresSSL@}
+	set SSODomainName {@SSODomainName@}
+	
+	set CUServerId {@WasUserid@}
+	set CUServerPassword {@WasPassword@}
+	set CUClassName {@CUClassName@}
+}
+
+#######################################
+# Config the Global Security
+#######################################
+proc configGlobalSecurity {} {
+	global AdminConfig security_item validationResult
+	global enabled enforceJava2Security useDomainQualifiedUserNames cacheTimeout issuePermissionWarning
+	global activeProtocol activeUR activeAuthMech
+	
+	puts stdout "===== in configGlobalSecurity"
+	set attrib {}
+	
+	if {$enabled != {}} {
+		lappend attrib [list enabled $enabled]
+	}
+	if {$enforceJava2Security != {}} {
+		lappend attrib [list enforceJava2Security $enforceJava2Security]
+	}
+	if {$useDomainQualifiedUserNames != {}} {
+		lappend attrib [list useDomainQualifiedUserNames $useDomainQualifiedUserNames]
+	}
+	if {$cacheTimeout != {}} {
+		lappend attrib [list cacheTimeout $cacheTimeout]
+	}
+	if {$issuePermissionWarning != {}} {
+		lappend attrib [list issuePermissionWarning $issuePermissionWarning]
+	}
+	if {$activeProtocol != {}} {
+		lappend attrib [list activeProtocol $activeProtocol]
+	}
+	if {$activeAuthMech != {}} {
+		setAuthMech $activeAuthMech
+	}
+	if {$activeUR != {}} {
+		setActiveUserRegistry $activeUR
+	}
+	if {[llength attrib] != 0} {
+		$AdminConfig modify $security_item $attrib
+		if {[string match [validateGlobalSecurity] false]} {
+			set validationResult false
+		}
+	}
+}
+
+proc configLTPA {} {
+	global AdminConfig LTPA LTPAPassword LTPATimeout
+	
+	puts stdout "===== in configLTPA"
+	set attrib {}
+	
+	if {$LTPAPassword != {}} {
+		setLTPAPassword $LTPAPassword
+	} else {
+		puts stdout "Error: LTPA password needs to be set"
+		exit 1
+	}
+
+	if {$LTPATimeout != {}} {
+		lappend attrib [list timeout $LTPATimeout]
+	}
+
+	$AdminConfig modify $LTPA $attrib
+	if {[string match [validateLTPA] false]} {
+		set validationResult false
+	}
+}
+
+proc configSSO {} {
+	global AdminConfig
+	global SSOEnabled SSORequiresSSL SSODomainName
+	set attrib {}
+	
+	if {$SSOEnabled != {}} {
+		lappend attrib [list enabled $SSOEnabled]
+	}
+	if {$SSORequiresSSL != {}} {
+		lappend attrib [list requiresSSL $SSORequiresSSL]
+	}
+	if {$SSODomainName != {}} {
+		lappend attrib [list domainName $SSODomainName]
+	}
+	if {[llength attrib] != 0} {
+		setSSO $attrib
+	}
+}
+
+#######################################
+# Create a new Custom User Registry
+#######################################
+proc configCUR {} {
+	global validationResult
+	global CUServerId CUServerPassword CUClassName
+	
+	puts stdout "\n===== in configCUR"
+	set attrib {}
+	
+	if {$CUServerId != {} && $CUServerPassword != {}} {
+		lappend attrib [list serverId $CUServerId] [list serverPassword $CUServerPassword]
+	} else {
+		puts stdout "Error: WasUserid/WasPassword needs to be set"
+		exit 1
+	}
+	if {$CUClassName != {}} {
+		lappend attrib [list customRegistryClassName $CUClassName]
+	}
+	if {[llength attrib] != 0} {
+		setCustomUserRegistry $attrib
+		if {[string match [validateCustomUserRegistry] false]} {
+			set validationResult false
+		} 
+	}
+}
+
+#######################################
+# Create new Custom User Registry Properties
+#######################################
+proc configCURProperties {attrs} {
+	# For this example attrs = [list [list name "NAME"] [list value "VALUE"] [list required "true/false"]]
+	global AdminConfig cusUserRegistry
+
+	puts stdout "\n\t----- in configCURProperties"
+	set createdFlag true
+	set propName [lindex [lindex $attrs 0] 1]
+	set propId [$AdminConfig getid /Property:$propName/]
+	if {$propId != "" } {
+		puts stdout "\tThis Custom User Registry Property '$propName' be changed ..."
+		$AdminConfig remove $propId
+		set createdFlag false
+	}
+
+		$AdminConfig create Property $cusUserRegistry $attrs
+	if {[string match $createdFlag true]} {
+		puts stdout "\tCustom User Registry Property '$propName' is created."
+	} else {
+		puts stdout "\tDone."
+	}
+}
+
+
+############################################################
+#
+#  Main procedure
+#
+############################################################
+
+global DbType
+set validationResult true
+
+setProperties
+
+configLTPA
+configSSO
+configCUR
+
+set prop_attr1 [list [list name "cur_LOGGING"] [list value "TRUE"] [list required "false"]]
+set prop_attr2 [list [list name "cur_ENCRYPTIONKEY"] [list value "rZ15ws0ely9yHk3zCs3sTMv/ho8fY17s"] [list required "true"]]
+set prop_attr3 [list [list name "db_CONNECTIONPOOL_SIZE"] [list value ""] [list required "false"]]
+set prop_attr4 [list [list name "db_CONNECTIONPOOL_TIMEOUT"] [list value ""] [list required "false"]]
+set prop_attr5 [list [list name "db_DRIVER"] [list value "@DbDriver@"] [list required "true"]]
+set prop_attr6 [list [list name "db_DRIVER_LOCATION"] [list value "@DbLibrary@"] [list required "false"]]
+set prop_attr7 [list [list name "db_URL"] [list value "@WmmDbUrl@"] [list required "true"]]
+
+configCURProperties $prop_attr1
+configCURProperties $prop_attr2
+configCURProperties $prop_attr3
+configCURProperties $prop_attr4
+configCURProperties $prop_attr5
+configCURProperties $prop_attr6
+configCURProperties $prop_attr7
+
+###For Cloudscape database No db_USERID and db_PASSWORD  are needed.
+if {[string match $DbType cloudscape]} {
+} else {
+	set prop_attr11 [list [list name "db_USERID"] [list value "@WmmDbUser@"] [list required "false"]]
+	set prop_attr12 [list [list name "db_PASSWORD"] [list value "@EncryptedWmmDbPassword@"] [list required "false"]]
+
+	configCURProperties $prop_attr11
+	configCURProperties $prop_attr12
+}
+
+configGlobalSecurity
+
+set validationResult [validation]
+
+if {[string match $validationResult true]} {
+	saveConfig
+	puts stdout "\n\nValidation success.  Configuration saved."
+} else {
+	puts stdout "\n\nValidation failed. Please correct the missing/incorrect fields."
+	exit 1
+}	

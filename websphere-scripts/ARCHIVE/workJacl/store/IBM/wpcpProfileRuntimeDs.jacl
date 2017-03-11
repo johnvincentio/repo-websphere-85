@@ -1,0 +1,42 @@
+global DsName
+global DbName
+global DbUser
+global DbPassword
+global JDBCProviderName
+global JNDIName
+global FlagWasProvider
+global DbHostName 
+global DbUrl 
+global DbType
+global ServerName
+global DbPort
+
+#This flag is used to indicate using a WAS provided JDBCdriver for SQLServer
+set FlagWasProvider "False"
+set DsName {persDS}
+set DbName {@WpcpDbName@}
+set DbUser {@WpcpDbUser@}
+set DbPassword {@WpcpDbPassword@}
+set JDBCProviderName {wpcp50JDBC}
+set JNDIName {persDS}
+set DbHostName {@WpcpDbHostName@}
+set DbUrl  {@WpcpDbUrl@}
+set DbType {@DbType@}
+set DbServerName {@WpcpDbInstanceName@}
+set DbPort {@WpcpDbPort@}
+
+switch -exact -- $DbType {
+	cloudscape {
+           set DbName {@WpsInstallLocation@/cloudscape/@WpcpDbName@}
+        }  
+        oracle {
+                set DbUser "PZNADMIN"
+                set DbPassword {@WpcpDbPznadminPassword@}
+	}
+	sqlserver  {
+           set DbUser "PZNADMIN"
+           set DbPassword {@WpcpDbPznadminPassword@}
+           # PZN Runtime requires useage of WAS embedded SQLJDBC driver.
+           set FlagWasProvider "True"
+        }
+}

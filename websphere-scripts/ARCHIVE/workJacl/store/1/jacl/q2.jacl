@@ -1,0 +1,14 @@
+
+source q2prof.jacl
+
+set Abc "fred"
+puts "simple $Abc"
+
+JV_trace_on localhost server1
+JV_trace_off localhost server1
+JV_dump_threads localhost server1
+
+#JV_get_type localhost server1 TraceService
+
+#set ABCD [JV_get_type localhost server1 TraceService]
+#puts "ABCD $ABCD"

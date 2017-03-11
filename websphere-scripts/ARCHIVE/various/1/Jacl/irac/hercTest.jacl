@@ -1,0 +1,67 @@
+#------------------------------------------------------------------
+# script to handle Etrieve Server Configuration
+#------------------------------------------------------------------
+
+source ../libs/JVUtils.jacl;
+
+proc hercTest {pServerName pNodeName pCellName} {
+
+#--------------------------------------------------------------------
+# Create RentalMan Server Resources
+#--------------------------------------------------------------------
+
+set templName "DB2 UDB for iSeries (Toolbox)";
+set provName "Herc RentalMan";
+set nativePath "";
+
+#--------------------------------------------------------------------
+# Handle CA JAAS
+#--------------------------------------------------------------------
+
+set myDB "CArentalman";
+set myUser "prcXYZ";
+set myPassword "you_need_to_enter_your_own";
+set myDs "Access CA RentalMan DB2 Database";
+
+#--------------------------------------------------------------------
+# Create AF Datasources
+#--------------------------------------------------------------------
+
+set templName "DB2 UDB for iSeries (Toolbox) DataSource";
+set dsName "";
+set dsJNDI "jdbc/com/hertz/herc/AFRentalmanSQL";
+set dsDesc "";
+set dsAuthMech "BASIC_PASSWORD";
+set secAuthAlias $myDB;
+set dbName "AS4HRCCD";
+set dbSrvName "AS4HRCCD";
+set dbHelper "com.ibm.websphere.rsadapter.DB2AS400DataStoreHelper";
+set dbLibraries "WSDATAEU";
+JVcreateDatasourceAS400DB2 $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbHelper $dbLibraries;
+
+set dsJNDI "jdbc/com/hertz/herc/AFRentalmanSP";
+set dbLibraries "";
+JVcreateDatasourceAS400DB2 $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbHelper $dbLibraries;
+
+#--------------------------------------------------------------------
+# Create SA Datasources
+#--------------------------------------------------------------------
+
+set templName "DB2 UDB for iSeries (Toolbox) DataSource";
+set dsName "";
+set dsJNDI "jdbc/com/hertz/herc/SARentalmanSQL";
+set dsDesc "";
+set dsAuthMech "BASIC_PASSWORD";
+set secAuthAlias $myDB;
+set dbName "AS4HRCCD";
+set dbSrvName "AS4HRCCD";
+set dbHelper "com.ibm.websphere.rsadapter.DB2AS400DataStoreHelper";
+set dbLibraries "WSDATAEU";
+JVcreateDatasourceAS400DB2 $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbHelper $dbLibraries;
+
+set dsJNDI "jdbc/com/hertz/herc/SARentalmanSP";
+set dbLibraries "";
+JVcreateDatasourceAS400DB2 $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbHelper $dbLibraries;
+
+}
+

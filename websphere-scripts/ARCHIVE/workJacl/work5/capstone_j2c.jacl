@@ -1,0 +1,12 @@
+
+#--------------------------------------------------------------------
+# Create J2C Resource Adapter
+#--------------------------------------------------------------------
+
+source libs/data/JVcreateJ2CResourceAdapter.jacl;
+
+proc capstone_j2c {NodeName ServerName } {
+
+   JVcreateJ2CResourceAdapter $NodeName $ServerName;
+}
+

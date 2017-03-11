@@ -1,0 +1,54 @@
+
+proc JVcreateSIBJMSActivationSpec {nodeName activationSpecName activationSpecJndiName jmsQJNDI destinationType authAlias SIBusName} {
+
+  #--------------------------------------------------------------------
+  # Set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+  global AdminTask
+
+  #--------------------------------------------------------------------
+  # Create a SIB activation spec for an MDB listening to a queue
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Create SIB JMS activation spec                   "
+  puts "---------------------------------------------------------------"
+  puts " Scope:                                                        "
+  puts "    node                $nodeName                              "
+  puts " Activation spec:                                              "
+  puts "    name                $activationSpecName                    "
+  puts "    JNDI                $activationSpecJndiName                "
+  puts "    destination JNDI    $jmsQJNDI                              "
+  puts "    destination type    $destinationType                       "
+  puts "    auth alias          $authAlias                             "
+  puts " SI bus:                                                       "
+  puts "    name                $SIBusName                             "
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  set scope [$AdminConfig getid /Node:$nodeName/]
+
+  foreach spec [$AdminTask listSIBJMSActivationSpecs $scope] {
+    set name [$AdminConfig showAttribute $spec name]
+    if { $name == $activationSpecName } {
+      JVputInfo "The $activationSpecName SIB JMS activation spec already exists."
+      return
+    }
+  }
+
+  #--------------------------------------------------------------------
+  # Create SIB JMS activation spec
+  #--------------------------------------------------------------------
+
+  JVputTrace "Create a new SIB JMS activation spec named $activationSpecName."
+  set params [list -name $activationSpecName -jndiName $activationSpecJndiName -busName $SIBusName -destinationJndiName $jmsQJNDI -destinationType $destinationType]
+  if { !($authAlias == "") } {
+    lappend params -authenticationAlias $authAlias
+  }
+  $AdminTask createSIBJMSActivationSpec $scope $params
+
+}
+

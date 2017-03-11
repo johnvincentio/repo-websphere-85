@@ -1,0 +1,254 @@
+
+<!--
+Fortify ANT Task. This task is used to instrument applications using Fortify Application
+Defense.
+ ~~~~~~~~~~~~~~~~~~~
+ P R O P E R T I E S
+ ~~~~~~~~~~~~~~~~~~~
+ - working.dir = The directory that exists with files to be instrumented.
+ - working.ear.a = The first EAR file to be instrumented.
+ - working.ear.b = The Second EAR to be instrumented
+ - working.rules = The name of the config.xml used in the instrumentation process.
+ - instrumentation.ear.dir = The directory used to hold the instrumented EAR files.
+ - instrumentation.app.dir = The directory that holds the instrumentation application.
+ - appserver = Instrumentation attribute.
+ - appserverhomepath = Instrumentation attribute.
+ - mode = Instrumentation attribute.
+ - user = Instrumentation attribute.
+ - password = Instrumentation attribute.
+ - rules.filename = Instrumentation attribute.
+ - file.a.noexist = Defined by whether the file exists in the working.dir.
+ - file.b.noexist = Defined by whether the file exists in the working.dir.
+
+ ~~~~~~~~~~~~~~~~~
+ E X E C U T I O N
+ ~~~~~~~~~~~~~~~~~
+ To run this task,
+ - Modify the classpath tab to include, "\lib\ant-contrib-1.0b3."
+
+~~~~~~~~~~~~~~~~~~~~~~~~~
+I M P L E M E T A T I O N
+~~~~~~~~~~~~~~~~~~~~~~~~~
+HercWebEAR
+HercAdminToolWebEAR
+HercFranchiseWebEAR
+HercHesWebEAR
+HercMobileWebEAR
+HercSalesWebEAR
+EtrieveIt
+-->
+					
+	<target name="init" description="Initialize properties needed to run the appdefender command">
+		<taskdef resource="net/sf/antcontrib/antlib.xml" />
+		<echo message="Running init..." />
+		<property environment="env" />
+		<property name="working.dir" value="${deploy.ears.dir}" />
+
+		<property name="working.ear.a" value="HercWebEAR.ear" />
+		<property name="working.ear.b" value="HercSalesWebEAR.ear" />
+		<property name="working.ear.c" value="HercAdminToolWebEAR.ear" />
+		<property name="working.ear.d" value="EtrieveIt.ear" />
+		<property name="working.ear.e" value="HercMobileWebEAR.ear" />
+		<property name="working.ear.f" value="ServicePumpsWebEAR.ear" />
+		<property name="working.ear.g" value="HercFranchiseWebEAR.ear" />
+		<property name="working.ear.h" value="HercHesWebEAR.ear" />
+
+		<property name="working.rules" value="../../Ant/fortify/RTA2.0/config.xml" />
+		<property name="instrumentation.ear.dir" value="${deploy.fortified.ears.dir}" />
+		<property name="instrumentation.app.dir" value="C:/Program Files/Fortify Software/Fortify 360 v2.0/RTA" />
+		<property name="appserver" value="generic" />
+		<property name="appserverhomepath" value="--appserver-home-ignore" />
+		<property name="mode" value="protect" />
+		<property name="user" value="admin" />
+		<property name="password" value="Hertz123" />
+		<property name="rules.filename" value="config.xml" />
+
+		<echo message="working.dir:${working.dir}" />
+		<echo message="working.ear.a:${working.ear.a}" />
+		<echo message="working.ear.b:${working.ear.b}" />
+		<echo message="working.ear.c:${working.ear.c}" />
+		<echo message="working.ear.d:${working.ear.d}" />
+		<echo message="working.ear.e:${working.ear.e}" />
+		<echo message="working.ear.f:${working.ear.f}" />
+		<echo message="working.ear.g:${working.ear.g}" />
+		<echo message="working.ear.h:${working.ear.h}" />
+		<echo message="working.rules:${working.rules}" />
+		<echo message="instrumentation.ear.dir:${instrumentation.ear.dir}" />
+		<echo message="instrumentation.app.dir:${instrumentation.app.dir}" />
+		<echo message="appserver:${appserver}" />
+		<echo message="appserverhomepath:${appserverhomepath}" />
+		<echo message="mode:${mode}" />
+		<echo message="user:${user}" />
+		<echo message="password:${password}" />
+		<echo message="rules.filename:${rules.filename}" />
+	</target>
+	<target name="clean" depends="init" description="Cleans the instrumentation ear directory if it exists">
+		<echo message="cleaning directory ${instrumentation.ear.dir}" />
+		<delete failonerror="false" includeEmptyDirs="true">
+			<fileset dir="${instrumentation.ear.dir}" />
+		</delete>
+	</target>
+	<target name="mkdirs" depends="clean" description="Makes the instrumentation ear directory">
+		<echo message="making directory ${instrumentation.ear.dir}" />
+		<mkdir dir="${instrumentation.ear.dir}" />
+	</target>
+
+	<target name="check-file-names" depends="mkdirs" description="Checks if files exists on files system.">
+		<condition property="file.a.noexist">
+			<not>
+				<available file="${working.dir}/${working.ear.a}" />
+			</not>
+		</condition>
+		<condition property="file.b.noexist">
+			<not>
+				<available file="${working.dir}/${working.ear.b}" />
+			</not>
+		</condition>
+		<condition property="file.c.noexist">
+			<not>
+				<available file="${working.dir}/${working.ear.c}" />
+			</not>
+		</condition>
+		<condition property="file.d.noexist">
+			<not>
+				<available file="${working.dir}/${working.ear.d}" />
+			</not>
+		</condition>
+		<condition property="file.e.noexist">
+			<not>
+				<available file="${working.dir}/${working.ear.e}" />
+			</not>
+		</condition>
+		<condition property="file.f.noexist">
+			<not>
+				<available file="${working.dir}/${working.ear.f}" />
+			</not>
+		</condition>
+		<condition property="file.g.noexist">
+			<not>
+				<available file="${working.dir}/${working.ear.g}" />
+			</not>
+		</condition>
+		<condition property="file.h.noexist">
+			<not>
+				<available file="${working.dir}/${working.ear.h}" />
+			</not>
+		</condition>
+	</target>
+
+	<target name="copy-ears" depends="check-file-names" description="Copies ear from the working directory to the instrumentation ear directory">
+		<copy todir="${instrumentation.ear.dir}">
+			<fileset dir="${working.dir}">
+				<include name="${working.ear.a}" unless="file.a.exists" />
+				<include name="${working.ear.b}" unless="file.b.exists" />
+				<include name="${working.ear.c}" unless="file.c.exists" />
+				<include name="${working.ear.d}" unless="file.d.exists" />
+				<include name="${working.ear.e}" unless="file.e.exists" />
+				<include name="${working.ear.f}" unless="file.f.exists" />
+				<include name="${working.ear.g}" unless="file.g.exists" />
+				<include name="${working.ear.h}" unless="file.h.exists" />
+			</fileset>
+		</copy>
+	</target>
+	<target name="copy-rules" depends="copy-ears" description="Copies rules from the workspace directory to the instrumentation ear directory">
+		<echo message="copy rules ${working.rules} to ${instrumentation.ear.dir}" />
+		<copy file="${working.rules}" todir="${instrumentation.ear.dir}" />
+	</target>
+	<target name="instrument" depends="copy-rules" description="Instrument a Web Application using the appdefender command">
+		<if>
+			<equals arg1="${file.a.noexist}" arg2="$${file.a.noexist}" />
+			<then>
+				<echo message="Instrument application ${working.ear.a}" />
+				<exec dir="${instrumentation.ear.dir}" executable="${instrumentation.app.dir}/appdefender.bat">
+					<arg line="JAVA -a ${appserver} ${appserverhomepath} -m ${mode} -u ${user} -p &quot;${password}&quot; --rules ${rules.filename} --minimum ${working.ear.a}" />
+				</exec>
+			</then>
+			<else>
+				<echo message="Instrumentation of application ${working.ear.a} FAILED!" />
+			</else>
+		</if>
+		<if>
+			<equals arg1="${file.b.noexist}" arg2="$${file.b.noexist}" />
+			<then>
+				<echo message="Instrument application ${working.ear.b}" />
+				<exec dir="${instrumentation.ear.dir}" executable="${instrumentation.app.dir}/appdefender.bat">
+					<arg line="JAVA -a ${appserver} ${appserverhomepath} -m ${mode} -u ${user} -p &quot;${password}&quot; --rules ${rules.filename} --minimum ${working.ear.b}" />
+				</exec>
+			</then>
+			<else>
+				<echo message="Instrumentation of application ${working.ear.b} FAILED!" />
+			</else>
+		</if>
+		<if>
+			<equals arg1="${file.c.noexist}" arg2="$${file.c.noexist}" />
+			<then>
+				<echo message="Instrument application ${working.ear.c}" />
+				<exec dir="${instrumentation.ear.dir}" executable="${instrumentation.app.dir}/appdefender.bat">
+					<arg line="JAVA -a ${appserver} ${appserverhomepath} -m ${mode} -u ${user} -p &quot;${password}&quot; --rules ${rules.filename} --minimum ${working.ear.c}" />
+				</exec>
+			</then>
+			<else>
+				<echo message="Instrumentation of application ${working.ear.c} FAILED!" />
+			</else>
+		</if>
+		<if>
+			<equals arg1="${file.d.noexist}" arg2="$${file.d.noexist}" />
+			<then>
+				<echo message="Instrument application ${working.ear.d}" />
+				<exec dir="${instrumentation.ear.dir}" executable="${instrumentation.app.dir}/appdefender.bat">
+					<arg line="JAVA -a ${appserver} ${appserverhomepath} -m ${mode} -u ${user} -p &quot;${password}&quot; --rules ${rules.filename} --minimum ${working.ear.d}" />
+				</exec>
+			</then>
+			<else>
+				<echo message="Instrumentation of application ${working.ear.d} FAILED!" />
+			</else>
+		</if>
+		<if>
+			<equals arg1="${file.e.noexist}" arg2="$${file.e.noexist}" />
+			<then>
+				<echo message="Instrument application ${working.ear.e}" />
+				<exec dir="${instrumentation.ear.dir}" executable="${instrumentation.app.dir}/appdefender.bat">
+					<arg line="JAVA -a ${appserver} ${appserverhomepath} -m ${mode} -u ${user} -p &quot;${password}&quot; --rules ${rules.filename} --minimum ${working.ear.e}" />
+				</exec>
+			</then>
+			<else>
+				<echo message="Instrumentation of application ${working.ear.e} FAILED!" />
+			</else>
+		</if>
+		<if>
+			<equals arg1="${file.f.noexist}" arg2="$${file.f.noexist}" />
+			<then>
+				<echo message="Instrument application ${working.ear.f}" />
+				<exec dir="${instrumentation.ear.dir}" executable="${instrumentation.app.dir}/appdefender.bat">
+					<arg line="JAVA -a ${appserver} ${appserverhomepath} -m ${mode} -u ${user} -p &quot;${password}&quot; --rules ${rules.filename} --minimum ${working.ear.f}" />
+				</exec>
+			</then>
+			<else>
+				<echo message="Instrumentation of application ${working.ear.f} FAILED!" />
+			</else>
+		</if>
+		<if>
+			<equals arg1="${file.g.noexist}" arg2="$${file.g.noexist}" />
+			<then>
+				<echo message="Instrument application ${working.ear.g}" />
+				<exec dir="${instrumentation.ear.dir}" executable="${instrumentation.app.dir}/appdefender.bat">
+					<arg line="JAVA -a ${appserver} ${appserverhomepath} -m ${mode} -u ${user} -p &quot;${password}&quot; --rules ${rules.filename} --minimum ${working.ear.g}" />
+				</exec>
+			</then>
+			<else>
+				<echo message="Instrumentation of application ${working.ear.g} FAILED!" />
+			</else>
+		</if>
+		<if>
+			<equals arg1="${file.h.noexist}" arg2="$${file.h.noexist}" />
+			<then>
+				<echo message="Instrument application ${working.ear.h}" />
+				<exec dir="${instrumentation.ear.dir}" executable="${instrumentation.app.dir}/appdefender.bat">
+					<arg line="JAVA -a ${appserver} ${appserverhomepath} -m ${mode} -u ${user} -p &quot;${password}&quot; --rules ${rules.filename} --minimum ${working.ear.h}" />
+				</exec>
+			</then>
+			<else>
+				<echo message="Instrumentation of application ${working.ear.h} FAILED!" />
+			</else>
+		</if>
+	</target>

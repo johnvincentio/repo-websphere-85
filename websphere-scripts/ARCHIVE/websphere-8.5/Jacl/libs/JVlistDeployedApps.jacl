@@ -1,0 +1,8 @@
+
+proc JVlistDeployedApps {} {
+
+	global AdminApp;
+
+	set deployedApps [$AdminApp list];
+	puts "Deployed Apps are: $deployedApps"; 
+}

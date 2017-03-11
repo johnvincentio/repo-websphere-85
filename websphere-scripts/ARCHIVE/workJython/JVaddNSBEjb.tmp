@@ -1,0 +1,101 @@
+def JVaddNSBEjb ( cellName, nodeName, serverName, nsbName, nameInNameSpace, bindingLocation, JndiName ):
+
+        #--------------------------------------------------------------------
+        # Set up globals  
+        #--------------------------------------------------------------------
+
+        global AdminConfig, M_OK, M_ERROR
+
+        #--------------------------------------------------------------------
+        # Create Name Space Binding String
+        #--------------------------------------------------------------------
+
+        if (JndiName == ""):
+                JndiName = nameInNameSpace
+        #endIf 
+        if (nsbName == ""):
+                nsbName = nameInNameSpace
+        #endIf 
+        aliasName = nsbName
+        nsbName = regsub("/", aliasName, "_", 0, 0)
+        print ""
+        print "---------------------------------------------------------------"
+        print "              Create EJB Name Space Binding                    "
+        print "---------------------------------------------------------------"
+        print " Scope:                                                        "
+        print "    cell                "+cellName+"                              "
+        print "    Node Name           "+nodeName+"                              "
+        print "    Server Name         "+serverName+"                            "
+        print " EJB Name Space Binding:                                       "
+        print "    Binding Id          "+nsbName+"                               "
+        print "    Name in Name Space  "+nameInNameSpace+"                       "
+        print "    bindingLocation     "+bindingLocation+"                       "
+        print "    JndiName            "+JndiName+"                              "
+        print "---------------------------------------------------------------"
+        print ""
+
+        #--------------------------------------------------------------------
+        # Get the config id for the cell's security object
+        #--------------------------------------------------------------------
+
+        #?PROBLEM? (jacl 39) COMMAND_UNKNOWN?  JVputTrace("Get the cell's id." )
+        try:
+                _excp_ = 0
+                _J2J_brace_ = AdminConfig.getid("/Cell:"+cellName+"/" )
+                cellId = _J2J_brace_
+                _excp_ = 0 #reset (in case of nested exceptions)
+        except:
+                _type_, _value_, _tbck_ = sys.exc_info()
+                cellId = str(_value_)
+                _excp_ = 1
+        #endTry 
+        _J2J_bracket_ = _excp_
+        if (_J2J_bracket_ ):
+                #?PROBLEM? (jacl 41) COMMAND_UNKNOWN?  JVputError("Cannot get /Cell:"+cellName+"; "+cellId )
+                return M_ERROR
+        #endIf 
+        if (cellId == ""):
+                #?PROBLEM? (jacl 45) COMMAND_UNKNOWN?  JVputError("ERROR: /Cell:"+cellName+" is missing." )
+                return M_ERROR
+        #endIf 
+        #?PROBLEM? (jacl 48) COMMAND_UNKNOWN?  JVputTrace("cellId "+cellId )
+
+        if (bindingLocation == "SINGLESERVER"):
+                attrs = [["name", nsbName], ["nameInNameSpace", nameInNameSpace], ["applicationNodeName", nodeName], ["bindingLocation", "SINGLESERVER"], ["applicationServerName", serverName], ["ejbJndiName", JndiName]]
+                try:
+                        _excp_ = 0
+                        _J2J_brace_ = AdminConfig.create("EjbNameSpaceBinding", cellId, attrs )
+                        results = _J2J_brace_
+                        _excp_ = 0 #reset (in case of nested exceptions)
+                except:
+                        _type_, _value_, _tbck_ = sys.exc_info()
+                        results = str(_value_)
+                        _excp_ = 1
+                #endTry 
+                _J2J_bracket_ = _excp_
+                if (_J2J_bracket_ ):
+                        #?PROBLEM? (jacl 53) COMMAND_UNKNOWN?  JVputError("ERROR: Could not create; "+results+"." )
+                        return M_ERROR
+                #endIf 
+        #endIf 
+        else:
+                attrs = [["name", nsbName], ["nameInNameSpace", nameInNameSpace], ["bindingLocation", "SERVERCLUSTER"], ["applicationServerName", serverName], ["ejbJndiName", JndiName]]
+                try:
+                        _excp_ = 0
+                        _J2J_brace_ = AdminConfig.create("EjbNameSpaceBinding", cellId, attrs )
+                        results = _J2J_brace_
+                        _excp_ = 0 #reset (in case of nested exceptions)
+                except:
+                        _type_, _value_, _tbck_ = sys.exc_info()
+                        results = str(_value_)
+                        _excp_ = 1
+                #endTry 
+                _J2J_bracket_ = _excp_
+                if (_J2J_bracket_ ):
+                        #?PROBLEM? (jacl 59) COMMAND_UNKNOWN?  JVputError("ERROR: Could not create; "+results+"." )
+                        return M_ERROR
+                #endIf 
+        #endElse 
+        #?PROBLEM? (jacl 63) COMMAND_UNKNOWN?  JVputInfo("Created Name Space Binding "+nsbName )
+        return M_OK
+#endDef 

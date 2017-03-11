@@ -1,0 +1,37 @@
+# Modify attributes of a deployed ear.
+# AppName, AppWeight, and ClassLoaderMode are defined in a profiling jacl script.
+
+set DeploymentId [$AdminConfig getid /Deployment:$AppName/]
+if {$DeploymentId == ""} {
+    puts stdout "ERROR: $AppName is not installed, no Action taken"
+	exit 1
+} else {
+	#####################################################################################
+	#  modify Deployment -> ApplicationDeployment attribute startingWeight
+	#####################################################################################
+    set ApplicationDeploymentId [$AdminConfig getid /Deployment:$AppName/ApplicationDeployment:/]
+    if {[llength $ApplicationDeploymentId] != 1} {
+        puts stdout $ApplicationDeploymentId
+        puts stdout "ERROR: Wrong No Of ApplicationDeployments for Deployment:$AppName"
+        puts stdout "expected: 1; actual: [llength $ApplicationDeploymentId]"
+        exit 1
+    }
+
+    puts "Old: [$AdminConfig show $ApplicationDeploymentId startingWeight]"
+    set attrs [list [list startingWeight $AppWeight]]
+	$AdminConfig modify $ApplicationDeploymentId $attrs 
+	puts "New: [$AdminConfig show $ApplicationDeploymentId startingWeight]"
+	puts "Deployment:$AppName Attribute startingWeight modified."
+
+	#####################################################################################
+	#  modify Deployment -> ApplicationDeployment classloader mode
+	#####################################################################################
+    set ClassLoaderId [$AdminConfig showAttribute $ApplicationDeploymentId classloader]
+    puts "Old: [$AdminConfig show $ClassLoaderId mode]"
+    set attrs2 [list [list mode $ClassLoaderMode]]
+    $AdminConfig modify $ClassLoaderId $attrs2
+    puts "New: [$AdminConfig show $ClassLoaderId mode]"
+    puts "Deployment:$AppName Classloader mode modified."
+
+    $AdminConfig save
+}

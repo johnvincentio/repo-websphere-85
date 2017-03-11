@@ -1,0 +1,160 @@
+
+#------------------------------------------------------------------
+# script to handle Herc Server Configuration
+#------------------------------------------------------------------
+
+source ../libs/JVUtils.jacl;
+source ../libs/JVsetAppServerJVMClasspath.jacl;
+source ../libs/JVaddNSBString.jacl;
+source ../libs/JVcreateJAASAuthenticationAlias.jacl;
+source ../libs/JVcreateJDBCProviderDB2.jacl;
+source ../libs/JVcreateDatasourceDB2.jacl;
+source ../libs/JVcreateDatasourceAS400DB2.jacl;
+
+#------------------------------------------------------------------
+# handle other irac scripts
+#------------------------------------------------------------------
+
+source irac_trace.jacl;
+source herc_config.jacl;
+source hercAirClick.jacl;
+source hercEtrieve.jacl;
+source hercDM.jacl;
+source hercTest.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "herc.jacl; Starting";
+
+#--------------------------------------------------------------------
+#  load properties file or use parameters
+#--------------------------------------------------------------------
+
+if {$argc > 1} {
+	set pServerName 				[lindex $argv 1];
+	set pNodeName 					[lindex $argv 2];
+	set pCellName 					[lindex $argv 3];
+	set pBindingLocation 			[lindex $argv 4];
+
+	set pRootPath 					[lindex $argv 5];
+	set pWorkspaceServerPath 		[lindex $argv 6];
+	set pSqlserverLibPath 			[lindex $argv 7];
+	set pDb2JavaPath				[lindex $argv 8];
+	set pDb2LibPath 				[lindex $argv 9];
+	set pDb2UniversalDriverLibPath	[lindex $argv 10];
+	set pMQJMSLibRoot				[lindex $argv 11];
+} else {
+	set myPropertiesFile "irac.properties";
+	if {$argc == 1} {
+		set myPropertiesFile [lindex $argv 0];
+	}
+	JVputInfo "Loading Properties file $myPropertiesFile";
+	set fileprops [JVloadProperties $myPropertiesFile];
+	JVputTrace "JVloadProperties.jacl; code $fileprops";
+	if {$fileprops == 0} {
+    	JVputError "Load Properties failed";
+	    exit 1;
+	}
+	JVputInfo "Loaded Properties file";
+
+#--------------------------------------------------------------------
+# get properties
+#--------------------------------------------------------------------
+
+	set pServerName [JVgetProperty $fileprops "server_instance"];
+	set pNodeName [JVgetProperty $fileprops "server_node"];
+	set pCellName [JVgetProperty $fileprops "server_cell"];
+	set pBindingLocation [JVgetProperty $fileprops "bindingLocation"];
+
+	set pRootPath [JVgetProperty $fileprops "root_path"];
+	set pWorkspaceServerPath [JVgetProperty $fileprops "workspace_server_path"];
+	set pSqlserverLibPath [JVgetProperty $fileprops "sqlserver_lib_path"];
+	set pDb2JavaPath [JVgetProperty $fileprops "db2_java_path"];
+	set pDb2LibPath [JVgetProperty $fileprops "db2_lib_path"];
+	set pDb2UniversalDriverLibPath [JVgetProperty $fileprops "db2_universal_driver_lib_path"];
+	set pMQJMSLibRoot [JVgetProperty $fileprops "mq_jms_lib_root"];
+}
+
+#--------------------------------------------------------------------
+# show server info
+#--------------------------------------------------------------------
+
+JVputInfo "-------------------------------------------------------------------------";
+JVputInfo "                                                                         ";
+JVputInfo " Scope:																	";
+JVputInfo "    Server Instance                  $pServerName                        ";
+JVputInfo "    Cell                             $pCellName							";
+JVputInfo "    Node                             $pNodeName							";
+JVputInfo " Workspace:																";
+JVputInfo "    Source Root                      $pRootPath							";
+JVputInfo "    Server Path                      $pWorkspaceServerPath				";
+JVputInfo " Paths:																	";
+JVputInfo "    SQLServer Path                   $pSqlserverLibPath					";
+JVputInfo "    DB2 Java Path                    $pDb2JavaPath						";
+JVputInfo "    DB2 Lib Path                     $pDb2LibPath						";
+JVputInfo "    Db2 Universal Driver Lib Path    $pDb2UniversalDriverLibPath		    ";
+JVputInfo "    MQ JMS Lib Root					$pMQJMSLibRoot	    				";
+JVputInfo "-------------------------------------------------------------------------";
+
+#--------------------------------------------------------------------
+# Turn on tracing
+#--------------------------------------------------------------------
+
+irac_trace $pNodeName $pServerName "on";
+
+#--------------------------------------------------------------------
+# Handle Herc scripts
+#--------------------------------------------------------------------
+
+JVputInfo " ";
+JVputInfo "-------------------------------------------------------------------------";
+JVputInfo "*********** Handle herc_config *********** ";
+JVputInfo "-------------------------------------------------------------------------";
+
+herc_config $pServerName $pNodeName $pCellName;
+
+JVputInfo " ";
+JVputInfo "-------------------------------------------------------------------------";
+JVputInfo "*********** Handle hercDM ***********";
+JVputInfo "-------------------------------------------------------------------------";
+hercDM $pServerName $pNodeName $pCellName;
+
+JVputInfo " ";
+JVputInfo "-------------------------------------------------------------------------";
+JVputInfo "*********** Handle hercEtrieve ***********";
+JVputInfo "-------------------------------------------------------------------------";
+hercEtrieve $pServerName $pNodeName $pCellName $pRootPath;
+
+JVputInfo " ";
+JVputInfo "-------------------------------------------------------------------------";
+JVputInfo "*********** Handle hercAirclick ***********";
+JVputInfo "-------------------------------------------------------------------------";
+hercAirClick $pServerName $pNodeName $pCellName;
+
+JVputInfo " ";
+JVputInfo "-------------------------------------------------------------------------";
+JVputInfo "*********** Handle hercTest ***********";
+JVputInfo "-------------------------------------------------------------------------";
+hercTest $pServerName $pNodeName $pCellName;
+JVputInfo " ";
+
+#--------------------------------------------------------------------
+# Turn off tracing
+#--------------------------------------------------------------------
+
+irac_trace $pNodeName $pServerName "off";
+
+#--------------------------------------------------------------------
+# Save server configuration changes
+#--------------------------------------------------------------------
+
+JVsave;
+
+#--------------------------------------------------------------------
+# Done
+#--------------------------------------------------------------------
+
+exit 0;

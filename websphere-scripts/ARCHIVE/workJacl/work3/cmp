@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+#  script to compare files in a directory with a another directory. The compare
+#  is non-destructive.
+#
+trap 'echo -e "\nFiles compare has been aborted\n";exit 1' 1 2 15
+#
+#  templates look useful
+#
+# /opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/AppSrv01/config/templates/system
+#
+BASEDIR=/opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles
+#
+CFG_1=CapstoneSrv01
+CELL_1=alphaNode05Cell
+NODE_1=alphaNode05
+#
+CFG_2=CapstoneSrv02
+CELL_2=alphaNode06Cell
+NODE_2=alphaNode06
+#
+#  cells
+#
+DIR_1="${BASEDIR}/${CFG_1}/config/cells/${CELL_1}"
+DIR_2="${BASEDIR}/${CFG_2}/config/cells/${CELL_2}"
+prscmp2 "*.xml" $DIR_1 $DIR_2
+#
+#  nodes
+#
+DIR_1="${BASEDIR}/${CFG_1}/config/cells/${CELL_1}/nodes/${NODE_1}"
+DIR_2="${BASEDIR}/${CFG_2}/config/cells/${CELL_2}/nodes/${NODE_2}"
+prscmp2 "*.xml" $DIR_1 $DIR_2
+#
+#  server
+#
+DIR_1="${BASEDIR}/${CFG_1}/config/cells/${CELL_1}/nodes/${NODE_1}/servers/server1"
+DIR_2="${BASEDIR}/${CFG_2}/config/cells/${CELL_2}/nodes/${NODE_2}/servers/server1"
+prscmp2 "*.xml" $DIR_1 $DIR_2
+

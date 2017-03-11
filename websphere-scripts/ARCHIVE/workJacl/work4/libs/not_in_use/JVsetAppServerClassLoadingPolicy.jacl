@@ -1,0 +1,58 @@
+
+#--------------------------------------------------------------------
+# Handle server class loading policy; acceptable values are SINGLE, MULTIPLE
+#--------------------------------------------------------------------
+
+proc JVsetAppServerClassLoadingPolicy {nodeName serverName myParam} {
+	global AdminConfig M_OK M_ERROR;
+
+	JVputTrace ">>> JVsetAppServerClassLoadingPolicy; Node=$nodeName Server=$serverName Param=$myParam";
+	if {[catch {$AdminConfig getid /Node:$nodeName/Server:$serverName} ServerId]} {
+		JVputError "Cannot get Server $serverName; $ServerId";
+		return $M_ERROR;
+	}
+	if {$ServerId == ""} {
+		JVputError "ERROR: Server $serverName does not exist, no Action taken";
+		return $M_ERROR;
+	}
+	if {[catch {$AdminConfig getid /Server:$serverName/ApplicationServer:/} ApplicationServerId]} {
+		JVputError "Cannot get ApplicationServer $serverName; $ApplicationServerId";
+		return $M_ERROR;
+	}
+	if {$ApplicationServerId == ""} {
+		JVputError "ERROR: /Server:$serverName/ApplicationServer:/ does not exist";
+		return $M_ERROR;
+	}
+	if {[llength $ApplicationServerId] != 1} {
+		JVputError "ERROR: more then one /Server:$serverName/ApplicationServer:/";
+		return $M_ERROR;
+	}
+	set AppClassLoaderPolicy $myParam;
+	set AppClassLoaderPolicyAttr [list applicationClassLoaderPolicy $AppClassLoaderPolicy];
+	set attrs [list $AppClassLoaderPolicyAttr];
+   
+	set TmpAppClassLoaderPolicyAttr [$AdminConfig show $ApplicationServerId applicationClassLoaderPolicy];
+	JVputInfo "Modify ApplicationServer attributes /Server:$serverName/ApplicationServer:/";
+    JVputInfo "Old: $TmpAppClassLoaderPolicyAttr";
+
+	if {[lindex $TmpAppClassLoaderPolicyAttr 0] != $AppClassLoaderPolicyAttr} {
+		JVputInfo "Needs to be changed to:"
+        $AdminConfig modify $ApplicationServerId $attrs;
+
+		set TmpAppClassLoaderPolicyAttr [$AdminConfig show $ApplicationServerId applicationClassLoaderPolicy];
+        JVputInfo "New: $TmpAppClassLoaderPolicyAttr";
+        if {[lindex $TmpAppClassLoaderPolicyAttr 0] != $AppClassLoaderPolicyAttr} {
+            JVputError "ERROR: ApplicationServer Attibutes could not be modified.";
+            return $M_ERROR;
+        } else { 
+            JVputInfo "ApplicationServer Attributes successfully modified.";
+            $AdminConfig save;
+        }
+    } else {
+        JVputInfo "ApplicationServer Attributes are OK, no action taken";
+    }
+	JVputTrace "<<< JVsetAppServerClassLoadingPolicy";
+	return $M_OK;
+}
+
+

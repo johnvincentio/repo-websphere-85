@@ -1,0 +1,55 @@
+
+proc myAddNSBString {cellName nsbName nameInNameSpace stringValue} {
+
+   global AdminConfig M_OK M_ERROR;
+
+#--------------------------------------------------------------------
+# Create Name Space Binding String
+#
+#  The Binding Id must not contain a /
+#--------------------------------------------------------------------
+
+   if {$nsbName == ""} {set nsbName $nameInNameSpace;}
+   set aliasName $nsbName;
+   regsub -all "/" $aliasName "_" nsbName;
+  
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create Name Space Binding                        ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    cell                $cellName                              ";
+   puts " Name Space Binding:                                           ";
+   puts "    Binding Id          $nsbName                               ";
+   puts "    Name in Name Space  $nameInNameSpace                       ";
+   puts "    String Value        $stringValue                           ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+#--------------------------------------------------------------------
+# Get the config id for the cell's security object
+#--------------------------------------------------------------------
+
+   JVputTrace "Get the cell's id.";
+   if {[catch {$AdminConfig getid /Cell:$cellName/} cellId]} {
+      JVputError "Cannot get /Cell:$cellName; $cellId";
+      return $M_ERROR;
+   }
+   if {$cellId == ""} {
+      JVputError "ERROR: /Cell:$cellName is missing.";
+      return $M_ERROR;
+   }
+   JVputTrace "cellId $cellId";
+
+#--------------------------------------------------------------------
+# Create the Name Space Binding Object
+#--------------------------------------------------------------------
+
+   set attrs "{name $nsbName} {nameInNameSpace $nameInNameSpace} {stringToBind $stringValue}";
+   if [catch {$AdminConfig create StringNameSpaceBinding $cellId $attrs} results] {
+      JVputError "ERROR: Could not create; $results.";
+      return $M_ERROR;
+   }
+   JVputInfo "Created Name Space Binding $nsbName";
+   return $M_OK;
+}

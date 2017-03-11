@@ -1,0 +1,215 @@
+set NodeName {localhost}
+set ServerName {WebSphere_Portal}
+
+set ServerId [$AdminConfig getid /Node:$NodeName/Server:$ServerName]
+if {$ServerId == ""} {
+    puts stdout "ERROR: Server $ServerName does not exist, no Action taken"
+	exit 1
+} else {
+	#####################################################################################
+	#  modify ApplicationServer attributes
+	#####################################################################################
+	set ServerId [$AdminConfig getid /Server:$ServerName/]
+	set ApplicationServerId [$AdminConfig getid /Server:$ServerName/ApplicationServer:/]
+	if {$ApplicationServerId == ""} {
+		puts stdout "ERROR: /Server:$ServerName/ApplicationServer:/ does not exist"
+		exit 1
+	}
+	if {[llength $ApplicationServerId] != 1} {
+		puts stdout "ERROR: more then one /Server:$ServerName/ApplicationServer:/"
+		exit 1
+	}
+	
+	#set AppClassLoaderPolicy SINGLE
+    set AppClassLoaderPolicy MULTIPLE
+	set AppClassLoadingMode PARENT_LAST
+	set AppClassLoaderPolicyAttr [list applicationClassLoaderPolicy $AppClassLoaderPolicy]
+	set AppClassLoadingModeAttr [list applicationClassLoadingMode $AppClassLoadingMode]
+	set attrs [list $AppClassLoaderPolicyAttr $AppClassLoadingModeAttr]
+   
+    set TmpAppClassLoaderPolicyAttr [$AdminConfig show $ApplicationServerId applicationClassLoaderPolicy]
+    set TmpAppClassLoadingModeAttr [$AdminConfig show $ApplicationServerId applicationClassLoadingMode]
+	puts stdout "Modify ApplicationServer attributes /Server:$ServerName/ApplicationServer:/"
+    puts stdout "Old: $TmpAppClassLoaderPolicyAttr"
+    puts stdout "Old: $TmpAppClassLoadingModeAttr"
+    if {[lindex $TmpAppClassLoaderPolicyAttr 0] != $AppClassLoaderPolicyAttr || [lindex $TmpAppClassLoadingModeAttr 0] != $AppClassLoadingModeAttr} {
+        puts stdout "Needs to be changed to:"
+        
+        $AdminConfig modify $ApplicationServerId $attrs 
+        
+        # Check for success
+        set TmpAppClassLoaderPolicyAttr [$AdminConfig show $ApplicationServerId applicationClassLoaderPolicy]
+        set TmpAppClassLoadingModeAttr [$AdminConfig show $ApplicationServerId applicationClassLoadingMode]
+        puts stdout "New: $TmpAppClassLoaderPolicyAttr"
+        puts stdout "New: $TmpAppClassLoadingModeAttr"
+        if {[lindex $TmpAppClassLoaderPolicyAttr 0] != $AppClassLoaderPolicyAttr || [lindex $TmpAppClassLoadingModeAttr 0] != $AppClassLoadingModeAttr} {
+            puts stdout "ERROR: ApplicationServer Attibutes could not be modified."
+            exit 1
+        } else { 
+            puts stdout "ApplicationServer Attributes succesfull modified."
+            $AdminConfig save
+        }
+    } else {
+        puts stdout "ApplicationServer Attributes are OK, no action taken"
+    }
+	puts stdout " "
+
+
+	####################################################################################
+	#  create systemProperties in JavaVirtualMachine
+	#####################################################################################
+	#<systemProperties xmi:id="Property_11" name="ws.ext.dirs" value="${WPS_HOME}/shared/ext/collaborator.jar" description="Internal Portal component" required="false"/>
+	set SysPropName "ws.ext.dirs"
+	set TmpVar "WPS_HOME"
+	append SysPropValue "$" "{" $TmpVar "}/shared/ext/collaborator.jar"
+	set SysPropRequired "false"
+	set SysPropDescription "Internal Portal component"
+	puts "Create/modify JVM systemProperties /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:$SysPropName/"
+
+	set ServerId [$AdminConfig getid /Server:$ServerName/]
+    set JavaVirtualMachineId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/]
+	if {$JavaVirtualMachineId == ""} {
+		puts stdout "ERROR: /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/ does not exist"
+		exit 1
+	}
+	if {[llength $JavaVirtualMachineId] != 1} {
+		puts stdout "ERROR: more then one /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/"
+		exit 1
+	}
+
+	set FlagObjectExist "False"
+	foreach TmpSysPropObjectId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:/] {
+		set TmpObjectName [$AdminConfig showAttribute $TmpSysPropObjectId name]
+		if {[string compare $TmpObjectName $SysPropName] == 0} {
+			set SysPropId $TmpSysPropObjectId
+			set FlagObjectExist "True"
+			break;
+		}
+	}
+
+	################ modify / create Object #################################
+	set FlagNoChangeNeccessary "false"
+	set attrs [list [list name $SysPropName] [list value $SysPropValue] [list required $SysPropRequired] [list description $SysPropDescription]]
+	if {$FlagObjectExist == "True"} {
+		puts stdout "Old: JVM SystemProperty {name [$AdminConfig showAttribute $SysPropId name]} {value [$AdminConfig showAttribute $SysPropId value]}"
+		set TmpObjectValue [$AdminConfig showAttribute $TmpSysPropObjectId value]
+		if {[string compare $TmpObjectValue $SysPropValue] != 0} {
+			$AdminConfig modify $SysPropId $attrs 
+		} else {
+			puts stdout "JVM SystemProperty Value is OK, no action taken"
+			set FlagNoChangeNeccessary "true"
+		}
+	} else {
+		puts stdout "Old: SystemProperty {}"
+		set SysPropId [$AdminConfig create Property $JavaVirtualMachineId $attrs]
+	}
+	
+	################ check for success  ####################################
+	if {$FlagNoChangeNeccessary == "false"} {
+		set FlagObjectExist "False"
+		set SysPropId ""
+		foreach TmpSysPropObjectId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:/] {
+			set TmpObjectName [$AdminConfig showAttribute $TmpSysPropObjectId name]
+			if {[string compare $TmpObjectName $SysPropName] == 0} {
+				set SysPropId $TmpSysPropObjectId
+				set FlagObjectExist "true"
+				break;
+			}
+		}
+		if {$FlagObjectExist == "true"} {
+			puts stdout "New: JVM SystemProperty {name [$AdminConfig showAttribute $SysPropId name]} {value [$AdminConfig showAttribute $SysPropId value]}"
+			set TmpObjectValue [$AdminConfig showAttribute $TmpSysPropObjectId value]
+			if {[string compare $TmpObjectValue $SysPropValue] != 0} {
+				puts stdout "ERROR: JVM Property could not be modified."	
+				exit 1
+			} else {
+				puts stdout "JVM Property succesfull created/modified."
+				$AdminConfig save
+			}
+		} else {
+			puts stdout "ERROR: JVM Property could not be created."	
+			exit 1
+		}
+	}
+	puts stdout " "
+
+	
+    ####################################################################################
+	#  create classpath in JavaVirtualMachine
+	#####################################################################################
+    #<classpath>${WPS_HOME}/shared/app/wmm</classpath>
+	set TmpVar "WPS_HOME"
+	append Classpath "$" "{" $TmpVar "}/shared/app/wmm"
+	puts "Create/modify JVM classpath /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:(Attribute classpath = $Classpath)"
+
+	set ServerId [$AdminConfig getid /Node:$NodeName/Server:$ServerName/]
+    set JavaVirtualMachineId [$AdminConfig getid /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/]
+	if {$JavaVirtualMachineId == ""} {
+		puts stdout "ERROR: /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/ does not exist"
+		exit 1
+	}
+
+	################ modify / create Attribute #######################################
+	set FlagNoChangeNeccessary "false"
+	set attrs [list [list classpath $Classpath]]
+	puts stdout "Old: JVM Classpath {classpath [$AdminConfig showAttribute $JavaVirtualMachineId classpath]}"
+	set TmpObjectValue [$AdminConfig showAttribute $JavaVirtualMachineId classpath]
+    set PatternClasspath "*$Classpath*"
+    if {[string match $PatternClasspath $TmpObjectValue] != 0} {
+		puts stdout "JVM Classpath is OK, no action taken"
+	} else {
+        $AdminConfig modify $JavaVirtualMachineId $attrs 
+        puts stdout "New: JVM Classpath {classpath [$AdminConfig showAttribute $JavaVirtualMachineId classpath]}"
+        set TmpObjectValue [$AdminConfig showAttribute $JavaVirtualMachineId classpath]
+        if {[string match $PatternClasspath $TmpObjectValue] != 0} {
+            puts stdout "JVM Classpath succesfull created/modified."
+            $AdminConfig save
+		} else {
+			puts stdout "ERROR: JVM Classpath could not be modified."	
+			exit 1
+		}
+	}
+	puts stdout " "
+
+
+	####################################################################################
+	#  modify maximumHeapSize in JavaVirtualMachine 
+	#####################################################################################
+    puts "Modify JVM maximumHeapSize /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/"
+    set MaximumHeapSize 512
+    set JavaVirtualMachineId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/]
+	if {$JavaVirtualMachineId == ""} {
+		puts stdout "ERROR: /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/ does not exist"
+		exit 1
+	}
+	if {[llength $JavaVirtualMachineId] != 1} {
+		puts stdout "ERROR: more then one /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/"
+		exit 1
+	}
+
+	################ modify maximumHeapSize #################################
+	set FlagNoChangeNeccessary "false"
+	set attrs [list [list maximumHeapSize $MaximumHeapSize]]
+	set TmpMaximumHeapSize [$AdminConfig showAttribute $JavaVirtualMachineId maximumHeapSize]
+    puts stdout "Old: JVM maximumHeapSize = $TmpMaximumHeapSize"
+	if {[string compare $TmpMaximumHeapSize $MaximumHeapSize] != 0} {
+		$AdminConfig modify $JavaVirtualMachineId $attrs 
+	} else {
+		puts stdout "Value is OK, no action taken"
+		set FlagNoChangeNeccessary "true"
+	}
+	
+	################ check for success  ####################################
+	if {$FlagNoChangeNeccessary == "false"} {
+        set TmpMaximumHeapSize [$AdminConfig showAttribute $JavaVirtualMachineId maximumHeapSize]
+            puts stdout "New: JVM maximumHeapSize = $TmpMaximumHeapSize"
+        if {[string compare $TmpMaximumHeapSize $MaximumHeapSize] != 0} {
+            puts stdout "ERROR: JVM Property could not be modified."	
+            exit 1
+        } else {
+            puts stdout "JVM Property succesfull modified."
+            $AdminConfig save
+        }        
+	}
+	puts stdout " "
+}

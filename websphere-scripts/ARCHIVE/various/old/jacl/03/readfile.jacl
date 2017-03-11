@@ -1,0 +1,24 @@
+source libs/JVUtils.jacl;
+source libs/data/JVaddNSBString.jacl;
+
+proc irac_nsbString_File {filename cellName} {
+	puts "filename :$filename:";
+
+	set jvfile [ open $filename r ];
+	while { ! [eof $jvfile]} {
+		set aline [string trim [gets $jvfile]];
+		if { $aline == "" } {
+			continue;
+		}
+		set cline "";
+		regexp {^#} $aline cline;
+		if { $cline == "#" } {
+			continue;
+		}
+		set first [lindex $aline 0];
+		set second [lindex $aline 1];
+		JVaddNSBString $cellName "" $first $second;
+	}
+	close $jvfile;
+}
+

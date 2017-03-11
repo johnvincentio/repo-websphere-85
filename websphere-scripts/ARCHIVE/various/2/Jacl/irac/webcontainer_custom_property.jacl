@@ -1,0 +1,35 @@
+proc webcontainer_custom_property {CellName NodeName ServerName} {
+	
+	global AdminConfig;
+	
+	set propertyName com.ibm.ws.webcontainer.invokefilterscompatibility
+	set propertyValue true
+	
+	# define some helper variables
+	set a1 [list name $propertyName]
+	set a2 [list value $propertyValue]
+	set attrs [list $a1 $a2]
+	
+	# get server config
+	set server [$AdminConfig getid /Cell:$CellName/Node:$NodeName/Server:$ServerName/]
+	
+	#get the webcontainer config from the server config
+	set webcontainer [$AdminConfig list WebContainer $server]
+	
+	# get a list of existing webcontainer properties 
+	set webcontainerProperties [$AdminConfig list Property $webcontainer]
+
+	# Check for existing properties with the same name and delete if found
+	if { ${webcontainerProperties} != "" } { 
+		foreach propertyID ${webcontainerProperties} {
+			set propertyIDName [$AdminConfig showAttribute $propertyID name]
+			set match [string match $propertyIDName $propertyName] 
+			if { ${match} == 1 } {
+				$AdminConfig remove $propertyID
+			}
+		}
+	} 
+	
+	# Create the specified property
+	$AdminConfig create Property $webcontainer $attrs 
+}

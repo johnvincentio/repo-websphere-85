@@ -1,0 +1,6 @@
+# simple one-line JACL command to reassign an EJB reference in the WPCP_Authoring enterprise application
+
+$AdminApp edit WPCP_Authoring {  -MapEJBRefToEJB {{"WPCP Authoring" "" pcm.war,WEB-INF/web.xml ejb/BusinessProcessHome com.ibm.bpe.api.BusinessProcess corbaname:iiop:localhost#com/ibm/bpe/api/BusinessProcessHome }}} 
+
+$AdminConfig save
+

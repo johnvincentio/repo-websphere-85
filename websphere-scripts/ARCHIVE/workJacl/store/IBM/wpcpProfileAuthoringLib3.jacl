@@ -1,0 +1,6 @@
+global cp1
+global AppName
+global LibraryName
+
+set AppName {WPCP_Authoring}
+set LibraryName {CloudScapeLib}

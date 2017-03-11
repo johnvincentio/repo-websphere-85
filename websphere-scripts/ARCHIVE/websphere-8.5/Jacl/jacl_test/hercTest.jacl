@@ -1,0 +1,64 @@
+#------------------------------------------------------------------
+# script to handle Testing for Server Configuration
+#------------------------------------------------------------------
+
+source ../libs/JVUtils.jacl;
+source ../libs/JVcreateJDBCProviderMySQL.jacl;
+source ../libs/JVcreateDatasourceMySQL.jacl;
+
+proc hercTest {myServerName myNodeName myCellName myBindingLocation myRootPath myWorkspaceServerPath mySqlserverLibPath myDb2JavaPath myDb2LibPath myDb2UniversalDriverLibPath myMySQLLibPath myMQJMSLibRoot} {
+
+	JVputInfo "-------------------------------------------------------------------------";
+	JVputInfo "																			";
+	JVputInfo " Scope:								    								";
+	JVputInfo "    Server Instance                  $myServerName                       ";
+	JVputInfo "    Node                             $myNodeName			    			";
+	JVputInfo "    Cell                             $myCellName			    			";
+	JVputInfo "    Binding Location                 $myBindingLocation   		    	";
+	JVputInfo " Workspace:								    							";
+	JVputInfo "    Source Root                      $myRootPath			    			";
+	JVputInfo "    Server Path                      $myWorkspaceServerPath		    	";
+	JVputInfo " Paths:								    								";
+	JVputInfo "    SQLServer Path                   $mySqlserverLibPath		    		";
+	JVputInfo "    DB2 Java Path                    $myDb2JavaPath			    		";
+	JVputInfo "    DB2 Lib Path                     $myDb2LibPath			    		";
+	JVputInfo "    Db2 Universal Driver Lib Path    $myDb2UniversalDriverLibPath	    ";
+	JVputInfo "    MySQL Lib Path					$myMySQLLibPath	    				";
+	JVputInfo "    MQ JMS Lib Root					$myMQJMSLibRoot	    				";
+	JVputInfo "-------------------------------------------------------------------------";
+
+#--------------------------------------------------------------------
+#  Handle MySQL JAAS
+#--------------------------------------------------------------------
+
+set myDB "mySQL";
+set myUser "jv";
+set myPassword "yeti";
+set myDs "Access MySQL Database";
+JVcreateJAASAuthenticationAlias $myCellName $myDB $myUser $myPassword $myDs;
+
+#--------------------------------------------------------------------
+# Create JDBC Provider 
+#--------------------------------------------------------------------
+
+set provName     "MySQL User-defined JDBC Provider";
+JVcreateJDBCProviderMySQL $myNodeName $myServerName $provName $myMySQLLibPath;
+
+#--------------------------------------------------------------------
+# Create MySQL Data Datasource
+#--------------------------------------------------------------------
+
+set dsName       "";
+set dsJNDI       "jdbc/com/idc/mysqlDB";
+set dsDesc       "";
+set dsAuthMech   "BASIC_PASSWORD";
+set secAuthAlias $myDB;
+set dbName       "JV_SCHEMA_1";
+set dbSrvName    "localhost";
+set dbPort       "3306";
+set dbUser       $myUser;
+set dbPassword   $myPassword;
+set dbHelper	 "com.ibm.websphere.rsadapter.ConnectJDBCDataStoreHelper";
+JVcreateDatasourceMySQL $myNodeName $myServerName $provName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort $dbUser $dbPassword $dbHelper;
+
+}

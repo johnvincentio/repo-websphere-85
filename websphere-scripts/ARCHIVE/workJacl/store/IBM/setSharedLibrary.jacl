@@ -1,0 +1,220 @@
+set NodeName @NodeName@
+set ServerName @ServerName@
+set AppName @WpsAppName@
+set LibraryName {WPSlib}
+
+set cp01 [list classPath {${WPS_HOME}/shared/app}]
+set cp02 [list classPath {${WPS_HOME}/shared/app/activation.jar}]
+set cp03 [list classPath {${WPS_HOME}/shared/app/admin.jar}]
+set cp04 [list classPath {${WPS_HOME}/shared/app/bsf.jar}]
+set cp05 [list classPath {${WPS_HOME}/shared/app/CallJava.jar}]
+set cp06 [list classPath {${WPS_HOME}/shared/app/cas.jar}]
+set cp07 [list classPath {${WPS_HOME}/shared/app/casTutorial.jar}]
+set cp08 [list classPath {${WPS_HOME}/shared/app/cas_utils.jar}]
+set cp09 [list classPath {${WPS_HOME}/shared/app/categorizer.jar}]
+set cp10 [list classPath {${WPS_HOME}/shared/app/CatSum.jar}]
+set cp11 [list classPath {${WPS_HOME}/shared/app/commres.jar}]
+set cp12 [list classPath {${WPS_HOME}/shared/app/convertors.jar}]
+set cp13 [list classPath {${WPS_HOME}/shared/app/cs.jar}]
+set cp14 [list classPath {${WPS_HOME}/shared/app/DocEditor.jar}]
+set cp15 [list classPath {${WPS_HOME}/shared/app/epi-portlet.jar}]
+set cp16 [list classPath {${WPS_HOME}/shared/app/Export.jar}]
+set cp17 [list classPath {${WPS_HOME}/shared/app/htmltemplate.jar}]
+set cp18 [list classPath {${WPS_HOME}/shared/app/IBMJCEfw.jar}]
+set cp19 [list classPath {${WPS_HOME}/shared/app/IBMJCEProvider.jar}]
+set cp20 [list classPath {${WPS_HOME}/shared/app/jaas-proxy.jar}]
+set cp21 [list classPath {${WPS_HOME}/shared/app/jakarta-oro-2.0.4.jar}]
+set cp22 [list classPath {${WPS_HOME}/shared/app/jakarta-oro-2.0.7.jar}]
+set cp23 [list classPath {${WPS_HOME}/shared/app/jakarta-poi.jar}]
+set cp24 [list classPath {${WPS_HOME}/shared/app/jakarta-regexp-1.2.jar}]
+set cp25 [list classPath {${WPS_HOME}/shared/app/JavaProlog.jar}]
+set cp26 [list classPath {${WPS_HOME}/shared/app/JediiTreeViewer.jar}]
+set cp27 [list classPath {${WPS_HOME}/shared/app/jlog-2.2.1.jar}]
+set cp28 [list classPath {${WPS_HOME}/shared/app/jt400.jar}]
+set cp29 [list classPath {${WPS_HOME}/shared/app/juru.jar}]
+set cp30 [list classPath {${WPS_HOME}/shared/app/kdsapi.jar}]
+set cp31 [list classPath {${WPS_HOME}/shared/app/KDSW.jar}]
+set cp32 [list classPath {${WPS_HOME}/shared/app/local_policy.jar}]
+set cp33 [list classPath {${WPS_HOME}/shared/app/log4j-1.2.7.jar}]
+set cp34 [list classPath {${WPS_HOME}/shared/app/lwotypes.jar}]
+set cp35 [list classPath {${WPS_HOME}/shared/app/mail.jar}]
+set cp36 [list classPath {${WPS_HOME}/shared/app/mainJavadoc.jar}]
+set cp37 [list classPath {${WPS_HOME}/shared/app/NCSOW.jar}]
+set cp38 [list classPath {${WPS_HOME}/shared/app/odc-util.jar}]
+set cp39 [list classPath {${WPS_HOME}/shared/app/pcm.jar}]
+set cp40 [list classPath {${WPS_HOME}/shared/app/pdAdmin.jar}]
+set cp41 [list classPath {${WPS_HOME}/shared/app/pdm.jar}]
+set cp42 [list classPath {${WPS_HOME}/shared/app/PortalStrutsBase.jar}]
+set cp43 [list classPath {${WPS_HOME}/shared/app/portlet-api.jar}]
+set cp44 [list classPath {${WPS_HOME}/shared/app/portlet.jar}]
+set cp45 [list classPath {${WPS_HOME}/shared/app/RegEx_TAE.jar}]
+set cp46 [list classPath {${WPS_HOME}/shared/app/Sindex.jar}]
+set cp47 [list classPath {${WPS_HOME}/shared/app/ssl.jar}]
+set cp48 [list classPath {${WPS_HOME}/shared/app/stcommsrvrtk.jar}]
+set cp49 [list classPath {${WPS_HOME}/shared/app/strutsfilters.jar}]
+set cp50 [list classPath {${WPS_HOME}/shared/app/sumIt.jar}]
+set cp51 [list classPath {${WPS_HOME}/shared/app/transcoding.jar}]
+set cp52 [list classPath {${WPS_HOME}/shared/app/treeview.jar}]
+set cp53 [list classPath {${WPS_HOME}/shared/app/uddi4j.jar}]
+set cp54 [list classPath {${WPS_HOME}/shared/app/uima.jar}]
+set cp55 [list classPath {${WPS_HOME}/shared/app/uimaExamples.jar}]
+set cp56 [list classPath {${WPS_HOME}/shared/app/uimaJedII.jar}]
+set cp57 [list classPath {${WPS_HOME}/shared/app/US_export_policy.jar}]
+set cp58 [list classPath {${WPS_HOME}/shared/app/wcl.jar}]
+set cp59 [list classPath {${WPS_HOME}/shared/app/WebScanner.jar}]
+set cp60 [list classPath {${WPS_HOME}/shared/app/wmmencryption.jar}]
+set cp61 [list classPath {${WPS_HOME}/shared/app/wps.jar}]
+set cp62 [list classPath {${WPS_HOME}/shared/app/wpsportlets.jar}]
+set cp63 [list classPath {${WPS_HOME}/shared/app/wsdl4jpbext.jar}]
+set cp64 [list classPath {${WPS_HOME}/shared/app/wtpadmin.jar}]
+set cp65 [list classPath {${WPS_HOME}/shared/app/wtpcommon.jar}]
+set cp66 [list classPath {${WPS_HOME}/shared/app/wtpserver.jar}]
+set cp67 [list classPath {${WPS_HOME}/shared/app/wts.jar}]
+set cp68 [list classPath {${WPS_HOME}/shared/app/HTMLParse.zip}]
+set cp69 [list classPath {${WPS_HOME}/shared/app/wcl_alllang.jar}]
+set cp70 [list classPath {${WPS_HOME}/shared/app/watsonUtil.jar}]
+set cp71 [list classPath {${WPS_HOME}/shared/app/xsdbeans.jar}]
+set cp72 [list classPath {${WPS_HOME}/shared/app/eTracer.jar}]
+set cp73 [list classPath {${WPS_HOME}/shared/app/catUtil.jar}]
+set cp74 [list classPath {${WPS_HOME}/shared/app/xincluder.jar}]
+
+
+#--------------------------------------------------------------
+# Proc to create a Library Reference in a Classloader
+#--------------------------------------------------------------
+proc createLibRef {ClassLoaderId LibraryRef LibraryName IdString} {
+	global AdminConfig
+	set LocalFlagErr false
+	set LibRef ""
+	set FlagExist "False"
+
+		#### Check if its already there ###################
+		if {$LibraryRef != ""} {
+			set TmpList [split [string trim [string trim [string trim $LibraryRef "{"] "}"] ] ")"]
+			foreach Tmp $TmpList {
+				set Tmp [string trim $Tmp " "]
+				append Tmp ")"
+				if { [string length $Tmp] > 1} {
+					lappend LibRef $Tmp
+				}
+			}
+			foreach TmpLibRef $LibRef {
+				if {[catch {$AdminConfig showAttribute $TmpLibRef libraryName} TmpLibRefName]} {
+					puts stdout $TmpLibRefName
+					puts stdout "ERROR: In '/CLassloader:/'."
+					puts stdout "This is not a valid Library Reference."
+					puts stdout $TmpLibRef
+					set LocalFlagErr true
+				} else {
+					if {[string compare $TmpLibRefName $LibraryName] == 0} {
+						set FlagExist "True"
+						break
+					}
+				}
+			}
+		}
+
+		if {$FlagExist == "True"} {
+			puts stdout "$IdString already there, no Action taken"
+		} else {
+			##### Create Application Classloader LibraryReference
+			set LibraryNameList [list libraryName $LibraryName]
+			set attrs [list $LibraryNameList]
+			set LibraryRef [$AdminConfig create LibraryRef $ClassLoaderId $attrs]
+			if {$LibraryRef == ""} {
+				puts stdout "ERROR: $IdString could not be created."
+				set LocalFlagErr true
+			} else {
+				#### Check for success ###################
+				set TmpList [split [string trim [string trim [string trim $LibraryRef "{"] "}"] ] ")"]
+				foreach Tmp $TmpList {
+					set Tmp [string trim $Tmp " "]
+					append Tmp ")"
+					if { [string length $Tmp] > 1} {
+						lappend LibRef $Tmp
+					}
+				}
+				set FlagExist "False"
+				foreach TmpLibRef $LibRef {
+					if {[catch {$AdminConfig showAttribute $TmpLibRef libraryName} TmpLibRefName]} {
+						puts stdout $TmpLibRefName
+						puts stdout "ERROR: In '/CLassloader:/'."
+						puts stdout "This is not a valid Library Reference."
+						puts stdout $TmpLibRef
+						set LocalFlagErr true
+					} else {
+						if {[string compare $TmpLibRefName $LibraryName] == 0} {
+							set FlagExist "True"
+							break
+						}
+					}
+				}
+			}
+
+			if {$FlagExist == "True"} {
+				puts stdout "$IdString successfully created."
+				set LocalFlagErr false
+			} else {
+				puts stdout "ERROR: $IdString could not be created."
+				set LocalFlagErr true
+			}
+		}
+	
+	return $LocalFlagErr
+}
+
+
+
+#--------------------------------------------------------------
+# Main
+#--------------------------------------------------------------
+set NodeId [$AdminConfig getid /Node:$NodeName/]
+set ServerId [$AdminConfig getid /Server:$ServerName/]
+
+##### Create Library
+set LibraryId [$AdminConfig getid /Node:$NodeName/Library:$LibraryName/]
+if {$LibraryId != ""} {
+    puts stdout "Library: /Node:$NodeName/Library:$LibraryName/ already exists, no Action taken"
+} else {
+	set NameList [list name $LibraryName]
+	set attrs [list $NameList $cp01]
+    set LibraryId [$AdminConfig create Library $NodeId $attrs]
+	if {$LibraryId == ""} {
+		puts stdout "ERROR: Library: /Node:$NodeName/Library:$LibraryName/ could not be created."
+		exit 1
+	} else {	
+		##### Modify Library
+		set attrs [list $cp02 $cp03 $cp04 $cp05 $cp06 $cp07 $cp08 $cp09 $cp10 $cp11 $cp12 $cp13 $cp14 $cp15 $cp16 $cp17 $cp18 $cp19 $cp20 $cp21 $cp22 $cp23 $cp24 $cp25 $cp26 $cp27 $cp28 $cp29 $cp30 $cp31 $cp32 $cp33 $cp34 $cp35 $cp36 $cp37 $cp38 $cp39 $cp40 $cp41 $cp42 $cp43 $cp44 $cp45 $cp46 $cp47 $cp48 $cp49 $cp50 $cp51 $cp52 $cp53 $cp54 $cp55 $cp56 $cp57 $cp58 $cp59 $cp60 $cp61 $cp62 $cp63 $cp64 $cp65 $cp66 $cp67 $cp68 $cp69 $cp70 $cp71 $cp72 $cp73 $cp74]
+        $AdminConfig modify $LibraryId $attrs
+        puts stdout "Library: /Node:$NodeName/Library:$LibraryName/ successfully created and modified."
+    }
+}
+
+##### Create ApplicationServer Classloader
+set ClassLoaderId [$AdminConfig getid /Server:$ServerName/ApplicationServer:/Classloader:/]
+if {$ClassLoaderId != ""} {
+	puts stdout "Classloader: /Server:$ServerName/ApplicationServer:/Classloader:/ exists, no Action taken"
+} else {
+	# wmm  set attrs [list [list mode PARENT_FIRST]]
+	set attrs [list [list mode PARENT_LAST]]
+	set AppServerId [$AdminConfig getid /Server:$ServerName/ApplicationServer:/]
+	set ClassLoaderId [$AdminConfig create Classloader $AppServerId $attrs]
+	if {$ClassLoaderId == ""} {
+		puts stdout "ERROR: Classloader: /Server:$ServerName/ApplicationServer:/Classloader:/ could not be created."
+		exit 1
+	} else {
+		puts stdout "Classloader: /Server:$ServerName/ApplicationServer:/Classloader:/ successfully created."
+	}
+}
+
+##### Create ApplicationServer Classloader LibraryReference
+set LibraryRef [$AdminConfig showAttribute $ClassLoaderId libraries]
+set IdString "LibraryRef: /Server:$ServerName/ApplicationServer:/Classloader:/LibraryRef:$LibraryName/"
+if {[createLibRef $ClassLoaderId $LibraryRef $LibraryName $IdString] == "true"} {
+    exit 1
+}
+
+
+$AdminConfig save
+
+puts " "

@@ -1,0 +1,8 @@
+proc JVlistDeployedApps {} {
+
+	global AdminApp;
+
+	JVputInfo "Deployed apps follow:";
+	$AdminApp list;
+	JVputInfo "End of list";
+}

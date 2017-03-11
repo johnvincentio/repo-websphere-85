@@ -1,0 +1,7 @@
+
+proc JVusageError {errorMessage} {
+	puts "";
+	JVputError "Incorrect usage: $errorMessage";
+	JVdisplayHelpMessage;
+}
+

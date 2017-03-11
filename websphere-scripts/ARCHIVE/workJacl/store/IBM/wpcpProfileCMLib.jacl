@@ -1,0 +1,7 @@
+global cp1
+global AppName
+global LibraryName
+
+set AppName {WPCP_Runtime}
+set LibraryName {CMBClassesLib}
+set cp1 [list classPath {@CmRootlib@ @CmCommon@}]

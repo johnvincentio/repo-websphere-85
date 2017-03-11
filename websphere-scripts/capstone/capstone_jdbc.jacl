@@ -1,0 +1,54 @@
+
+source capstone_jdbc_nero.jacl;
+source capstone_jdbc_supplier.jacl;
+source capstone_jdbc_distributor.jacl;
+source capstone_jdbc_retailer.jacl;
+source capstone_jdbc_manufacturer.jacl;
+source capstone_jdbc_jms.jacl;
+
+#------------------------------------------------------------------
+# Create JDBC Resources
+#------------------------------------------------------------------
+
+proc capstone_jdbc {NodeName ServerName} {
+
+#--------------------------------------------------------------------
+# set Oracle JDBC variable entry
+#--------------------------------------------------------------------
+
+   JVmodifyVariable "ORACLE_JDBC_DRIVER_PATH" "/usr/local/bin/Oracle/jdbc";
+
+#--------------------------------------------------------------------
+# Create JDBC Provider
+#--------------------------------------------------------------------
+  
+   set templName    "Oracle JDBC Driver";
+   set provName     "Capstone Oracle JDBC Driver";
+   JVcreateJDBCProviderByTemplate $NodeName $ServerName $templName $provName;
+
+#--------------------------------------------------------------------
+# Create JDBC Resources
+#--------------------------------------------------------------------
+  
+   set dbURL        "jdbc:oracle:thin:@alpha:1521:orcl";
+
+   JVputInfo "JDBC; Nero";
+   capstone_jdbc_nero $NodeName $ServerName $templName $provName $dbURL;
+
+   JVputInfo "JDBC; Supplier";
+   capstone_jdbc_supplier $NodeName $ServerName $templName $provName $dbURL;
+
+   JVputInfo "JDBC; Distributor";
+   capstone_jdbc_distributor $NodeName $ServerName $templName $provName $dbURL;
+
+   JVputInfo "JDBC; Retailer";
+   capstone_jdbc_retailer $NodeName $ServerName $templName $provName $dbURL;
+
+   JVputInfo "JDBC; Manufacturer";
+   capstone_jdbc_manufacturer $NodeName $ServerName $templName $provName $dbURL;
+
+   JVputInfo "JDBC; Jms";
+   capstone_jdbc_jms $NodeName $ServerName $templName $provName $dbURL;
+
+}
+

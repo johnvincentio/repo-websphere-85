@@ -1,0 +1,484 @@
+#
+# "This sample program is provided AS IS and may be used, executed, copied and modified without royalty payment by customer(a) for its own 
+# instruction and study, (b) in order to develop applications designed to run with an IBM WebSphere product, either for customer's own internal use 
+# or for redistribution by customer, as part of such an application, in customer's own products."
+#
+# Product 5724i63,  (C) COPYRIGHT International Business Machines Corp., 2004
+# All Rights Reserved * Licensed Materials - Property of IBM
+#
+#----------------------------------------------------------------------
+# samplesMaster.jacl - Script for setting up the Samples.
+#----------------------------------------------------------------------
+#
+#   This script has optional parameters:
+#
+#      Command - the name of the command to run on the Sample
+#      Cell    - the name of the cell under which to install the Sample
+#      Node    - the name of the node under which to install the Sample
+#      Server  - the name of the server under which to install the Sample
+#      Samples - the list of Samples that need the command run
+#      Man     - display help dialog
+#
+#   Here is an example of how to invoke the script:
+#   
+# wsadmin -conntype none -f samplesMaster.jacl -command myCommand 
+#  -node myNodeName -cell myCellName -server myServerName 
+#  -samples mysampleName01 mysampleName02
+#
+#----------------------------------------------------------------------
+
+source AdminUtil.jacl
+
+#----------------------------------------------------------------------
+# Constants
+#----------------------------------------------------------------------
+set VALID_COMMANDS [list config install]
+set samples  [list activitysessions Adventure AlbumCatalog AppProfile AsynchBeans DynamicQuery GreenhouseByWebSphere i18nctx JTAExtensionsSamples MessageDrivenBeans PlantsByWebSphere SamplesGallery Scheduler TechSamp WebServicesSamples WebSphereBank WorkArea]
+set noConfig [list JTAExtensionsSamples SamplesGallery WebServicesSamples]
+
+#----------------------------------------------------------------------
+# Global variables holding the script context
+#----------------------------------------------------------------------
+set command ""
+set cell ""
+set node ""
+set server ""
+set sampleList ""
+
+#--------------------------------------------------------------------
+# Processes the script arguments.
+# The arguments are validated, and the global variables are set
+# based on their values.
+#
+# Params:
+#      argc           The number of arguments passed to the script.
+#      argv           The arguments passed to the script.
+#--------------------------------------------------------------------
+proc processArguments {argc argv} {
+
+  global AdminConfig command node cell server sampleList samples VALID_COMMANDS
+
+  set VALID_OPTIONS   [list -command -cell -node -server -samples -man]
+
+  for {set i 0} {$i < $argc} {incr i} {
+
+    #----------------------------------------------------------------------
+    # Verify that the argument is a valid option
+    #----------------------------------------------------------------------
+    if {[lsearch $VALID_OPTIONS [lindex $argv $i]] == -1} {
+       usageError "[lindex $argv $i] is not a valid option.  Valid options are: $VALID_OPTIONS."
+    }   
+ 
+    #----------------------------------------------------------------------
+    # Process the command option
+    #---------------------------------------------------------------------- 
+    if {[lindex $argv $i] == "-command"} {
+       incr i
+ 
+       if { $i!=$argc } {
+ 
+          set command [lindex $argv $i]
+       
+          if {[lsearch $VALID_COMMANDS $command] == -1} { 
+             usageError "[lindex $argv $i] is not a valid command. Valid commands are: $VALID_COMMANDS."
+          }
+       }
+    }
+ 
+    #----------------------------------------------------------------------
+    # Process the cell option
+    #---------------------------------------------------------------------- 
+    if {[lindex $argv $i] == "-cell"} {
+       incr i
+ 
+       # Check to see if -cell is followed by a parameter,
+       # and make sure -cell isn't empty
+       if { ([lsearch $VALID_OPTIONS [lindex $argv $i]] == -1) && ($i != $argc) } {
+          set cell [lindex $argv $i]
+       } else {
+          usageError "The cell name is not specified."
+       }
+    }
+ 
+    #----------------------------------------------------------------------
+    # Process the node option
+    #---------------------------------------------------------------------- 
+    if {[lindex $argv $i] == "-node"} {
+       incr i
+       
+       if { ([lsearch $VALID_OPTIONS [lindex $argv $i]] == -1) && ($i != $argc) } {
+          set node [lindex $argv $i]
+       } else {
+          usageError "The node name is not specified."
+       }
+    }
+ 
+    #----------------------------------------------------------------------
+    # Process the server option
+    #---------------------------------------------------------------------- 
+    if {[lindex $argv $i] == "-server"} {
+       incr i
+ 
+       if { ([lsearch $VALID_OPTIONS [lindex $argv $i]] == -1) && ($i != $argc) } {
+          set server [lindex $argv $i]
+       } else {
+          usageError "The server name is not specified."
+       }
+    }
+ 
+    #----------------------------------------------------------------------
+    # Process the samples option
+    #---------------------------------------------------------------------- 
+    if {[lindex $argv $i] == "-samples"} {
+       incr i 
+       
+       if {[lindex $argv $i] == "all"} {  
+         # 'all' is specified
+         set sampleList $samples
+       } else {
+         # Samples are individually listed, so read in the complete list of samples specified
+         while {$i < $argc} {         
+            set sampleName [lindex $argv $i]
+            if {[lsearch $samples $sampleName] == -1} {
+               usageError "[lindex $argv $i] is not a valid sample.\nValid samples are: $samples.\nSeparate more than one sample with a space, or you can specify all samples by typing \"all\"."
+            }
+            set sampleList [lappend sampleList $sampleName]
+            incr i
+         }
+       }
+    }
+ 
+    #----------------------------------------------------------------------
+    # Process the man option
+    #---------------------------------------------------------------------- 
+    if {[lindex $argv $i] == "-man"} {
+       displayHelpMessage
+       exit
+    }
+  }
+
+  #----------------------------------------------------------------------
+  # Set the cell name
+  #----------------------------------------------------------------------
+  if {$cell == ""} {
+     set cells [$AdminConfig list Cell]
+     if { [llength $cells] == 1 } {
+       # There is only one cell in the configuration, so default to its name
+       set cell [$AdminConfig showAttribute $cells name]
+     } elseif { [llength $cells] == 0 } {
+       usageError "The configuration has no cells."
+     } else {
+       usageError "The configuration has more than one cell.  Use the -cell option to specify a cell."
+     }
+  } elseif { [llength [$AdminConfig getid /Cell:$cell]] == 0 } {
+    usageError "$cell is not a valid cell name."
+  }
+
+  #----------------------------------------------------------------------
+  # Set the node name
+  #----------------------------------------------------------------------
+  if {$node == ""} {
+     set nodes [$AdminConfig getid /Cell:$cell/Node:/]
+     if { [llength $nodes] == 1 } {
+       # There is only one node in the configuration, so default to its name
+       set node [$AdminConfig showAttribute $nodes name]
+     } elseif { [llength $nodes] == 0 } {
+       usageError "The $cell cell has no nodes."
+     } else {
+       usageError "The configuration has more than one node.  Use the -node option to specify a node."
+     }
+  } elseif { [llength [$AdminConfig getid /Cell:$cell/Node:$node]] == 0} {
+    usageError "$node is not a valid node name."
+  }
+
+  #----------------------------------------------------------------------
+  # Set the server name
+  #----------------------------------------------------------------------
+  if {$server == ""} {
+    set server "server1"
+  }
+  
+  if { [llength [$AdminConfig getid /Cell:$cell/Node:$node/Server:$server]] == 0 } {
+    usageError "$server is not a valid server name."
+  }
+
+  #----------------------------------------------------------------------
+  # Set the list of samples
+  #----------------------------------------------------------------------
+  if {$sampleList == ""} {
+    set sampleList $samples
+  }
+}
+
+#--------------------------------------------------------------------
+# Displays a usage error, and then terminates the script.
+#--------------------------------------------------------------------
+proc usageError {errorMessage} {
+  puts ""
+  putError "Incorrect usage: $errorMessage"
+  displayHelpMessage
+  exit
+}
+
+#----------------------------------------------------------------------
+# Displays the help message.
+#----------------------------------------------------------------------
+proc displayHelpMessage {} {
+
+  global samples VALID_COMMANDS
+  
+  puts " "
+  puts "#---------------------------HELP-----------------------------------"
+  puts " "
+  puts "  OPTIONAL PARAMETERS"
+  puts " "
+  puts "  -command     Specifies what type of command you would like" 
+  puts "               to run.  Currently the only valid commands are:"
+  puts "               $VALID_COMMANDS." 
+  puts " "
+  puts "  -cell        Specifies the cell name of your server."
+  puts " "
+  puts "  -node        Specifies the node name of your server."
+  puts " "
+  puts "  -server      Specifies the server name. The default is server1."
+  puts " "
+  puts "  -samples     This option must be listed last.  It specifies"
+  puts "               which samples the command should be applied to."
+  puts "               If \"all\" is specified the command will be"
+  puts "               applied to every sample.  Otherwise samples"
+  puts "               should be specified with spaces as a delimiter."
+  puts "               The default is \"all\"."
+  puts " "
+  puts "  -man         Brings up this help dialog"
+  puts " "
+  puts "  Valid samples: $samples"
+  puts "#------------------------------------------------------------------"   
+ 
+}
+
+#--------------------------------------------------------------------
+# Runs the specified command for the sample.
+# The install.jacl for the sample is sourced, and the procedure
+# corresponding to the command name is invoked.
+#
+# Params:
+#      cellName       The name of the cell.
+#      nodeName       The name of the node.
+#      serverName     The name of the server.
+#      commandName    The name of the command to run.
+#      sampleName     The name of the sample on which the command is run.
+#
+# Returns:
+#      true if the command runs successfully,
+#      false otherwise.
+#--------------------------------------------------------------------
+proc runCommand {cellName nodeName server commandName sampleName} {
+  global errorInfo env
+
+  set procName $commandName
+  append procName "_$sampleName"
+
+  if {[catch {
+    source $env(was.install.root)/samples/bin/$sampleName/install.jacl
+    $procName $cellName $nodeName $server
+  }]} {
+    puts ""
+    puts $errorInfo
+    puts ""
+    putError "The $commandName command for $sampleName failed."
+    return false
+  } else {
+    puts ""
+    putInfo "The $commandName command for $sampleName completed successfully."
+  }
+
+  #----------------------------------------------------------------------
+  # Save
+  #----------------------------------------------------------------------           
+
+  save
+
+  return true
+}
+
+#--------------------------------------------------------------------
+# Displays a summary for each run of the specified command.
+#
+# Params:
+#      command            The name of the command.
+#      successfulSamples  The list of samples for which the command
+#                         ran successfully.
+#--------------------------------------------------------------------
+proc displaySummary {command successfulSamples} {
+
+  global sampleList
+
+  #----------------------------------------------------------------------
+  # Tabulate the results
+  #----------------------------------------------------------------------           
+
+  set totalCount   [llength $sampleList]
+  set successCount [llength $successfulSamples]
+  set failedCount  [expr {$totalCount - $successCount}]
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Summary                                          "
+  puts "---------------------------------------------------------------"
+  
+  if { $successCount > 0 } {
+    puts " The $command command succeeded for the following Samples:"
+    puts ""
+    foreach sampleName $successfulSamples {
+      puts "    $sampleName"
+    }
+    puts ""
+  }
+  
+  if { $failedCount > 0 } {
+    puts " The $command command failed for the following Samples:"
+    puts ""
+    foreach sampleName $sampleList {
+      if {[lsearch $successfulSamples $sampleName] == -1} {
+        puts "    $sampleName"
+      }
+    }
+    puts ""
+  }
+  
+  if { $failedCount == 0 } {
+    puts " All commands ran successfully."
+  } else {
+    puts " $successCount of $totalCount $command commands ran successfully."
+  }
+  puts "---------------------------------------------------------------"
+  
+}
+
+#--------------------------------------------------------------------
+# Displays a summary for configuring and installing the samples.
+#
+# Params:
+#      configuredSamples  The list of samples that were configured successfully.
+#      installedSamples   The list of samples that were installed successfully.
+#--------------------------------------------------------------------
+proc displayConfigureInstallSummary {configuredSamples installedSamples} {
+
+  global sampleList
+
+  #----------------------------------------------------------------------
+  # Combine the configure and install results
+  #----------------------------------------------------------------------           
+  set successfulSamples ""
+  foreach sampleName $installedSamples {
+    if { [lsearch $configuredSamples $sampleName] != -1 } {
+      set successfulSamples [lappend successfulSamples $sampleName]
+    }
+  }
+
+  #----------------------------------------------------------------------
+  # Tabulate the results
+  #----------------------------------------------------------------------           
+
+  set totalCount   [llength $sampleList]
+  set successCount [llength $successfulSamples]
+  set failedCount  [expr {$totalCount - $successCount}]
+  
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Summary                                          "
+  puts "---------------------------------------------------------------"
+  
+  if { $successCount > 0 } {
+    puts " The following samples were configured and installed successfully:"
+    puts ""
+    foreach sampleName $successfulSamples {
+      puts "    $sampleName"
+    }
+    puts ""
+  }
+  
+  if { $failedCount > 0 } {
+    puts " The following samples failed to be configured and installed:"
+    puts ""
+    foreach sampleName $sampleList {
+      if {[lsearch $successfulSamples $sampleName] == -1} {
+        puts "    $sampleName"
+      }
+    }
+    puts ""
+  }
+  
+  puts "---------------------------------------------------------------"
+  
+}
+
+#----------------------------------------------------------------------
+# Main
+#----------------------------------------------------------------------
+
+processArguments $argc $argv
+
+puts ""
+puts "---------------------------------------------------------------"
+puts "              Command parameters                               "
+puts "---------------------------------------------------------------"
+puts " Command:                                                      "
+if { $command == "" } {
+  puts "                        configure & install                  "
+} else {
+  puts "    type                $command                             "
+}
+puts " Scope:                                                        "
+puts "    cell                $cell                                  "
+puts "    node                $node                                  "
+puts "    server              $server                                "
+puts " Samples:                                                      "
+foreach sampleName $sampleList {
+  puts "                        $sampleName                          "
+}
+puts "---------------------------------------------------------------"
+puts "stage 1"
+exit
+puts "stage 2"
+
+#----------------------------------------------------------------------
+# Run the config command
+#----------------------------------------------------------------------           
+set configuredSamples ""
+if { ($command == "") || ($command == "config") } {
+  foreach sampleName $sampleList {
+    if { [lsearch $noConfig $sampleName] == -1 } {
+      if { [runCommand $cell $node $server configure $sampleName] } {
+         set configuredSamples [lappend configuredSamples $sampleName]
+      }
+    } else {
+      puts ""
+      putInfo "$sampleName was not configured because it does not have resources to configure."                  
+      set configuredSamples [lappend configuredSamples $sampleName]
+    }
+  }
+}
+
+#----------------------------------------------------------------------
+# Run the install command
+#----------------------------------------------------------------------
+set installedSamples ""
+if { ($command == "") || ($command == "install") } {
+  foreach sampleName $sampleList {
+    if { [runCommand $cell $node $server install $sampleName] } {
+       set installedSamples [lappend installedSamples $sampleName]
+    }
+  }
+}
+
+#----------------------------------------------------------------------
+# Display a summary of the results
+#----------------------------------------------------------------------
+if { $command == "config" } {
+  displaySummary "config" $configuredSamples
+} elseif { $command == "install" } {
+  displaySummary "install" $installedSamples
+} else {
+  displayConfigureInstallSummary $configuredSamples $installedSamples
+}

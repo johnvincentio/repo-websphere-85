@@ -1,0 +1,49 @@
+set earfile {C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1/install/wps.ear}
+set PathConfigRoot {C:/PROGRA~1/IBM/WEBSPH~1/runtimes/base_v5/config}
+set NodeName {localhost}
+set AppName {"wps"}
+set ServerName {"WebSphere_Portal"}
+set DataSourceName {wps50DS}
+append JndiName "jdbc/" $DataSourceName
+set ReferenzBindingName "jdbc/wpsDS"
+set DisplayName "WebSphere Portal Server 5.0"
+set VirtHostName {default_host}
+
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+    if {[string compare $TmpAppName [string trim $AppName \"]] == 0} {
+        set FlagAppExist "True"
+        break;
+    }
+}
+
+if {$FlagAppExist == "True"} {
+    puts stdout "Application $AppName does exist, no Action taken"
+	exit
+} else {
+	set MapWebModToVhAttrs  [subst {{{"$DisplayName" wps.war,WEB-INF/web.xml $VirtHostName }}}]
+    set MapResRefToEjbAttrs [subst {{{"$DisplayName" "" wps.war,WEB-INF/web.xml $ReferenzBindingName javax.sql.DataSource $JndiName }}}]
+	set Attrs [subst {-node $NodeName -server $ServerName -appname $AppName -configroot $PathConfigRoot -MapResRefToEJB $MapResRefToEjbAttrs -MapWebModToVH $MapWebModToVhAttrs -nodeployejb }]
+    puts stdout "File: $earfile"
+    puts stdout " "
+	puts stdout "Options: $Attrs"
+	puts stdout " "
+    $AdminApp install $earfile $Attrs
+	#OK               $AdminApp install {D:/WEBSPH~1/PORTAL~1/install/wps.ear} {-node "55603G5" -server "WebSphere_Portal" -appname "wps"-configroot D:/WEBSPH~1/APPSER~1/config -MapWebModToVH {{"WebSphere Portal Server 5.0" wps.war,WEB-INF/web.xml default_host }} -nodeployejb }
+    #wsadmin.traceout $AdminApp install D:/WebSphere/PortalServer/install/wps.ear {  -MapResRefToEJB {{"WebSphere Portal Server 5.0" "" wps.war,WEB-INF/web.xml jdbc/wpsDS javax.sql.DataSource jdbc/wpsDS }} -MapWebModToVH {{"WebSphere Portal Server 5.0" wps.war,WEB-INF/web.xml default_host }} -MapModulesToServers {{"WebSphere Portal Server 5.0" wps.war,WEB-INF/web.xml WebSphere:cell=55603G5,node=55603G5,server=WebSphere_Portal }}}
+}
+
+#check for success
+set FlagAppExist "False"
+foreach TmpAppName [$AdminApp list] {
+        if {[string compare $TmpAppName [string trim $AppName \"]] == 0} {
+            set FlagAppExist "True"
+            break;
+        }
+}
+if {$FlagAppExist == "True"} {
+    puts stdout "Application $AppName successfully installed."
+    $AdminConfig save
+} else {
+    puts stdout "ERROR: Application $AppName could not be installed."
+}

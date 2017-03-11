@@ -1,0 +1,39 @@
+
+#------------------------------------------------------------------
+# script to handle Etrieve Server Configuration
+#------------------------------------------------------------------
+
+source ../libs/JVUtils.jacl;
+source ../libs/JVcreateJAASAuthenticationAlias.jacl;
+source ../libs/JVcreateDatasourceSQLServer.jacl;
+
+proc hercAirClick {pServerName pNodeName pCellName} {
+
+#--------------------------------------------------------------------
+#  Handle US JAAS
+#--------------------------------------------------------------------
+
+set myDB "airclick";
+set myUser "airclic2";
+set myPassword "you_need_to_enter_your_own";
+set myDs "Access Airclick Database";
+JVcreateJAASAuthenticationAlias $pCellName $myDB $myUser $myPassword $myDs;
+
+#--------------------------------------------------------------------
+# Create HERC Airclic Table Datasource
+#--------------------------------------------------------------------
+
+set templName    "Microsoft SQL Server JDBC Driver";
+set provName     "iRAC SQLServer";
+   
+set dsName       "jdbc_com_hertz_herc_Airclick";
+set dsJNDI       "jdbc/com/hertz/herc/Airclick";
+set dsDesc       "Herc Airclick data"
+set dsAuthMech   "BASIC_PASSWORD";
+set secAuthAlias "airclick";
+set dbName       "airclic";
+set dbSrvName    "hertz1084";
+set dbPort       "1433";
+JVcreateDatasourceSQLServer $pNodeName $pServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort;
+
+}

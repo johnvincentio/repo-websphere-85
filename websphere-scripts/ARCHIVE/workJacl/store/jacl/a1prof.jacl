@@ -1,0 +1,4 @@
+# wsadmin -profile a1prof.jacl
+
+set apps [$AdminApp list]
+puts "Applications currently installed:\n$apps"

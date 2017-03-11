@@ -1,0 +1,10 @@
+source libs/data/JVcreateJAASAuthenticationAlias.jacl;
+
+proc irac_jaas {cellName} {
+
+#   JVcreateJAASAuthenticationAlias $cellName authAlias uid password descript;
+
+   JVcreateJAASAuthenticationAlias $cellName "me" "prc4031" "muck963\$" "ruislip2";
+   JVcreateJAASAuthenticationAlias $cellName "db27alias" "prc9041" "k16\$kiies" "";
+   JVcreateJAASAuthenticationAlias $cellName "sqlserver" "hertz_com" "h\$Z04web" "";   
+}

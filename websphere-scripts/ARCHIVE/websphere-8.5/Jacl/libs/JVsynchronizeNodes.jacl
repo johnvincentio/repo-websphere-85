@@ -1,0 +1,26 @@
+
+#------------------------------------------------------------------
+#  Synchronize Nodes
+#------------------------------------------------------------------
+
+proc JVmodifyVariable {NodeName} {
+
+   global AdminControl;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Synchronize Nodes                                ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   puts "Synchronizing Nodes...";
+   set Sync1 [$AdminControl completeObjectName type=NodeSync,node=$NodeName,*];
+   set xstatus [$AdminControl invoke $Sync1 sync];
+#  puts $xstatus;
+   if {$xstatus == "false"} {
+      puts "Unable to synchronize..."
+   }
+}

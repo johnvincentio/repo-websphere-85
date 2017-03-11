@@ -1,0 +1,89 @@
+##  install/config/templates/was/odcsetenvvars.jacl
+##-------------------------------------------------------------------------------
+## This file provides scripts to configure  ODC
+##-------------------------------------------------------------------------------
+
+#######################################
+# Create a new ODC properties
+#######################################
+
+global AdminConfig
+
+puts stdout "\n===== Config the ODC Properties"
+
+set cellName {localhost}
+set nodeName {localhost}
+set portalName {WebSphere_Portal}
+set WpsInstallLoc {C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1}
+
+set portal [$AdminConfig getid /Cell:$cellName/Node:$nodeName/Server:$portalName/]
+#puts "\tPortal: $portal"
+set jvm [$AdminConfig list JavaVirtualMachine $portal]
+#puts "\tJVM: $jvm"
+
+# set the ODC attribute
+set attrs [list [list name "os400.class.path.rawt"] [list value "2"] [list required "false"]]
+#puts "\tattrs: $attrs"
+set propName [lindex [lindex $attrs 0] 1]
+set propId [$AdminConfig getid /Property:$propName/]
+if {$propId != "" } {
+	puts stdout "\n\tThis ODC Property '$propName' is already defined. Will be deleted ..."
+	$AdminConfig remove $propId
+}
+
+puts "\n\tNew ODC Property '$propName' will be created..."
+$AdminConfig create Property $jvm $attrs
+puts "\tDone."
+
+
+set portal [$AdminConfig getid /Cell:$cellName/Node:$nodeName/Server:$portalName/]
+#puts "\tPortal: $portal"
+set jvm [$AdminConfig list JavaProcessDef $portal]
+#puts "\tJVM: $jvm"
+
+# set the ODC attribute
+set attrs [list [list name "XAUTHORITY"] [list value "/home/QEJBSVR/.Xauthority"] [list required "false"]]
+#puts "\tattrs: $attrs"
+set propName [lindex [lindex $attrs 0] 1]
+set propId [$AdminConfig getid /Property:$propName/]
+if {$propId != "" } {
+	puts stdout "\n\tThis ODC Property '$propName' is already defined. Will be deleted ..."
+	$AdminConfig remove $propId
+}
+
+puts "\n\tNew ODC Property '$propName' will be created..."
+$AdminConfig create Property $jvm $attrs
+puts "\tDone."
+
+
+# set the ODC attribute
+set attrs [list [list name "LD_LIBRARY_PATH"] [list value "$WpsInstallLoc/shared/app/oiexport:$WpsInstallLoc/IBMTrans/bin/sparc_SunOS:$WpsInstallLoc/IBMTrans/bin/x86_Linux"] [list required "false"]]
+#puts "\tattrs: $attrs"
+set propName [lindex [lindex $attrs 0] 1]
+set propId [$AdminConfig getid /Property:$propName/]
+if {$propId != "" } {
+	puts stdout "\n\tThis ODC Property '$propName' is already defined. Will be deleted ..."
+	$AdminConfig remove $propId
+}
+
+puts "\n\tNew ODC Property '$propName' will be created..."
+$AdminConfig create Property $jvm $attrs
+puts "\tDone."
+
+
+# set the ODC attribute
+set attrs [list [list name "LIBPATH"] [list value "$WpsInstallLoc/shared/app/oiexport"] [list required "false"]]
+#puts "\tattrs: $attrs"
+set propName [lindex [lindex $attrs 0] 1]
+set propId [$AdminConfig getid /Property:$propName/]
+if {$propId != "" } {
+	puts stdout "\n\tThis ODC Property '$propName' is already defined. Will be deleted ..."
+	$AdminConfig remove $propId
+}
+
+puts "\n\tNew ODC Property '$propName' will be created..."
+$AdminConfig create Property $jvm $attrs
+puts "\tDone."
+
+
+$AdminConfig save

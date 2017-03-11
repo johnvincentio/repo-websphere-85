@@ -1,0 +1,56 @@
+source libs/data/JVaddNSBEjb.jacl;
+
+proc irac_nsbEjb {cellName nodeName serverName bindingLocation} {
+
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/LocationServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/DialectDeterminationServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/CurrencyConversionServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/ErrorMessageServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/fts/FullTextSearchServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/byr/RentalQualificationsServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/byr/VehicleGuideServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/emember/AwardsPoints" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/emember/AwardsManager" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/emember/MemberNumberServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/emember/ProfileManager" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/emember/Profile" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/customersupport/ContactUsServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/abouthertz/EmploymentServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/wyt/SafeDrivingTipsListServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/reservation/billing/BillingServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/reservation/ReservationsManager" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/byr/ExtrasServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/reservation/ReservationServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/b2b/BusinessAccountsServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/partner/HertzlinkServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/b2b/FranchiseCountryListServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/specialoffers/SpecialOffersServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/EmailServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/cache/CacheManagementServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/DynamicNavigationServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/DynamicTranslationServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/otherhertzoperations/OtherHertzOperationsServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/autoshutdown/WebsiteShutdownManagerHome" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/autoshutdown/WebsiteShutdownServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/AdminToolNavigationServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/wyt/MapPointServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/mappoint/MapPointLocationManager" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/admintool/admin/AdminProfileManager" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/admintool/AdminToolServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/reservation/ReservationAgent" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/admintool/DynamicTranslationManager" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/emember/EmemberServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/ListServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/customersupport/FaqsServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/partner/PartnerServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/framework/HertzValidationServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/admintool/DataMigrationManager" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/datamigration/SchedulingServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/datamigration/DataMigrationManager" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/datamigration/AuthenicationManager" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/admintool/admin/AdminProfileServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/emember/ProfileServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/customersupport/HTRUPhoneListServices" $bindingLocation  "";
+JVaddNSBEjb $cellName $nodeName $serverName "" "ejb/com/hertz/irac/legal/LegalManager" $bindingLocation  "";
+
+}

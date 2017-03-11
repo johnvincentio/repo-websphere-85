@@ -1,0 +1,44 @@
+##  install/config/templates/was/wpcpRemoveJVMSettings.jacl
+##-------------------------------------------------------------------------------
+## This file provides scripts to configure  WPCP
+##-------------------------------------------------------------------------------
+
+#######################################
+# Remove WPCP JVM properties
+#######################################
+
+global AdminConfig
+
+puts stdout "\n===== Unconfiguring the WPCP JVM Properties"
+
+# Define the set of JVM Settings to be removed.
+set propertyNames {pzn.root.dir wcm.root.dir}
+
+set cellName {@CellName@}
+set nodeName {@NodeName@}
+set portalName {@ServerName@}
+set portal [$AdminConfig getid /Cell:$cellName/Node:$nodeName/Server:$portalName/]
+if {$portal != ""} {
+        #puts "\tPortal: $portal"
+        set jvm [$AdminConfig list JavaVirtualMachine $portal]
+        #puts "\tJVM: $jvm"
+        
+        foreach thispropname ${propertyNames} {
+           # Lookup attribute
+           set attrs [list [list name "${thispropname}"] ]
+           #puts "\tattrs: $attrs"
+           set propName [lindex [lindex $attrs 0] 1]
+           set propId [$AdminConfig getid /Property:$propName/]
+           if {$propId != "" } {
+           	puts stdout "\n\tRemoving Property '$propName'"
+           	$AdminConfig remove $propId
+           } else {
+               puts stdout "\n\tProperty '${thispropname}' not found."
+           }
+        
+        }
+        
+        puts "\tDone."
+        
+        $AdminConfig save
+}

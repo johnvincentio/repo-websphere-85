@@ -1,0 +1,85 @@
+
+
+proc JVcreateMQQueueConnectionFactory {NodeName MQJMSProvider mqchannel qcfname qcfdesc mqhname mqport mqqmgr mqjndi} {   
+
+   global AdminConfig;
+   global AdminTask;
+   global AdminControl;
+   global AdminApp;
+
+#--------------------------------------------------------------------
+# Create MQ Queue connection factory
+#--------------------------------------------------------------------
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create MQ Queue connection factory               ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    Node                $NodeName                              ";
+   puts " Connection Factory:                                           ";
+   puts "    MQ JMS Provider     $MQJMSProvider                         ";
+   puts "    Channel             $mqchannel                             ";
+   puts "    Name                $qcfname                               ";
+   puts "    Description         $qcfdesc                               ";
+   puts "    Host                $mqhname                               ";
+   puts "    Port                $mqport                                ";
+   puts "    Queue Manager       $mqqmgr                                ";
+   puts "    JNDI                $mqjndi                                ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   puts "Checking if already exists";
+   set mqcfID [$AdminConfig getid "/Node:$NodeName/JMSProvider:$MQJMSProvider/MQQueueConnectionFactory:$qcfname"];
+   if {[llength $mqcfID] != 0} {
+      JVputInfo "The $qcfname MQ Connection Factory already exists.";
+      return;
+   }
+
+   puts "Getting MQ JMS Provider ID";
+   set mqcfID [$AdminConfig getid "/Node:$NodeName/JMSProvider:$MQJMSProvider"];
+#   puts "mqcfID $mqcfID";
+#   return;
+
+   puts "Setting attributes";
+   set XAEnabled          [ list XAEnabled true         ];
+   set channel            [ list channel $mqchannel     ];
+   set agedTimeout        [ list agedTimeout 0          ];     
+   set connectionTimeout  [ list connectionTimeout 180  ];
+   set maxConnections     [ list maxConnections 50      ];
+   set minConnections     [ list minConnections 1       ];
+   set purgePolicy        [ list purgePolicy FailingConnectionOnly ];
+   set reapTime           [ list reapTime 180           ];
+   set unusedTimeout      [ list unusedTimeout 1800     ];
+   set connectionPool     [ list connectionPool [list $agedTimeout $connectionTimeout $maxConnections $minConnections $purgePolicy $reapTime $unusedTimeout ] ];
+   set description        [ list description "$qcfdesc" ];
+   set host               [ list host $mqhname          ];
+   set jndiName           [ list jndiName $mqjndi   ];
+   set authDataAlias      [ list authDataAlias none     ];
+   set mappingConfigAlias [ list mappingConfigAlias DefaultPrincipalMapping ];
+   set mapping            [ list mapping [list $authDataAlias $mappingConfigAlias ] ];
+   set msgRetention       [ list msgRetention true      ];
+   set name               [ list name "$qcfname"        ];
+   set port               [ list port $mqport        ];
+   set queueManager       [ list queueManager $mqqmgr   ];
+   set agedTimeout1       [ list agedTimeout 0          ];     
+   set connectionTimeout1 [ list connectionTimeout 180  ];
+   set maxConnections1    [ list maxConnections 10      ];
+   set minConnections1    [ list minConnections 1       ];
+   set purgePolicy1       [ list purgePolicy FailingConnectionOnly ];
+   set reapTime1          [ list reapTime 180           ];
+   set unusedTimeout1     [ list unusedTimeout 1800     ];
+   set sessionPool        [ list sessionPool [ list $agedTimeout1 $connectionTimeout1 $maxConnections1 $minConnections1 $purgePolicy1 $reapTime1 $unusedTimeout1 ] ];
+   set CCSID              [ list CCSID 819              ];
+   set transportType      [ list transportType CLIENT   ];
+
+   set attrs [ list $XAEnabled $channel $connectionPool $description $host $jndiName $mapping $msgRetention $name $port $queueManager $sessionPool $CCSID $transportType ];
+#   puts " ATTRS = $attrs";
+
+   puts "Creating MQ Connection Factory";
+   if { [ catch { $AdminConfig create MQQueueConnectionFactory $mqcfID $attrs } r ] != 0 } {
+      puts "\Error creating MQQueueConnectionFactory $mqcfID. Reason: $r\n";
+      return;
+   }
+}
+

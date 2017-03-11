@@ -1,0 +1,19 @@
+#
+#  script to run the various JACL script
+#
+# AdminConfig can be run without server running
+# AdminControl and AdminApp require the server be running
+#
+JVWSADMIN="jvadmin"
+#
+JVServer="server1"
+JVNode="alphaNode04"
+JVCell="alphaNode04Cell"
+#
+JVFILE="test1.jacl"		# this is for testing
+#
+#  do the work
+#
+echo "Before wsadmin"
+./${JVWSADMIN} -f ${JVFILE} -node ${JVNode} -cell ${JVCell} -server ${JVServer}
+echo "After wsadmin"

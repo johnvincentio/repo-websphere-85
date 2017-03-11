@@ -1,0 +1,63 @@
+
+#--------------------------------------------------------------------
+# Handle server WebSphere specific classpath
+#--------------------------------------------------------------------
+
+proc JVsetAppServerWebSphereClasspath {NodeName ServerName myParam1 myParam2} {
+
+   global AdminConfig M_OK M_ERROR;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create WebSphere specific classpath              ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts "    server              $ServerName                            ";
+   puts " Classpath:                                                    ";
+   puts "    value              $myParam1 ";
+   puts "    description        $myParam2                               ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   set SysPropName "ws.ext.dirs";
+   set SysPropValue $myParam1;
+   set SysPropRequired "false";
+   set SysPropDescription $myParam2;
+   JVputTrace "Create/modify JVM systemProperties /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:$SysPropName/";
+
+#   puts "stage A1";
+   set ServerId [$AdminConfig getid /Server:$ServerName/];
+   set JavaVirtualMachineId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/];
+   if {$JavaVirtualMachineId == ""} {
+      JVputError "ERROR: /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/ does not exist";
+      return $M_ERROR;
+   }
+   if {[llength $JavaVirtualMachineId] != 1} {
+      JVputError "ERROR: more then one /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/";
+      return $M_ERROR;
+   }
+
+#   puts "stage A2";
+   foreach TmpSysPropObjectId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:/] {
+      set TmpObjectName [$AdminConfig showAttribute $TmpSysPropObjectId name];
+      set TmpObjectValue [$AdminConfig showAttribute $TmpSysPropObjectId value];
+#      JVputTrace "name $TmpObjectName";
+#      JVputTrace "value $TmpObjectValue";
+      if {[string compare $TmpObjectName $SysPropName] == 0  && [string compare $TmpObjectValue $SysPropValue] == 0} {
+         JVputInfo "JVM SystemProperty Value is already set, no action taken";
+         return $M_OK;
+      }
+   }
+
+   set attrs [list [list name $SysPropName] [list value $SysPropValue] [list required $SysPropRequired] [list description $SysPropDescription]];
+   if {[catch {$AdminConfig create Property $JavaVirtualMachineId $attrs} SysPropId]} {
+      JVputError "Cannot create property; $SysPropId";
+      return $M_ERROR;
+   }
+   if {$SysPropId == ""} {
+      JVputError "ERROR: Cannot create property";
+      return $M_ERROR;
+   }
+   return $M_OK;
+}

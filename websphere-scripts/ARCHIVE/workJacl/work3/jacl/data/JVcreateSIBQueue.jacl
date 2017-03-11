@@ -1,0 +1,46 @@
+
+proc JVcreateSIBQueue {nodeName serverName SIBQName SIBusName} {
+
+  #--------------------------------------------------------------------
+  # Set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+  global AdminTask
+
+  #--------------------------------------------------------------------
+  # Create SIB queue
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Create SIB queue                                 "
+  puts "---------------------------------------------------------------"
+  puts " Scope:                                                        "
+  puts "    node                $nodeName                              "
+  puts "    server              $serverName                            "
+  puts " SIB queue:                                                    "
+  puts "    name                $SIBQName                              "
+  puts " SI bus:                                                       "
+  puts "    name                $SIBusName                             "
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  foreach queue [$AdminConfig list SIBQueue] {
+    set identifier [$AdminConfig showAttribute $queue identifier]
+    if { $identifier == $SIBQName } {
+      JVputInfo "The $SIBQName SIB queue already exists."
+      return
+    }
+  }
+
+  #--------------------------------------------------------------------
+  # Create SIB queue
+  #--------------------------------------------------------------------
+
+  JVputTrace "Create a new SIB queue named $SIBQName."
+  set params [list -bus $SIBusName -name $SIBQName -type Queue -node $nodeName -server $serverName]    
+  $AdminTask createSIBDestination $params
+
+}
+

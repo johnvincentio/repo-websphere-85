@@ -1,0 +1,15 @@
+##  /config/templates/was/checkPortalAdminPwd.jacl
+##------------------------------------------------------------------------------
+## Checking that 'PortalAdminPwd' is set.
+
+global PortalAdminPwd
+set PortalAdminPwd {@PortalAdminPwd@}
+
+if {$PortalAdminPwd != {}} {
+	puts stdout "\Prerequisites is valid."
+	exit 0
+} else {
+    puts stdout "\nPrerequisites is invalid. 'PortalAdminPwd' is empty."
+	puts stdout "Please set entry 'PortalAdminPwd' in wpconfig.properties."
+	exit 1
+}

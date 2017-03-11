@@ -1,0 +1,40 @@
+
+#--------------------------------------------------------------------
+# Handle server JVM args
+#--------------------------------------------------------------------
+
+proc JVsetAppServerJVMArgs {NodeName ServerName myParam} {
+
+   global AdminConfig M_OK M_ERROR;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create JVM Arguments                             ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts "    server              $ServerName                            ";
+   puts " Arguments:                                                    ";
+   puts "    entry               $myParam                               ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   set JavaVirtualMachineId [$AdminConfig getid /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/];
+   if {$JavaVirtualMachineId == ""} {
+      JVputError "ERROR: /Node:$NodeName/Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/ does not exist";
+      return $M_ERROR;
+   }
+   set oldargs [$AdminConfig showAttribute $JavaVirtualMachineId genericJvmArguments];
+   JVputTrace "Old JVM Generic Args $oldargs;
+   set jvargs "$oldargs $myParam";
+
+   set attrs [list [list genericJvmArguments $jvargs]];
+   if [catch {$AdminConfig modify $JavaVirtualMachineId $attrs} results] {
+      JVputError "ERROR: Could not create; $results.";
+      return $M_ERROR;
+   }
+   set newargs [$AdminConfig showAttribute $JavaVirtualMachineId genericJvmArguments];
+   JVputTrace "New JVM Generic Args $newargs;
+   JVputInfo "JVM Generic Arguments successfully created/modified.";
+   return $M_OK;
+}

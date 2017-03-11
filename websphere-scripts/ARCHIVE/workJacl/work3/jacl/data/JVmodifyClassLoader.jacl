@@ -1,0 +1,31 @@
+
+proc JVmodifyClassLoader {appName mode} {
+
+  #--------------------------------------------------------------------
+  # Set up globals  
+  #--------------------------------------------------------------------
+
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Modify the class loader
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Modify class loader                              "
+  puts "---------------------------------------------------------------"
+  puts " Application:                                                  "
+  puts "    name                $appName                               "
+  puts " Class loader:                                                 "
+  puts "    mode                $mode                                  "
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  set deployment  [$AdminConfig getid /Deployment:$appName/]
+  set appDeploy   [$AdminConfig showAttribute $deployment deployedObject]
+  set classLoader [$AdminConfig showAttribute $appDeploy classloader]
+
+  $AdminConfig modify $classLoader "{mode $mode}"
+}
+

@@ -1,0 +1,109 @@
+
+#------------------------------------------------------------------
+# script to handle Herc Server Configuration
+#------------------------------------------------------------------
+
+source ../libs/JVUtils.jacl;
+source ../libs/JVlistDeployedApps.jacl;
+source ../libs/JVisAppDeployed.jacl;
+source ../libs/JVdeployApp.jacl;
+source ../libs/JVappStart.jacl;
+
+#------------------------------------------------------------------
+# handle other irac scripts
+#------------------------------------------------------------------
+
+source irac_trace.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "herc.jacl; Starting";
+
+#--------------------------------------------------------------------
+#  load properties file or use parameters
+#--------------------------------------------------------------------
+
+set pServerName 				[lindex $argv 1];
+set pNodeName 					[lindex $argv 2];
+set pCellName 					[lindex $argv 3];
+set pBindingLocation 			[lindex $argv 4];
+
+set pRootPath 					[lindex $argv 5];
+set pWorkspaceServerPath 		[lindex $argv 6];
+set pSqlserverLibPath 			[lindex $argv 7];
+set pDb2JavaPath				[lindex $argv 8];
+set pDb2LibPath 				[lindex $argv 9];
+set pDb2UniversalDriverLibPath	[lindex $argv 10];
+
+set pEarName					[lindex $argv 11];
+set pEarFile					[lindex $argv 12];
+
+#--------------------------------------------------------------------
+# show server info
+#--------------------------------------------------------------------
+
+JVputInfo "-------------------------------------------------------------------------";
+JVputInfo "                                                                         ";
+JVputInfo " Scope:																	";
+JVputInfo "    Server Instance                  $pServerName                        ";
+JVputInfo "    Cell                             $pCellName							";
+JVputInfo "    Node                             $pNodeName							";
+JVputInfo " Workspace:																";
+JVputInfo "    Source Root                      $pRootPath							";
+JVputInfo "    Server Path                      $pWorkspaceServerPath				";
+JVputInfo " Paths:																	";
+JVputInfo "    SQLServer Path                   $pSqlserverLibPath					";
+JVputInfo "    DB2 Java Path                    $pDb2JavaPath						";
+JVputInfo "    DB2 Lib Path                     $pDb2LibPath						";
+JVputInfo "    Db2 Universal Driver Lib Path    $pDb2UniversalDriverLibPath		    ";
+JVputInfo " EAR:																	";
+JVputInfo "    Ear Name		                    $pEarName							";
+JVputInfo "    Ear File		                    $pEarFile							";
+JVputInfo "-------------------------------------------------------------------------";
+
+#--------------------------------------------------------------------
+# Turn on tracing
+#--------------------------------------------------------------------
+
+irac_trace $pNodeName $pServerName "on";
+
+#--------------------------------------------------------------------
+# Handle Deploy Etrieve
+#--------------------------------------------------------------------
+
+#JVlistDeployedApps;
+
+if {[JVisAppDeployed $pEarName]} {
+	JVputInfo "";
+	JVputInfo "$pEarName was not deployed as it has already been deployed. ";
+	JVputInfo "";
+}
+
+set earDir		"../../HercJacl/development/ears";
+set options		"";
+JVdeployApp $pNodeName $pServerName $pEarFile $earDir $pEarName $options;   
+
+JVsave;
+
+JVappStart $pNodeName $pServerName $pCellName $pEarName;
+
+#--------------------------------------------------------------------
+# Turn off tracing
+#--------------------------------------------------------------------
+
+irac_trace $pNodeName $pServerName "off";
+
+#--------------------------------------------------------------------
+# Save server configuration changes
+#--------------------------------------------------------------------
+
+JVsave;
+
+#--------------------------------------------------------------------
+# Done
+#--------------------------------------------------------------------
+
+exit 0;

@@ -1,0 +1,89 @@
+
+proc JVcreateScheduler {nodeName serverName schedName schedDesc schedJNDI schedCategory schedDsJNDI schedTablePrefix schedPollInterval wmName} {
+
+  #--------------------------------------------------------------------
+  # Set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminConfig
+
+  #--------------------------------------------------------------------
+  # Create scheduler
+  #--------------------------------------------------------------------
+
+  puts ""
+  puts "---------------------------------------------------------------"
+  puts "              Create scheduler                                 "
+  puts "---------------------------------------------------------------"
+  puts " Scope:                                                        "
+  puts "    node                $nodeName                              "
+  puts "    server              $serverName                            "
+  puts " Scheduler:                                                    "
+  puts "    name                $schedName                             "
+  puts "    description         $schedDesc                             "
+  puts "    JNDI                $schedJNDI                             "
+  puts "    category            $schedCategory                         "
+  puts "    data source JNDI    $schedDsJNDI                           "
+  puts "    table prefix        $schedTablePrefix                      "
+  puts "    poll interval       $schedPollInterval                     "
+  puts "    work manager        $wmName                                "
+  puts "---------------------------------------------------------------"
+  puts ""
+
+  set server [$AdminConfig getid /Node:$nodeName/Server:$serverName]
+
+  #--------------------------------------------------------------------
+  # Check if the scheduler configuration name already exists
+  #--------------------------------------------------------------------
+
+  foreach schedulerEntry [$AdminConfig list SchedulerConfiguration $server] {
+    if {[string first $schedName $schedulerEntry] >= 0} {
+      JVputInfo "The $schedName scheduler already exists."
+      return
+    }
+  }
+
+  #--------------------------------------------------------------------
+  # Get the scheduler provider
+  #--------------------------------------------------------------------
+
+  JVputTrace "Get the ID for the default scheduler provider."
+  set schedulerProvider [$AdminConfig getid /Node:$nodeName/Server:$serverName/SchedulerProvider:/]
+  if {[llength $schedulerProvider] == 0} {
+    JVthrow "The ID for /Node:$nodeName/Server:$serverName/SchedulerProvider:/ could not be found."
+  }
+
+  #--------------------------------------------------------------------
+  # Check if the work manager for the scheduler already exists
+  #--------------------------------------------------------------------
+
+  foreach workManagerInfoEntry [$AdminConfig list WorkManagerInfo $server] {
+    set workManagerNameOfEntry [$AdminConfig showAttribute $workManagerInfoEntry name]
+    if { [string compare $workManagerNameOfEntry $wmName] == 0 } {
+      set workManager $workManagerInfoEntry
+      break
+    }
+  }
+
+  if {![info exists workManager]} {
+    JVthrow "The $wmName work manager could not be found."
+  }
+
+  #--------------------------------------------------------------------
+  # Create the scheduler
+  #--------------------------------------------------------------------
+
+  JVputTrace "Create a new scheduler named $schedName."
+  set category_attr             [list category $schedCategory]
+  set datasourceJNDIName_attr   [list datasourceJNDIName $schedDsJNDI]
+  set description_attr          [list description $schedDesc]
+  set jndiName_attr             [list jndiName $schedJNDI]
+  set name_attr                 [list name $schedName]
+  set pollInterval_attr         [list pollInterval $schedPollInterval]
+  set tablePrefix_attr          [list tablePrefix $schedTablePrefix]
+  set workMangerInfo_attr       [list workManagerInfo $workManager]
+  set attrs                     [list $category_attr $datasourceJNDIName_attr $description_attr $jndiName_attr $name_attr $pollInterval_attr $tablePrefix_attr $workMangerInfo_attr]
+  set newScheduler [$AdminConfig create SchedulerConfiguration $schedulerProvider $attrs]
+
+}
+

@@ -1,0 +1,60 @@
+
+#------------------------------------------------------------------
+# script to handle iRAC Server Configuration
+#------------------------------------------------------------------
+
+source libs/JVUtils.jacl;
+
+#------------------------------------------------------------------
+# handle other irac scripts
+#------------------------------------------------------------------
+
+source mdb_jms.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVputInfo "mdb.jacl; Starting";
+
+#--------------------------------------------------------------------
+#  load properties file
+#--------------------------------------------------------------------
+
+set myPropertiesFile "mdb.properties";
+JVputInfo "Loading Properties file $myPropertiesFile";
+set fileprops [JVloadProperties $myPropertiesFile];
+JVputTrace "JVloadProperties.jacl; code $fileprops";
+if {$fileprops == 0} {
+    JVputError "Load Properties failed";
+    exit 1;
+}
+JVputInfo "Loaded Properties file";
+
+#--------------------------------------------------------------------
+# get properties
+#--------------------------------------------------------------------
+
+set myServerName [JVgetProperty $fileprops "ServerName"];
+set myNodeName [JVgetProperty $fileprops "NodeName"];
+set myCellName [JVgetProperty $fileprops "CellName"];
+
+#--------------------------------------------------------------------
+# show server info
+#--------------------------------------------------------------------
+
+JVputInfo "---------------------------------------------------------------";
+JVputInfo " ";
+JVputInfo " Scope:                                                        ";
+JVputInfo "    cell                $myCellName                            ";
+JVputInfo "    node                $myNodeName                            ";
+JVputInfo "    server              $myServerName                          ";
+JVputInfo "---------------------------------------------------------------";
+
+JVputInfo "Handle JMS";
+mdb_jms $myNodeName $myServerName;
+
+JVsave;
+puts "after save";
+
+exit 0;

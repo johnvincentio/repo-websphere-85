@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+#  list log files, select one, show the file
+#
+JVEDIT="gvim"
+JVLOGS="/opt/IBM/Rational/SDP/6.0/runtimes/base_v6/profiles/JaclSrv01/logs/server1"
+#
+#  loop on menu
+#
+while :
+do
+   echo " "
+   echo "   1.  startServer.log"
+   echo "   2.  stopServer.log"
+   echo "   3.  SystemOut.log"
+   echo "   4.  SystemOut.log"
+   echo "   5.  Trace.log"
+   echo " "
+   echo "       Please enter your option: \c"
+   read ANS
+   echo " "
+   case "$ANS" in
+      1) JVFILE="startServer.log"; break;;
+      2) JVFILE="stopServer.log"; break;;
+      3) JVFILE="SystemOut.log"; break;;
+      4) JVFILE="SystemErr.log"; break;;
+      5) JVFILE="Trace.log"; break;;
+	  *) echo "try again"; continue;;
+   esac
+done
+echo "Opening file $JVLOGS/$JVFILE"
+$JVEDIT $JVLOGS/$JVFILE
+

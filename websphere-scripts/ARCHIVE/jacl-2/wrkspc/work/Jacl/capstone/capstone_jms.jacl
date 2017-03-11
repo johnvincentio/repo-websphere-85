@@ -1,0 +1,31 @@
+
+source capstone_jms_supplier.jacl;
+source capstone_jms_distributor_1.jacl;
+source capstone_jms_distributor_2.jacl;
+
+#------------------------------------------------------------------
+#  Create JMS Resources
+#------------------------------------------------------------------
+
+proc capstone_jms {NodeName ServerName} {
+
+#--------------------------------------------------------------------
+# Create SIBus
+#--------------------------------------------------------------------
+
+   set BusName "CapstoneBus";
+   set SIBusName "$NodeName$BusName";
+   set SIBusDesc "Messaging bus for capstone";
+   JVcreateSIBus $NodeName $ServerName $SIBusName $SIBusDesc "false";
+
+   JVputInfo "JMS; Supplier";
+   capstone_jms_supplier $NodeName $ServerName $SIBusName;
+
+   JVputInfo "JMS; Distributor 1";
+   capstone_jms_distributor_1 $NodeName $ServerName $SIBusName;
+
+   JVputInfo "JMS; Distributor 2";
+   capstone_jms_distributor_2 $NodeName $ServerName $SIBusName;
+
+}
+

@@ -1,0 +1,77 @@
+
+	<target name="tools">
+		<condition property="ws-script-suffix" value=".bat">
+			<os family="windows"/>
+		</condition>
+		<condition property="ws-script-suffix" value="">
+			<not>
+				<os family="windows"/>
+			</not>
+		</condition>
+		<condition property="path.separator" value=";">
+			<os family="windows"/>
+		</condition>
+		<condition property="path.separator" value=":">
+			<not>
+				<os family="windows"/>
+			</not>
+		</condition>
+		<property name="ws.home" value="C:/Program Files/IBM/SDP/runtimes/base_v61" />
+		<property name="ws.admin" value="${ws.home}/bin/wsadmin${ws-script-suffix}"/>
+		<property name="ws.lib" value="${ws.home}/lib"/>
+	</target>
+
+	<target name="jacl" depends="tools">
+		<echo message="Executing ${jacl.file} on soap port ${jacl.server.port.soap}."/>
+		<exec executable="${ws.admin}">
+			<arg line=" -f ${jacl.file}" />
+			<arg line=" -conntype SOAP -port ${jacl.server.port.soap}" />
+		</exec>
+		<echo message="Task complete"/>
+	</target>
+
+<!--  this is not working - cannot connect to start the server -->
+
+	<target name="jacl_server" depends="tools">
+		<echo message="Executing ${jacl.file} on node ${jacl.server.node.name}."/>
+		<exec executable="${ws.admin}">
+			<arg line=" -f ${jacl.file}" />
+			<arg line=" -conntype none" />
+			<arg line="server1" />
+			<arg line="${jacl.server.node.name}" />
+		</exec>
+		<echo message="Task complete"/>
+	</target>
+
+	<target name="jaclTask" depends="tools">
+		<echo message="Executing ${jacl.file} on soap port ${jacl.server.port.soap}."/>
+		<path id="ws.admin.classpath">
+			<fileset dir="${ws.lib}">
+				<include name="**/*.jar"/>
+			</fileset>
+		</path>
+
+		<taskdef name="wsadmin" classname="com.ibm.websphere.ant.tasks.WsAdmin">
+			<classpath>
+				<path refid="ws.admin.classpath"/> 
+			</classpath> 
+		</taskdef>
+
+		<wsadmin
+			washome="${ws.home}"
+			conntype="SOAP"
+			host="localhost"
+			port="${jacl.server.port.soap}"
+			script="${jacl.file}"
+		/>
+		<echo message="Task complete"/>
+	</target>
+
+
+<!--
+ wsadmin -conntype none -f mdbConfig.jacl myNodeName 
+<target name="ear.deploy" description="Deploy the EAR file to the server">
+   <exec dir="${rationalhome}" executable="cmd" os="Windows XP">
+      <arg line="/c wsadmin.bat -conntype SOAP -host 10.1.2.103 -port 8880 -lang jython -c "AdminApp.install 'c:/TestEAR.ear', '-nopreCompileJSPs -defaultbinding.virtual.host default_host -verbose')""/>
+   </exec>
+-->

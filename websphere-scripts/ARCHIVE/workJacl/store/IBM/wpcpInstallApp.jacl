@@ -1,0 +1,69 @@
+# accepts 5 arguments which must be passed in this order 
+# hostname 
+# serverName 
+# appName 
+# earFileName
+# WAS_INSTALL_ROOT
+
+set FileName "wpcpInstallApp.jacl"
+set FlagDebug {@DebugMode@}
+set DbType {@DbType@}
+
+set hostname [lindex $argv 0]
+set serverName [lindex $argv 1]
+set appName [lindex $argv 2]
+set earFileName [lindex $argv 3]
+set WAS_INSTALL_ROOT [lindex $argv 4]
+
+puts ""
+puts "scriptname : $FileName"
+puts "hostname : $hostname"
+puts "serverName : $serverName"
+puts "applicationName : $appName"
+puts "earFileName : $earFileName"
+puts "WAS root : $WAS_INSTALL_ROOT"
+puts ""
+
+# set node 
+set node [$AdminConfig getid /Node:$hostname/]
+
+# turn on tracing
+$AdminControl trace "com.ibm.*=entryExit=enabled"
+
+# set node 
+set node [$AdminConfig getid /Node:$hostname/]
+
+#Use the same settings for db2, db2_zos and db2_iseries
+if {[string compare [string range $DbType 0 2] "db2"] == 0} { set DbType "db2" }
+
+# install EARs
+if {$appName == "WPCP_Runtime"} {
+        switch -exact -- $DbType {
+                sqlserver {
+                        set 10EJBAttrs    {{"BRBeansSQLServer" BRBeans.jar,META-INF/ejb-jar.xml jdbc/persDS "" ""}}
+                }
+                oracle {
+                        set 10EJBAttrs    {{"BRBeansOracle" BRBeans.jar,META-INF/ejb-jar.xml jdbc/persDS "" ""}}
+                }
+                cloudscape {
+                        set 10EJBAttrs    {{"BRBeansCloudscape" BRBeans.jar,META-INF/ejb-jar.xml jdbc/brbDS "" ""}}
+                }
+                db2 {
+                        set 10EJBAttrs    {{"BRBeansDB2" BRBeans.jar,META-INF/ejb-jar.xml jdbc/persDS "" ""}}
+                }
+                sybase {
+                        set 10EJBAttrs    {{"BRBeansSybase" BRBeans.jar,META-INF/ejb-jar.xml jdbc/persDS "" ""}}
+                }
+                informix {
+                        set 10EJBAttrs    {{"BRBeansInformix" BRBeans.jar,META-INF/ejb-jar.xml jdbc/persDS "" ""}}
+                }
+                default {
+                        puts "Database type ${DbType} not supported."
+                        exit 1
+                }
+        }
+        $AdminApp install $earFileName    " -appname $appName  -configroot $WAS_INSTALL_ROOT/config  -node $hostname -nodeployejb -server $serverName -DataSourceFor10EJBModules {$10EJBAttrs}"
+} else {
+        $AdminApp install $earFileName    " -appname $appName  -configroot $WAS_INSTALL_ROOT/config  -node $hostname -nodeployejb -server $serverName "
+}
+$AdminConfig save

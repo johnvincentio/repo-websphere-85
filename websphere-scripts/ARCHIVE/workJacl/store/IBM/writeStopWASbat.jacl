@@ -1,0 +1,20 @@
+#  install/config/templates/was/writeStopWASbat.jacl
+#------------------------------------------------------------------------------
+# This file provides scripts to write the 'stopWAS.bat'
+# into \PortalServer\install\ directory.
+#-------------------------------------------------------------------------------
+
+puts stdout "===== writeStopWASbat.jacl"
+
+set wasName "server1"
+set file [open "stopWAS.bat" w]
+
+#set line "stopServer server1 -user user -password password"
+set line "stopServer $wasName "
+for {set i 0} {$i < $argc} {incr i} {
+	append line [lindex $argv $i]
+}
+#------- write the line
+puts $file $line
+close $file
+puts stdout "\tDone..."

@@ -1,0 +1,135 @@
+	<target name="myControlExport">
+		<echo>Unjar ${deploy.ears.work.dir}/${control_export_ear.name}.ear to ${deploy.ears.work.unjar.dir}/${control_export_ear.name}</echo>
+		<unjar src="${deploy.ears.work.dir}/${control_export_ear.name}.ear" dest="${deploy.ears.work.unjar.dir}/${control_export_ear.name}" />
+
+		<echo>Copying controljar ${deploy.control.jar} to ${deploy.ears.work.unjar.dir}/${control_export_ear.name}/lib</echo>
+		<copy file="${deploy.control.jar}" todir="${deploy.ears.work.unjar.dir}/${control_export_ear.name}/lib"/>
+
+		<echo>Jar ${deploy.ears.work.unjar.dir}/${control_export_ear.name} to ${deploy.ears.dir}/${control_export_ear.name}.ear</echo>
+		<jar destfile="${deploy.ears.dir}/${control_export_ear.name}.ear" basedir="${deploy.ears.work.unjar.dir}/${control_export_ear.name}" />
+	</target>
+
+	<target name="myWARInjectJAR">
+		<echo>Inject Jar into module ${war.name}</echo>
+		<echo>Copying controljar ${deploy.control.jar} to ${development.base.dir}/${war.name}/WebContent/WEB-INF/lib</echo>
+		<copy file="${deploy.control.jar}" todir="${development.base.dir}/${war.name}/WebContent/WEB-INF/lib"/>
+	</target>
+
+	<target name="myEARexport">
+		<taskdef name="earExport" classname="com.ibm.etools.j2ee.ant.EARExport"
+			classpathref="earexport.classpath" >
+		</taskdef>
+
+		<earExport EARExportFile="${deploy.ears.work.dir}/${export_ear.name}.ear" Overwrite="true" 
+			IncludeProjectMetaFiles="true" ExportSource="true" 
+			EARProjectName="${export_ear.name}"/>
+
+		<antcall target="myControlExport">
+			<param name="control_export_ear.name" value="${export_ear.name}"/>
+		</antcall>
+	</target>
+
+	<target name="create_herc_ears" depends="ErrorFrameworkEAR, HercAdminToolWebEAR, 
+					HercFranchiseWebEAR, HercHesWebServiceWebEAR, HercJobWebServiceWebEAR, HercJobSchedulerWebEAR,
+					HercSalesWebEAR, HercWebEAR, HercJasperWebServiceWebEAR, 
+					ServicePumpsWebEAR,
+					EtrieveEAR"
+		description="Create all Ears used by Herc"/>
+
+	<target name="create_herc_only_ears" depends="HercAdminToolWebEAR, 
+					HercFranchiseWebEAR, HercHesWebServiceWebEAR, HercJobWebServiceWebEAR, HercJobSchedulerWebEAR,
+					HercSalesWebEAR, HercWebEAR, HercJasperWebServiceWebEAR, 
+					ServicePumpsWebEAR,
+					EtrieveEAR"
+		description="Create Ears that are unique to Herc"/>
+
+	<target name="create_herc_dm_ears" depends="HercJobSchedulerWebEAR, HercJobWebServiceWebEAR, HercJasperWebServiceWebEAR"
+		description="Create Ears for Herc DM"/>
+
+	<target name="ErrorFrameworkEAR">
+		<antcall target="myEARexport">
+			<param name="export_ear.name" value="ErrorFrameworkEAR"/>
+		</antcall>
+	</target>
+
+	<target name="HercAdminToolWebEAR">
+		<antcall target="myWARInjectJAR">
+			<param name="war.name" value="HercAdminToolWeb"/>
+		</antcall>
+		<antcall target="myEARexport">
+			<param name="export_ear.name" value="HercAdminToolWebEAR"/>
+		</antcall>
+	</target>
+
+	<target name="HercFranchiseWebEAR">
+		<antcall target="myWARInjectJAR">
+			<param name="war.name" value="HercFranchiseWeb"/>
+		</antcall>
+		<antcall target="myEARexport">
+			<param name="export_ear.name" value="HercFranchiseWebEAR"/>
+		</antcall>
+	</target>
+
+	<target name="HercHesWebServiceWebEAR">
+		<antcall target="myWARInjectJAR">
+			<param name="war.name" value="HercHesWebServiceWeb"/>
+		</antcall>
+		<antcall target="myEARexport">
+			<param name="export_ear.name" value="HercHesWebServiceWebEAR"/>
+		</antcall>
+	</target>
+
+	<target name="HercJobWebServiceWebEAR">
+		<antcall target="myEARexport">
+			<param name="export_ear.name" value="HercJobWebServiceWebEAR"/>
+		</antcall>
+	</target>
+
+	<target name="HercJobSchedulerWebEAR">
+		<antcall target="myWARInjectJAR">
+			<param name="war.name" value="HercJobSchedulerWeb"/>
+		</antcall>
+		<antcall target="myEARexport">
+			<param name="export_ear.name" value="HercJobSchedulerWebEAR"/>
+		</antcall>
+	</target>
+
+	<target name="HercSalesWebEAR">
+		<antcall target="myWARInjectJAR">
+			<param name="war.name" value="HercSalesWeb"/>
+		</antcall>
+		<antcall target="myEARexport">
+			<param name="export_ear.name" value="HercSalesWebEAR"/>
+		</antcall>
+	</target>
+
+	<target name="HercWebEAR">
+		<antcall target="myWARInjectJAR">
+			<param name="war.name" value="HercWeb"/>
+		</antcall>
+		<antcall target="myEARexport">
+			<param name="export_ear.name" value="HercWebEAR"/>
+		</antcall>
+	</target>
+
+	<target name="HercJasperWebServiceWebEAR">
+		<antcall target="myEARexport">
+			<param name="export_ear.name" value="HercJasperWebServiceWebEAR"/>
+		</antcall>
+	</target>
+
+	<target name="ServicePumpsWebEAR">
+		<antcall target="myWARInjectJAR">
+			<param name="war.name" value="ServicePumpsWeb"/>
+		</antcall>
+		<antcall target="myEARexport">
+			<param name="export_ear.name" value="ServicePumpsWebEAR"/>
+		</antcall>
+	</target>
+
+	<target name="EtrieveEAR">
+		<copy file="../../HercJacl/development/ears/EtrieveIt.ear" todir="${deploy.ears.work.dir}"/>
+		<antcall target="myControlExport">
+			<param name="control_export_ear.name" value="EtrieveIt"/>
+		</antcall>
+	</target>

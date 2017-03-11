@@ -1,0 +1,226 @@
+
+proc JVcreateDatasourceDB2 {NodeName ServerName providerName templateName dsName dsJNDI dsDesc dsAuthMech authAlias dbName dbSrvName dbPort dbHelper rsHold dbSchema} {
+
+   global AdminConfig;
+
+#--------------------------------------------------------------------
+# Create DataSource
+#--------------------------------------------------------------------
+
+   if {$dsDesc == ""} {set dsDesc $dsJNDI;}
+   if {$dsName == ""} {set dsName $dsJNDI;}
+   set aliasName $dsName;
+   regsub -all "/" $aliasName "_" dsName;
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create data source                               ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName           ";
+   puts "    server              $ServerName         ";
+   puts " JDBC provider:                             ";
+   puts "    name                $providerName       ";
+   puts " Datasource:                                ";
+   puts "    template            $templateName       ";
+   puts "    name                $dsName             ";
+   puts "    JNDI                $dsJNDI             ";
+   puts "    description         $dsDesc             ";
+   puts "    dsAuthMech          $dsAuthMech         ";
+   puts "    auth alias          $authAlias          ";
+   puts " Database:                                  ";
+   puts "    Name                $dbName             ";
+   puts "    Server              $dbSrvName          ";
+   puts "    Port                $dbPort             ";
+   puts "    HelperClass         $dbHelper           ";
+   puts "    ResultSetHold		 $rsHold             ";
+   puts "    Current Schema      $dbSchema           ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   set ds [$AdminConfig getid /Node:$NodeName/Server:$ServerName/JDBCProvider:$providerName/DataSource:$dsName]
+#   JVputTrace "***** ds $ds";
+   if {[llength $ds] != 0} {
+      JVputInfo "The $dsName data source already exists.";
+      return;
+   }
+  
+#--------------------------------------------------------------------
+# Get the config id for a DataSource Template
+# Use "lindex" in case there is more than one matching templates (we
+# just get the first one) 
+#--------------------------------------------------------------------
+
+   JVputTrace "Get the $templateName data source template.";
+   set template [lindex [$AdminConfig listTemplates DataSource $templateName] 0];
+ #  JVputTrace "***** template $template";
+   if {[llength $template] == 0} {
+      JVthrow "The $templateName data source template could not be found.";
+   }
+
+#--------------------------------------------------------------------
+# Get the config id for the provider 
+#--------------------------------------------------------------------
+  
+   JVputTrace "Get the ID for the $providerName provider.";
+   set providerID [$AdminConfig getid /Node:$NodeName/Server:$ServerName/JDBCProvider:$providerName];
+#   JVputTrace "***** providerID $providerID";
+   if {[llength $providerID] == 0} {
+      JVthrow "The ID for the /Node:$NodeName/Server:$ServerName/JDBCProvider:$providerName could not be found.";
+   }
+
+#--------------------------------------------------------------------
+# Create a new Datasource using this template 
+# Note: This datasource will use the built in default RRA
+#--------------------------------------------------------------------
+
+   JVputTrace "Create a new data source named $dsName.";
+   set rraID [$AdminConfig getid "/Node:$NodeName/Server:$ServerName/J2CResourceAdapter:WebSphere Relational Resource Adapter/"];
+#   JVputTrace "***** rraID $rraID";
+
+#--------------------------------------------------------------------
+#	Create the attributes
+#--------------------------------------------------------------------
+
+   set name_attr         [list name $dsName];
+   set jndiName_attr     [list jndiName $dsJNDI];
+   set desc_attr         [list description $dsDesc];
+   set authMechPref_attr [list authMechanismPreference $dsAuthMech];
+   set xaRecoveryAuthAlias_attr [list xaRecoveryAuthAlias ""];
+   set rra [list relationalResourceAdapter $rraID];
+   set dbHelper_attr [list datasourceHelperClassname $dbHelper];
+#   JVputTrace "***** name_attr $name_attr";
+#   JVputTrace "***** jndiName_attr $jndiName_attr";
+#   JVputTrace "***** desc_attr $desc_attr";
+#   JVputTrace "***** authMechPref_attr $authMechPref_attr";
+#   JVputTrace "***** xaRecoveryAuthAlias_attr $xaRecoveryAuthAlias_attr";
+#   JVputTrace "***** dbHelper_attr $dbHelper_attr";
+#   JVputTrace "***** rra $rra";
+
+#--------------------------------------------------------------------
+#	Create the properties
+#--------------------------------------------------------------------
+
+set props_01  [list [list name databaseName] [list value $dbName] [list type java.lang.String]];
+# name="databaseName" type="java.lang.String" value="devdb01" description="" required="true"/>
+
+set props_02  [list [list name driverType] [list value "4"] [list type java.lang.Integer]];
+# name="driverType" type="java.lang.Integer" value="4" description="" required="true"/>
+
+set props_03  [list [list name serverName] [list value $dbSrvName] [list type java.lang.String]];
+# name="serverName" type="java.lang.String" value="idevdb2.dev.irac.ecom.ad.hertz.com" description="" required="false"/>
+
+set props_04  [list [list name portNumber] [list value $dbPort] [list type java.lang.Integer]];
+# name="portNumber" type="java.lang.Integer" value="60000" description="" required="false"/>
+
+set props_05  [list [list name description] [list value $dsDesc] [list type java.lang.String]];
+# name="description" type="java.lang.String" value="" description="" required="false"/>
+
+set props_06  [list [list name traceLevel] [list value ""] [list type java.lang.Integer]];
+# name="traceLevel" type="java.lang.Integer" value="" description="" required="false"/>
+
+set props_07  [list [list name traceFile] [list value ""] [list type java.lang.String]];
+# name="traceFile" type="java.lang.String" value="" description="" required="false"/>
+
+set props_08  [list [list name fullyMaterializeLobData] [list value "true"] [list type java.lang.Boolean]];
+# name="fullyMaterializeLobData" type="java.lang.Boolean" value="true" description="" required="false"/>
+
+set props_09  [list [list name resultSetHoldability] [list value $rsHold] [list type java.lang.Integer]];
+# name="resultSetHoldability" type="java.lang.Integer" value="2" description="" required="false"/>
+
+set props_10  [list [list name currentPackageSet] [list value ""] [list type java.lang.String]];
+# name="currentPackageSet" type="java.lang.String" value="" description="" required="false"/>
+
+set props_11  [list [list name readOnly] [list value "false"] [list type java.lang.Boolean]];
+# name="readOnly" type="java.lang.Boolean" value="false" description="" required="false"/>
+
+set props_12  [list [list name deferPrepares] [list value "true"] [list type java.lang.Boolean]];
+# name="deferPrepares" type="java.lang.Boolean" value="true" description="" required="false"/>
+
+set props_13  [list [list name currentSchema] [list value $dbSchema] [list type java.lang.String]];
+# name="currentSchema" type="java.lang.String" value="" description="" required="false"/>
+
+set props_14  [list [list name cliSchema] [list value ""] [list type java.lang.String]];
+# name="cliSchema" type="java.lang.String" value="" description="" required="false"/>
+
+set props_15  [list [list name retrieveMessagesFromServerOnGetMessage] [list value "true"] [list type java.lang.Boolean]];
+# name="retrieveMessagesFromServerOnGetMessage" type="java.lang.Boolean" value="true" description="" required="false"/>
+
+set props_16  [list [list name clientAccountingInformation] [list value ""] [list type java.lang.String]];
+# name="clientAccountingInformation" type="java.lang.String" value="" description="" required="false"/>
+
+set props_17  [list [list name clientApplicationInformation] [list value ""] [list type java.lang.String]];
+# name="clientApplicationInformation" type="java.lang.String" value="" description="" required="false"/>
+
+set props_18  [list [list name clientUser] [list value ""] [list type java.lang.String]];
+# name="clientUser" type="java.lang.String" value="" description="" required="false"/>
+
+set props_19  [list [list name clientWorkstation] [list value ""] [list type java.lang.String]];
+# name="clientWorkstation" type="java.lang.String" value="" description="" required="false"/>
+
+set props_20  [list [list name currentPackagePath] [list value ""] [list type java.lang.String]];
+# name="currentPackagePath" type="java.lang.String" value="" description="" required="false"/>
+
+set props_21  [list [list name currentSQLID] [list value ""] [list type java.lang.String]];
+# name="currentSQLID" type="java.lang.String" value="" description="" required="false"/>
+
+set props_22  [list [list name kerberosServerPrincipal] [list value ""] [list type java.lang.String]];
+# name="kerberosServerPrincipal" type="java.lang.String" value="" description="" required="false"/>
+
+set props_23  [list [list name loginTimeout] [list value "0"] [list type java.lang.Integer]];
+# name="loginTimeout" type="java.lang.Integer" value="0" description="" required="false"/>
+
+set props_24  [list [list name securityMechanism] [list value ""] [list type java.lang.Integer]];
+# name="securityMechanism" type="java.lang.Integer" value="" description="" required="false"/>
+
+set props_25  [list [list name traceFileAppend] [list value "false"] [list type java.lang.Boolean]];
+# name="traceFileAppend" type="java.lang.Boolean" value="false" description="" required="false"/>
+
+set props_26  [list [list name currentFunctionPath] [list value ""] [list type java.lang.String]];
+# name="currentFunctionPath" type="java.lang.String" value="" description="" required="false"/>
+
+set props_27  [list [list name cursorSensitivity] [list value ""] [list type java.lang.Integer]];
+# name="cursorSensitivity" type="java.lang.Integer" value="" description="" required="false"/>
+
+set props_28  [list [list name keepDynamic] [list value ""] [list type java.lang.String]];
+# name="keepDynamic" type="java.lang.String" value="" description="" required="false"/>
+
+set props_29  [list [list name currentLockTimeout] [list value ""] [list type java.lang.Integer]];
+# name="currentLockTimeout" type="java.lang.Integer" value="" description="" required="false"/>
+
+set props_30  [list [list name enableMultithreadedAccessDetection] [list value "false"] [list type java.lang.Boolean]];
+# name="enableMultithreadedAccessDetection" type="java.lang.Boolean" value="false" description="" required="false"/>
+
+set props_31  [list [list name reauthentication] [list value "false"] [list type java.lang.Boolean]];
+# name="reauthentication" type="java.lang.Boolean" value="false" description="" required="false"/>
+
+set props_32  [list [list name jmsOnePhaseOptimization] [list value "false"] [list type java.lang.Boolean]];
+# name="jmsOnePhaseOptimization" type="java.lang.Boolean" value="false" description="" required="false"/>
+
+set props_33  [list [list name preTestSQLString] [list value "SELECT 1 FROM TABLE1"] [list type java.lang.String]];
+# name="preTestSQLString" type="java.lang.String" value="SELECT 1 FROM TABLE1" description="" required="false"/>
+
+   set newprops  [list $props_01 $props_02 $props_03 $props_04 $props_05 $props_06 $props_07 $props_08 $props_09 $props_10 $props_11 $props_12 $props_13 $props_14 $props_15 $props_16 $props_17 $props_18 $props_19 $props_20 $props_21 $props_22 $props_23 $props_24 $props_25 $props_26 $props_27 $props_28 $props_29 $props_30 $props_31 $props_32 $props_33];
+
+   set resprops          [list resourceProperties $newprops];
+   set ps_attr           [list propertySet [list $resprops]];
+#   JVputTrace "***** newprops $newprops ";
+#   JVputTrace "***** resprops $resprops ";
+#   JVputTrace "***** ps_attr $ps_attr";
+
+# check if mapping needed
+
+   if { !($authAlias == "N_O_N_E") } {
+      set map_auth_attr   [list authDataAlias $authAlias];
+#      set map_configalias_attr [list mappingConfigAlias "DefaultPrincipalMapping"];
+      set map_configalias_attr [list mappingConfigAlias ""];
+      set map_attrs       [list $map_auth_attr $map_configalias_attr];
+      set mapping_attr    [list mapping $map_attrs];
+      set attrs           [list $name_attr $jndiName_attr $xaRecoveryAuthAlias_attr $dbHelper_attr $desc_attr $rra $authMechPref_attr $map_auth_attr $ps_attr $mapping_attr];
+   } else {
+      set attrs           [list $name_attr $jndiName_attr $desc_attr $rra $authMechPref_attr $ps_attr];
+   }
+#   JVputTrace "***** attrs $attrs";
+   set newDS [$AdminConfig createUsingTemplate DataSource $providerID $attrs $template];
+
+}

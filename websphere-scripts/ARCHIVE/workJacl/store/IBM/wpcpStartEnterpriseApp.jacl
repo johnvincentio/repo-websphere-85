@@ -1,0 +1,39 @@
+set hostname [lindex $argv 0]
+set serverName [lindex $argv 1]
+set appName [lindex $argv 2]
+
+puts ""
+puts "scriptname : wpcpStartEnterpriseApp.jacl"
+puts "hostname : $hostname"
+puts "serverName : $serverName"
+puts "applicationName : $appName"
+puts ""
+
+
+# set node 
+set node [$AdminConfig getid /Node:$hostname/]
+
+# turn on tracing
+$AdminControl trace "com.ibm.*=entryExit=enabled"
+
+# set node 
+set node [$AdminConfig getid /Node:$hostname/]
+
+
+global AdminControl
+
+puts "Starting the $appName enterprise application"
+
+# get AdminControl's version of the server id
+set sid [$AdminControl completeObjectName type=ApplicationManager,process=$serverName,*]
+
+if {[catch { $AdminControl invoke $sid startApplication $appName  } result] } {
+   puts "caught exception starting $appName: $result"
+}
+   
+# save changes
+$AdminConfig save
+
+
+
+

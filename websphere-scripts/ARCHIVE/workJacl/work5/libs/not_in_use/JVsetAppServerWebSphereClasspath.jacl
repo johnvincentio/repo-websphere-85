@@ -1,0 +1,105 @@
+
+#--------------------------------------------------------------------
+# Handle server WebSphere specific classpath
+#--------------------------------------------------------------------
+
+proc JVsetAppServerWebSphereClasspath {NodeName ServerName myParam1 myParam2} {
+	global AdminConfig M_OK M_ERROR;
+
+	JVputTrace ">>> JVsetAppServerWebSphereClasspath; Node=$NodeName Server=$ServerName Param=$myParam1";
+
+#<systemProperties xmi:id="Property_11" name="ws.ext.dirs" value="${WPS_HOME}/shared/ext/collaborator.jar" description="Internal Portal component" required="false"/>
+	set SysPropName "ws.ext.dirs";
+	set SysPropValue $myParam1;
+	set SysPropRequired "false";
+	set SysPropDescription $myParam2;
+	JVputInfo "Create/modify JVM systemProperties /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:$SysPropName/";
+puts "stage A1";
+	set ServerId [$AdminConfig getid /Server:$ServerName/]
+    set JavaVirtualMachineId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/]
+	if {$JavaVirtualMachineId == ""} {
+		JVputError "ERROR: /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/ does not exist"
+		return $M_ERROR;
+	}
+	if {[llength $JavaVirtualMachineId] != 1} {
+		JVputError "ERROR: more then one /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/";
+		return $M_ERROR;
+	}
+puts "stage A2";
+	set FlagObjectExist "False";
+	foreach TmpSysPropObjectId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:/] {
+		set TmpObjectName [$AdminConfig showAttribute $TmpSysPropObjectId name];
+		if {[string compare $TmpObjectName $SysPropName] == 0} {
+			set SysPropId $TmpSysPropObjectId;
+			set FlagObjectExist "True";
+			break;
+		}
+	}
+puts "stage A3";
+	################ modify / create Object #################################
+	set FlagNoChangeNeccessary "false";
+puts "stage A4";
+	set attrs [list [list name $SysPropName] [list value $SysPropValue] [list required $SysPropRequired] [list description $SysPropDescription]];
+puts "stage A5";
+puts "FlagObjectExist $FlagObjectExist";
+puts "stage A6";
+	if {$FlagObjectExist == "True"} {
+puts "stage B1";
+		JVputInfo "Old: JVM SystemProperty {name [$AdminConfig showAttribute $SysPropId name]} {value [$AdminConfig showAttribute $SysPropId value]}";
+		set TmpObjectValue [$AdminConfig showAttribute $TmpSysPropObjectId value];
+		if {[string compare $TmpObjectValue $SysPropValue] != 0} {
+			$AdminConfig modify $SysPropId $attrs;
+		} else {
+			JVputError "JVM SystemProperty Value is OK, no action taken";
+			set FlagNoChangeNeccessary "true";
+		}
+	} else {
+		JVputInfo "Old: SystemProperty {}";
+puts "stage B2";
+puts "JavaVirtualMachineId $JavaVirtualMachineId";
+puts "stage B2a";
+puts "attrs $attrs";
+puts "stage B2b";
+
+		if {[catch {$AdminConfig create Property $JavaVirtualMachineId $attrs} SysPropId]} {
+			JVputError "Cannot create property; $SysPropId";
+			return $M_ERROR;
+		}
+		if {$SysPropId == ""} {
+			JVputError "ERROR: Cannot create property";
+			return $M_ERROR;
+		}
+		puts "stage B3";
+	}
+	
+	################ check for success  ####################################
+	if {$FlagNoChangeNeccessary == "false"} {
+		set FlagObjectExist "False";
+		set SysPropId "";
+		foreach TmpSysPropObjectId [$AdminConfig getid /Server:$ServerName/JavaProcessDef:/JavaVirtualMachine:/Property:/] {
+			set TmpObjectName [$AdminConfig showAttribute $TmpSysPropObjectId name];
+			if {[string compare $TmpObjectName $SysPropName] == 0} {
+				set SysPropId $TmpSysPropObjectId;
+				set FlagObjectExist "true";
+				break;
+			}
+		}
+		if {$FlagObjectExist == "true"} {
+			puts stdout "New: JVM SystemProperty {name [$AdminConfig showAttribute $SysPropId name]} {value [$AdminConfig showAttribute $SysPropId value]}"
+			set TmpObjectValue [$AdminConfig showAttribute $TmpSysPropObjectId value];
+			if {[string compare $TmpObjectValue $SysPropValue] != 0} {
+				JVputError "ERROR: JVM Property could not be modified.";
+				return $M_ERROR;
+			} else {
+				JVputInfo "JVM Property successfully created/modified.";
+				$AdminConfig save;
+			}
+		} else {
+			JVputError "ERROR: JVM Property could not be created."	;
+			return $M_ERROR;
+		}
+	}
+	JVputTrace "<<< JVsetAppServerWebSphereClasspath";
+	return $M_OK;
+}
+

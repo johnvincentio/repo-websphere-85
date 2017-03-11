@@ -1,0 +1,66 @@
+proc JVcreateMQTopic {NodeName MQJMSProvider qcfName \
+                         mqQname mqqDesc mqqJNDI mqqPersistence mqqExpiry mqqBname} {   
+
+   global AdminConfig;
+ 
+#--------------------------------------------------------------------
+# Create MQ Topic
+#--------------------------------------------------------------------
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Create MQ Topic                                  ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    Node                $NodeName                              ";
+   puts " MQ JMS Provider:                                              ";
+   puts "    Name                $MQJMSProvider                         ";
+   puts " Connection Factory:                                           ";
+   puts "    Name                $qcfName                               ";
+   puts " Topic:                                                        ";
+   puts "    Name                $mqQname                               ";
+   puts "    Description         $mqqDesc                               ";
+   puts "    JNDI                $mqqJNDI                               ";
+   puts "    Persistence         $mqqPersistence                        ";
+   puts "    Expiry              $mqqExpiry                             ";
+   puts "    Base Topic Name     $mqqBname                              ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   puts "Checking if MQ Topic Connection Factory exists";
+   set mqcfID [$AdminConfig getid "/Node:$NodeName/JMSProvider:$MQJMSProvider/MQTopicConnectionFactory:$qcfName"];
+   if {[llength $mqcfID] == 0} {
+      JVputInfo "The $qcfName MQ queue connection factory does not exist.";
+      return;
+   }
+
+   puts "Getting MQ JMS Provider ID";
+   set mqcfID [$AdminConfig getid "/Node:$NodeName/JMSProvider:$MQJMSProvider"];
+#   puts "mqcfID $mqcfID";
+
+   puts "Setting attributes";
+   set attr01   [ list name $mqQname ]; #
+   set attr02   [ list jndiName $mqqJNDI ]; #
+   set attr03   [ list description $mqqDesc ]; #
+   set attr04   [ list persistence $mqqPersistence ]; #
+   set attr05   [ list priority QUEUE_DEFINED ]; #
+   set attr06   [ list specifiedPriority 0 ]; #
+   set attr07   [ list expiry $mqqExpiry ]; #
+   set attr08   [ list specifiedExpiry 65 ]; #
+   set attr09   [ list baseTopicName $mqqBname ]; #
+   set attr10   [ list useNativeEncoding true ];
+   set attr11   [ list integerEncoding Normal ]; #
+   set attr12   [ list decimalEncoding Normal ]; #
+   set attr13   [ list floatingPointEncoding IEEENormal ]; #
+   set attr14   [ list targetClient JMS ];  #
+
+   set attrs [ list $attr01 $attr02 $attr03 $attr04 $attr05 $attr06 $attr07 $attr08 $attr09 $attr10 $attr11 $attr12 $attr13 $attr14 ];
+#   puts "attrs \n $attrs \n";
+
+   puts "Creating MQ Topic";
+   if { [ catch { $AdminConfig create MQTopic $mqcfID $attrs } r ] != 0 } {
+      puts "\nError creating MQTopic $mqQname. Reason: $r\n";
+      return;
+   }
+}
+

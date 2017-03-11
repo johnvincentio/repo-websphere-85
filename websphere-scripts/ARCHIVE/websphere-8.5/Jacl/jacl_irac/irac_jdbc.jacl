@@ -1,0 +1,23 @@
+
+source irac_jdbcDB2.jacl;
+source irac_jdbcAS400DB2.jacl;
+source irac_jdbcSQLServer.jacl;
+source ../libs/JVlistJDBCProviderTemplates.jacl;
+source ../libs/JVlistJDBCDatasourceTemplates.jacl;
+
+proc irac_jdbc {CellName NodeName ServerName} {
+
+#
+#  List available JDBC Provider Templates
+#
+#   JVlistJDBCProviderTemplates;
+
+#   JVlistJDBCDatasourceTemplates;
+
+   irac_jdbcDB2 $NodeName $ServerName;
+
+   irac_jdbcAS400DB2 $CellName $NodeName $ServerName;
+
+   irac_jdbcSQLServer $NodeName $ServerName;
+
+}

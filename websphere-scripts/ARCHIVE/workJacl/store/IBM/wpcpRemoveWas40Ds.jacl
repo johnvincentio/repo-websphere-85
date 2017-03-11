@@ -1,0 +1,74 @@
+set FileName "wpcpRemoveWas40Ds.jacl"
+set FlagDebug {@DebugMode@}
+#set FlagDebug True
+#set FlagDebug False
+
+set NodeName {@NodeName@}
+#set JDBCProviderName {@JdbcProvider@}
+
+#var is set in profileWpsDs.jacl
+#set DsName {@WpsDsName@}
+
+if {$FlagDebug == "True"} {
+        puts stdout " "
+        puts stdout "-------------------------------------------------------------------------------------------------------"
+        puts stdout "---- Start $FileName"
+        puts stdout "----"
+		puts stdout "---- Check if WAS40DataSource: $DsName; Parent JDBCProvider: $JDBCProviderName exists."
+		puts stdout "---- If WAS40DataSource: $DsName exists, remove and check for success."
+		puts stdout "----"
+        puts stdout "---- Debugmode = $FlagDebug"
+        puts stdout "-------------------------------------------------------------------------------------------------------"
+}
+
+# Check if Data Source exists
+if {$FlagDebug == "True"} {puts stdout " "}
+set DsCount 0
+set FlagDsExist "False"
+foreach TmpDs [$AdminConfig list WAS40DataSource] {
+	incr DsCount
+	set TmpDsName [$AdminConfig showAttribute $TmpDs name]
+	if {$FlagDebug == "True"} {puts stdout "$DsCount. WAS40DataSource $TmpDsName"}
+	if {[string compare $TmpDsName $DsName] == 0} {
+		set FlagDsExist "True"
+        #break;
+	}
+}
+if {$FlagDsExist == "False"} {
+	puts stdout "WAS40DataSource $DsName does not exist, no Action taken"
+	exit 1
+} else {
+	########### remove WAS40DataSource ####################################
+	set DsId [$AdminConfig getid /JDBCProvider:$JDBCProviderName/WAS40DataSource:$DsName/]
+	if {$FlagDebug == "True"} {puts stdout "WAS40DataSourceId = $DsId"}
+    if {[catch {$AdminConfig remove $DsId} result]} {
+		puts stdout "ERROR: WAS40DataSource $DsName could not be removed ."
+		exit 1
+	}
+}
+
+if {$FlagDebug == "True"} {puts stdout " "}
+set DsCount 0
+set FlagDsExist "False"
+foreach TmpDs [$AdminConfig list WAS40DataSource] {
+	incr DsCount
+	set TmpDsName [$AdminConfig showAttribute $TmpDs name]
+	if {[string compare $TmpDsName $DsName] == 0} {
+		set FlagDsExist "True"
+        break;
+	}
+}
+if {$FlagDsExist == "False"} {
+	puts stdout "WAS40DataSource $DsName successfully removed."
+    $AdminConfig save
+} else {
+	puts stdout "ERROR: WAS40DataSource $DsName could not be removed."
+	exit 1
+}
+
+if {$FlagDebug == "True"} {
+	puts stdout " "
+	puts stdout "-------------------------------------------------------------------------------------------------------"
+	puts stdout "---- End $FileName"
+	puts stdout "-------------------------------------------------------------------------------------------------------"
+}

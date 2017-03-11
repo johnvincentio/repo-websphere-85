@@ -1,0 +1,28 @@
+
+#------------------------------------------------------------------
+# Create JDBC Resources
+#------------------------------------------------------------------
+
+proc capstone_jdbc_nero {NodeName ServerName templName provName dbURL} {
+
+#--------------------------------------------------------------------
+# Create Datasource
+#--------------------------------------------------------------------
+
+   set dsName       "NeroPool";
+   set dsJNDI       "jdbc/NeroResource";
+   set dsDesc       "Data source for the Nero Pool";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias $NodeName/JVNero;
+   JVcreateDatasourceOracle $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $dbURL $secAuthAlias;
+
+#--------------------------------------------------------------------
+# Create Connection Factory
+#--------------------------------------------------------------------
+
+   set cfName       "NeroPoolCF";
+   set cfi          "javax.resource.cci.ConnectionFactory";
+   JVcreateConnectionFactory $NodeName $ServerName $provName $dsName $cfName $dsAuthMech $secAuthAlias $cfi;
+
+}
+

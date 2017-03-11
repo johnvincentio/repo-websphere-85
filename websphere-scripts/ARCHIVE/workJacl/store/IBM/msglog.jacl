@@ -1,0 +1,91 @@
+# WP Message Logging within configuration Jacl scripts
+# Example of usage:
+#
+# source C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1/config/work/was/msglog.jacl
+# # Get the logger
+# set logger [getLogger]
+# #log warning message for file msglog1.jacl with one parameter
+# logMsgOneParm $logger "WARNING" "msglog1.jacl" "Validation.ldap.user.checking" "C:/WebSphere/PortalServer"
+# #log warning message for file msglog1.jacl with two parameters
+# logMsgTwoParms $logger "WARNING" "msglog1.jacl" "DepCheck.comp.missing.patches" "patch1" "patch2"
+#
+
+package require java
+
+set Logger [java::null]
+
+# Get the message logger to use. This will set the level and the log file
+proc getLogger { } {
+  global Logger
+  if [java::isnull $Logger] {
+  set level [java::field com.ibm.wps.config.logging.Level INFO]
+  set ilogger [java::call com.ibm.wps.config.logging.InstallAndConfigLogger getLogger "com.ibm.wps.config.logging.InstallAndConfigLogger" "com.ibm.wps.config.logging.InstallAndConfigLogger"]
+  set Logger [java::cast com.ibm.wps.config.logging.MsgAndTraceLogger $ilogger]
+  set fhandler [java::new com.ibm.wps.config.logging.FileHandler "C:/PROGRA~1/IBM/WEBSPH~1/runtimes/PORTAL~1/log/ConfigMessages.log"]
+  set handler [java::cast com.ibm.wps.config.logging.Handler $fhandler]
+  $handler setLevel $level
+  $Logger addMessageHandler $handler
+  $Logger setMessageLoggingToConsole [[java::new Boolean true] booleanValue]
+  }
+  return $Logger
+}
+
+# proc logMsgNoParms Log the given message with no parameters
+# (1) logger the Logger object from getLogger to use
+# (2) Slevel the logging level "SEVERE" "WARNING" or "INFO"
+# (3) Filename the name of the file you are executing in when logging
+# (4) Msg the message name (from the Resource Bundle)
+proc logMsgNoParms { logger Slevel Filename Msg } {
+  set level [java::call com.ibm.wps.config.logging.Level parse $Slevel]
+  $logger logp $level $Filename "" $Msg
+  return
+}
+
+# proc logMsgOneParm Log the given message with one parameter
+# (1) logger the Logger object from getLogger to use
+# (2) Slevel the logging level "SEVERE" "WARNING" or "INFO"
+# (3) Filename the name of the file you are executing in when logging
+# (4) Msg the message name (from the Resource Bundle)
+# (5) Parm the parameter to be logged with the message
+proc logMsgOneParm { logger Slevel Filename Msg Parm} {
+  set level [java::call com.ibm.wps.config.logging.Level parse $Slevel]
+  set parms [java::new {Object[]} 1]
+  $parms set 0 $Parm
+  $logger {logp com.ibm.wps.config.logging.Level java.lang.String java.lang.String java.lang.String {Object[]} } $level $Filename "" $Msg $parms
+  return
+}
+
+# proc logMsgTwoParms Log the given message with two parameters
+# (1) logger the Logger object from getLogger to use
+# (2) Slevel the logging level "SEVERE" "WARNING" or "INFO"
+# (3) Filename the name of the file you are executing in when logging
+# (4) Msg the message name (from the Resource Bundle)
+# (5) Parm1 the first parameter to be logged with the message
+# (6) Parm2 the second parameter to be logged with the message
+proc logMsgTwoParms { logger Slevel Filename Msg Parm1 Parm2} {
+  set level [java::call com.ibm.wps.config.logging.Level parse $Slevel]
+  set parms [java::new {Object[]} 2 ]
+  $parms set 0 $Parm1
+  $parms set 1 $Parm2
+  $logger {logp com.ibm.wps.config.logging.Level java.lang.String java.lang.String java.lang.String {Object[]} } $level $Filename "" $Msg $parms
+  return
+}
+
+# proc logMsgThreeParms Log the given message with three parameters
+# (1) logger the Logger object from getLogger to use
+# (2) Slevel the logging level "SEVERE" "WARNING" or "INFO"
+# (3) Filename the name of the file you are executing in when logging
+# (4) Msg the message name (from the Resource Bundle)
+# (5) Parm1 the first parameter to be logged with the message
+# (6) Parm2 the second parameter to be logged with the message
+# (7) Parm3 the third parameter to be logged with the message
+proc logMsgThreeParms { logger Slevel Filename Msg Parm1 Parm2 Parm3} {
+  set level [java::call com.ibm.wps.config.logging.Level parse $Slevel]
+  set parms [java::new {Object[]} 3 ]
+  $parms set 0 $Parm1
+  $parms set 1 $Parm2
+  $parms set 2 $Parm3
+  $logger {logp com.ibm.wps.config.logging.Level java.lang.String java.lang.String java.lang.String {Object[]} } $level $Filename "" $Msg $parms
+  return
+}
+

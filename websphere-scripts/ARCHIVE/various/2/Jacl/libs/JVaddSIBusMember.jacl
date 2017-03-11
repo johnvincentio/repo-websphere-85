@@ -1,0 +1,43 @@
+
+proc JVaddSIBusMember {NodeName ServerName SIBus} {
+
+#--------------------------------------------------------------------
+# Set up globals  
+#--------------------------------------------------------------------
+
+   global AdminTask;
+   global AdminConfig;
+
+#--------------------------------------------------------------------
+# Add the named server to the bus. The addSIBusMember command will:
+#    - Add the named server to the bus.
+#    - Create a messaging engine (plus datasources and datastores)
+#      at the server scope.
+#    - Localize the bus's topic spaces to the new ME.
+#--------------------------------------------------------------------
+
+   puts "";
+   puts "---------------------------------------------------------------";
+   puts "              Add SI bus member                                ";
+   puts "---------------------------------------------------------------";
+   puts " Scope:                                                        ";
+   puts "    node                $NodeName                              ";
+   puts "    server              $ServerName                            ";
+   puts " SI bus:                                                       ";
+   puts "    name                $SIBus                                 ";
+   puts "---------------------------------------------------------------";
+   puts "";
+
+   foreach member [$AdminTask listSIBusMembers [list -bus $SIBus]] {
+      set memberNode [$AdminConfig showAttribute $member node];
+      set memberServer [$AdminConfig showAttribute $member server];
+      if { ($memberNode == $NodeName) && ($memberServer == $ServerName) } {
+         JVputInfo "The bus member already exists.";
+         return;
+      }
+   }
+
+   JVputTrace "Add the server named $ServerName to the bus.";
+   $AdminTask addSIBusMember [list -bus $SIBus -node $NodeName -server $ServerName -createDefaultDatasource true];
+}
+

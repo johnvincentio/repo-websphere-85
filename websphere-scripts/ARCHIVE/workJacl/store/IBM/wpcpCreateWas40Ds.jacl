@@ -1,0 +1,149 @@
+set FileName "wpcpCreateWas40Ds.jacl"
+set FlagDebug {@DebugMode@}
+#set FlagDebug True
+#set FlagDebug False
+
+set NodeName {@NodeName@}
+#set JDBCProviderName {@JdbcProvider@}
+
+#vars set in profileXXXDs.jacl
+#set DsName {@WpsDsName@}
+#set DbName {@WpsDbName@}
+#set DbUser {@DbUser@}
+#set DbPassword {@DbPassword@}
+
+#set DbNameList [list databaseName {@WpsDbName@}]
+#set DbUserIdList [list defaultUser {@DbUser@}]
+#set DbUserPwdList [list defaultPassword {@DbPassword@}]
+set DsNameList [list name $DsName]
+set DbNameList [list databaseName $DbName]
+set DbUserPwdList [list defaultPassword $DbPassword]
+set DbUserIdList [list defaultUser $DbUser]
+set JndiNameList [list jndiName "jdbc/$JNDIName"]
+set dsAttrs [list $DsNameList $DbUserPwdList $DbUserIdList $DbNameList $JndiNameList]
+
+
+if {$FlagDebug == "True"} {
+        puts stdout " "
+        puts stdout "-------------------------------------------------------------------------------------------------------"
+        puts stdout "---- Start $FileName"
+        puts stdout "----"
+		puts stdout "---- Check if WAS40DataSource: $DsName; Parent JDBCProvider: $JDBCProviderName already exists."
+		puts stdout "---- If not create WAS40DataSource: $DsName and check for success."
+		puts stdout "---- If create WAS40DataSource is OK, remove WAS40DataSource and check for success."
+        puts stdout "----"
+        puts stdout "---- Debugmode = $FlagDebug"
+        puts stdout "-------------------------------------------------------------------------------------------------------"
+}
+
+# Check if Data Source exists
+if {$FlagDebug == "True"} {puts stdout " "}
+set DsCount 0
+set FlagDsExist "False"
+foreach TmpDs [$AdminConfig list WAS40DataSource] {
+	incr DsCount
+	set TmpDsName [$AdminConfig showAttribute $TmpDs name]
+	if {$FlagDebug == "True"} {puts stdout "$DsCount. WAS40DataSource $TmpDsName"}
+	if {[string compare $TmpDsName $DsName] == 0} {
+		set FlagDsExist "True"
+        #break;
+	}
+}
+if {$FlagDsExist == "True"} {
+	puts stdout "WAS40DataSource $DsName does exist, no Action taken"
+	exit 1
+} else {
+	########### create WAS40DataSource ####################################
+	set ParentJDBCProviderId [$AdminConfig getid /JDBCProvider:$JDBCProviderName/]
+	if {$FlagDebug == "True"} {puts stdout "JDBCProviderId = $ParentJDBCProviderId"}
+    if {[catch {$AdminConfig create WAS40DataSource $ParentJDBCProviderId $dsAttrs} result]} {
+		puts stdout "ERROR: WAS40DataSource $DsName could not be created."
+		exit 1
+	}
+        
+        set WAS40DataSourceId [$AdminConfig getid /WAS40DataSource:$DsName/]
+        #Create the propertySet object
+        set J2EEResourcePropertySetId [$AdminConfig create J2EEResourcePropertySet $WAS40DataSourceId {}]
+               
+        #set the appropriate custom properties based on DbType
+        switch -exact -- $DbType {
+                sqlserver {
+                        #Create the J2EEResourceProperty objects
+                        set attrs1 [subst {{name selectMethod} {type java.lang.String} {value "cursor"} {required "true"} {description "Refer to the MS SQL Server JDBC Driver documentation for the list of connection attributes."}}]
+                        set attrs2 [subst {{name serverName} {type java.lang.String} {value "$DbHostName"} {required "true"} {description "Refer to the MS SQL Server JDBC Driver documentation for the list of connection attributes."}}]
+                        set attrs3 [subst {{name databaseName} {type java.lang.String} {value "$DbName"} {required "true"} {description "This is a required property. The database name. For example, enter sample to make your Data Source point to jdbc:db2:sample."}}]
+                        #
+                        # The WAS Driver Needs some additional Attributes, so set them if using the WAS embedded JDBCSQL Provider
+                        if { $FlagWasProvider == "True" } {
+                           set attrs4 [subst {{name disable2Phase } {type java.lang.Boolean} {value "false"} {required "false"} {description "When false, two phase connections are used. When true, one phase connections are used. Do not change this value because this value is set for with this provider."}}]
+                           #set attrs5 [subst {{name portNumber } {type java.lang.Integer} {value "1433"} {required "true"} {description "This is a required property. The TCP/IP port number where MS SQL Server resides. "}}]
+
+                           set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId $attrs4]
+                           puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+                           #set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId $attrs5]
+                           #puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+                        }
+                        set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId $attrs1]
+                        puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+                        set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId $attrs2]
+                        puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+                        set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId $attrs3]
+                        puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+                }
+                informix {
+                        #Set the custom properties
+                        set attrs1 [subst {{name serverName} {type java.lang.String} {value "$DbServerName"} {required "true"} {description "The name of the Informix instance on the server. Example: ol_myserver."}}]
+                        set attrs2 [subst {{name ifxIFXHOST} {type java.lang.String} {value "$DbHostName"} {required "true"} {description "The physical name of the database server. Example: myserver.mydomain.com."}}]
+                        set attrs3 [subst {{name databaseName} {type java.lang.String} {value "$DbName"} {required "true"} {description "The name of the database from which the data source obtains connections. Example: Sample."}}]
+                        set attrs4 [subst {{name portNumber} {type java.lang.String} {value "$DbPort"} {required "true"} {description "The port on which the instances listen. Example: 1526."}}]
+                        set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId $attrs1]
+                        puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+                        set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId $attrs2]
+                        puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+                        set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId $attrs3]
+                        puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+                        set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId $attrs4]
+                        puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+                }       
+                oracle {
+                        #Create the url custom properties
+                        set attrs1 [subst {{name "URL"} {type java.lang.String} {value $DbUrl} {required "true"} {description "This is the Oracle URL used for connecting to the database."}}]
+                        set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId $attrs1]
+                        puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+                }
+                cloudscape {
+                        #Set the databaseName custom properties
+                        set attrs1 [subst {{name databaseName} {type java.lang.String} {value "$DbName"} {required "true"} {description "This is a required property. This property must be set and it identifies which database to access. For example, g:/db/wombat."}}]
+                        set J2EEResourcePropertyId [$AdminConfig create J2EEResourceProperty $J2EEResourcePropertySetId $attrs1]
+                        puts "J2EEResourceProperty created: [$AdminConfig showAttribute $J2EEResourcePropertyId name]"
+                }
+                default {
+                }
+        }
+}
+
+if {$FlagDebug == "True"} {puts stdout " "}
+set DsCount 0
+set FlagDsExist "False"
+foreach TmpDs [$AdminConfig list WAS40DataSource] {
+	incr DsCount
+	set TmpDsName [$AdminConfig showAttribute $TmpDs name]
+	if {[string compare $TmpDsName $DsName] == 0} {
+		set FlagDsExist "True"
+        break;
+	}
+}
+if {$FlagDsExist == "True"} {
+	puts stdout "WAS40DataSource $DsName successfully created."
+    $AdminConfig save
+} else {
+	puts stdout "ERROR: WAS40DataSource $DsName could not be created."
+	exit 1
+}
+
+if {$FlagDebug == "True"} {
+	puts stdout " "
+	puts stdout "-------------------------------------------------------------------------------------------------------"
+	puts stdout "---- End $FileName"
+	puts stdout "-------------------------------------------------------------------------------------------------------"
+}

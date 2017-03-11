@@ -1,0 +1,58 @@
+
+#------------------------------------------------------------------
+# script to stop a WS 6 Server
+#------------------------------------------------------------------
+
+#------------------------------------------------------------------
+# handle included scripts
+#------------------------------------------------------------------
+
+source ../../../../Framework/Jacl/libs/JVUtils.jacl;
+source ../../../../Framework/Jacl/libs/JVserverStop.jacl;
+source ../../../../Framework/Jacl/libs/JVserverIsStarted.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVscript_trace_enable;				# set script tracing on
+JVputInfo "Starting";
+
+#--------------------------------------------------------------------
+#  load properties file
+#--------------------------------------------------------------------
+
+set myPropertiesFile "apps.properties";
+JVputInfo "Loading Properties file $myPropertiesFile";
+set fileprops [JVloadProperties $myPropertiesFile];
+JVputTrace "JVloadProperties.jacl; code $fileprops";
+if {$fileprops == 0} {
+	JVputError "Load Properties failed";
+	exit 1;
+}
+JVputInfo "Loaded Properties file";
+
+#--------------------------------------------------------------------
+# get properties
+#--------------------------------------------------------------------
+
+set myNodeName [JVgetProperty $fileprops "JVNode"];
+set myServerName [JVgetProperty $fileprops "JVServer"];
+
+JVputInfo "---------------------------------------------------------------";
+JVputInfo " ";
+JVputInfo " Scope:                                                        ";
+JVputInfo "    node                $myNodeName                            ";
+JVputInfo "    server              $myServerName                          ";
+JVputInfo "---------------------------------------------------------------";
+
+#--------------------------------------------------------------------
+# Start the Server
+#--------------------------------------------------------------------
+
+JVputInfo "Stop the Server";
+
+JVserverStop $myNodeName $myServerName;
+
+JVputInfo "Script completed";
+exit 0;

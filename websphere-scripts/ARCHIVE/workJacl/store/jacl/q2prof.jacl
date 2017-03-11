@@ -1,0 +1,55 @@
+
+proc JV_trace_on { JVNode JVServer } {
+  global AdminControl
+  set myval [JV_get_type localhost server1 TraceService]
+  $AdminControl setAttribute $myval traceSpecification com.ibm.*=all=enabled
+} 
+
+proc JV_trace_off { JVNode JVServer } {
+  global AdminControl
+  set myval [JV_get_type localhost server1 TraceService]
+  $AdminControl setAttribute $myval traceSpecification com.ibm.*=all=disabled
+} 
+
+proc JV_dump_threads { JVNode JVServer } {
+  global AdminControl
+  set myval [JV_get_type localhost server1 JVM]
+  $AdminControl invoke $myval dumpThreads 
+} 
+
+proc JV_get_type { JVNode JVServer JVType} {
+  global AdminControl
+  return [$AdminControl queryNames type=$JVType,node=$JVNode,process=$JVServer,*]
+} 
+
+#
+#  the following are no longer in use:
+#
+
+proc JV_trace_on_OLD { JVNode JVServer } {
+  global AdminControl
+  set ts [$AdminControl queryNames type=TraceService,node=$JVNode,process=$JVServer,*]
+  $AdminControl setAttribute $ts traceSpecification com.ibm.*=all=enabled
+} 
+
+proc JV_trace_off_OLD { JVNode JVServer } {
+  global AdminControl
+  set ts [$AdminControl queryNames type=TraceService,node=$JVNode,process=$JVServer,*]
+  $AdminControl setAttribute $ts traceSpecification com.ibm.*=all=disabled
+} 
+
+proc JV_dump_threads_OLD { JVNode JVServer } {
+  global AdminControl
+  set jvm [$AdminControl queryNames type=JVM,node=node=$JVNode,process=$JVServer,*]
+  $AdminControl invoke $jvm dumpThreads 
+} 
+
+proc JV_get_type_OLD { JVNode JVServer JVType} {
+  global AdminControl
+  set jvval [$AdminControl queryNames type=$JVType,node=$JVNode,process=$JVServer,*]
+  return $jvval
+}
+
+#
+#  END of no longer in use
+#

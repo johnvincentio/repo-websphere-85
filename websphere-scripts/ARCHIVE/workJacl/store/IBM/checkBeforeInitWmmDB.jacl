@@ -1,0 +1,26 @@
+##  WAS 5.0 - Security - Config
+##  /config/templates/was/CheckBeforeInitWmmDB.jacl
+##------------------------------------------------------------------------------
+
+### Make sure 'WmmDbUser' and 'DbUser' are identical if database type = 'cloudscape'
+
+global DbType DbUser WmmDbUser
+set DbType {@DbType@}
+set DbUser {@DbUser@}
+set WmmDbUser {@WmmDbUser@}
+
+puts stdout "\nDatabase type = $DbType"
+	
+if {[string match $DbType cloudscape]} {
+	if {[string match $DbUser $WmmDbUser]} {
+		puts stdout "\nPrerequisites valid."
+		exit 0
+	} else {
+		puts stdout "\nPrerequisites invalid. The type of database is '$DbType'."
+		puts stdout "Please set 'WmmDbUser' identical to 'DbUser' and 'WmmDbPassword' identical to 'DbPassword'."
+		exit 1
+	}
+} else {
+    puts stdout "\nPrerequisites valid."
+    exit 0
+}

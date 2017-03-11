@@ -1,0 +1,24 @@
+
+proc JVisAppInstalled {appName} {
+
+  #--------------------------------------------------------------------
+  # Set up globals
+  #--------------------------------------------------------------------
+  
+  global AdminApp
+
+  #--------------------------------------------------------------------
+  # Check if the application is already installed
+  #--------------------------------------------------------------------
+
+  set installedApps [$AdminApp list]
+  
+  if { [lsearch $installedApps $appName] != -1 } {
+    JVputInfo "The $appName application is already installed."
+    return true
+  }
+  
+  return false
+
+}
+

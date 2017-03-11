@@ -1,0 +1,23 @@
+
+proc JVdump_threads {} {
+	global AdminControl M_SERVER M_NODE M_OK M_ERROR;
+	JVputTrace ">>> Dump_Threads; Node=$M_NODE Server=$M_SERVER";
+	if {[catch {$AdminControl queryNames type=JVM,node=$M_NODE,process=$M_SERVER,*} myval1]} {
+		JVputError "Cannot get JVM; $myval1";
+		return $M_ERROR;
+	}
+#	JVputTrace "result $myval1";
+	if {$myval1 == ""} {
+		JVputError "Request to get JVM returned no results";
+		return $M_ERROR;
+	}
+#	JVputTrace "got TraceService";
+	if {[catch {$AdminControl invoke $myval1 dumpThreads} myval2]} {
+		JVputError "Cannot set attribute; $myval2";
+		return $M_ERROR;
+	}
+	JVputTrace "<<< Dump_Threads";
+	return $M_OK;
+} 
+
+

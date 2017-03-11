@@ -1,0 +1,48 @@
+
+#------------------------------------------------------------------
+#  Create MQ Resources for TestMQConn
+#------------------------------------------------------------------
+
+proc irac_mqTestMQConn {NodeName} {
+
+#--------------------------------------------------------------------
+# Create MQ Queue Connection Factory
+#--------------------------------------------------------------------
+  
+   set MQJMSProvider      "WebSphere MQ JMS Provider";
+   set qcfChannel         "SYSTEM.DEF.SVRCONN";
+   set qcfName            "TestMQConn";
+   set qcfDesc            "IRAC MQ Connection Factory";
+   set qcfHost            "mq01.dev.irac.ecom.ad.hertz.com";
+   set qcfPort            "1414";
+   set qcfMgr             "ISQMQIRT01";
+   set qcfJNDI            "jms/com/hertz/iRAC/seamless/connFactory/MQ1";
+   JVcreateMQQueueConnectionFactory $NodeName $MQJMSProvider $qcfChannel $qcfName $qcfDesc $qcfHost $qcfPort $qcfMgr $qcfJNDI;
+   
+#--------------------------------------------------------------------
+# Create MQ Queue
+#--------------------------------------------------------------------
+
+   set mqQname            "TestMQIn";
+   set mqqDesc            "IRAC MQ Queue TestMQIn";
+   set mqqJNDI            "jms/com/hertz/iRAC/seamless/request/MQ1";
+   set mqqPersistence     "QUEUE_DEFINED";
+   set mqqExpiry          "SPECIFIED";
+   set mqqBname           "ISQAQDCQ01";
+   set mqqUser            "xyz";
+   JVcreateMQQueue $NodeName $MQJMSProvider $qcfName $qcfMgr $qcfHost $qcfPort $qcfChannel $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname $mqqUser;  
+
+#--------------------------------------------------------------------
+# Create MQ Queue
+#--------------------------------------------------------------------
+
+   set mqQname            "TestMQOut";
+   set mqqDesc            "IRAC MQ Queue TestMQOut";
+   set mqqJNDI            "jms/com/hertz/iRAC/seamless/response/MQ1";
+   set mqqPersistence     "APPLICATION_DEFINED";
+   set mqqExpiry          "APPLICATION_DEFINED";
+   set mqqBname           "ISQIQDCQ01";
+   set mqqUser            "";
+   JVcreateMQQueue $NodeName $MQJMSProvider $qcfName $qcfMgr $qcfHost $qcfPort $qcfChannel $mqQname $mqqDesc $mqqJNDI $mqqPersistence $mqqExpiry $mqqBname $mqqUser;  
+}
+

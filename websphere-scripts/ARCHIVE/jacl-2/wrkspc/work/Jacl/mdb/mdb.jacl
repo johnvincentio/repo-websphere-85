@@ -1,0 +1,106 @@
+
+#------------------------------------------------------------------
+# script to handle MDB Server Configuration
+#------------------------------------------------------------------
+
+source /opt/jvconfig/websphere/jacl/99/JVSourceAll.jacl;
+
+#------------------------------------------------------------------
+# handle setup
+#------------------------------------------------------------------
+
+JVputInfo "mdb.jacl; Starting";
+
+#--------------------------------------------------------------------
+#  load properties file
+#--------------------------------------------------------------------
+
+set myPropertiesFile "mdb.properties";
+JVputInfo "Loading Properties file $myPropertiesFile";
+set fileprops [JVloadProperties $myPropertiesFile];
+JVputTrace "JVloadProperties.jacl; code $fileprops";
+if {$fileprops == 0} {
+    JVputError "Load Properties failed";
+    exit 1;
+}
+JVputInfo "Loaded Properties file";
+
+#--------------------------------------------------------------------
+# get properties
+#--------------------------------------------------------------------
+
+set ServerName [JVgetProperty $fileprops "ServerName"];
+set NodeName [JVgetProperty $fileprops "NodeName"];
+set CellName [JVgetProperty $fileprops "CellName"];
+
+#--------------------------------------------------------------------
+# show server info
+#--------------------------------------------------------------------
+
+JVputInfo "---------------------------------------------------------------";
+JVputInfo " ";
+JVputInfo " Scope:                                                        ";
+JVputInfo "    cell                $CellName                            ";
+JVputInfo "    node                $NodeName                            ";
+JVputInfo "    server              $ServerName                          ";
+JVputInfo "---------------------------------------------------------------";
+
+#--------------------------------------------------------------------
+# List JMS Servers
+#--------------------------------------------------------------------
+
+#   JVlistJMSServers;
+
+#--------------------------------------------------------------------
+# Create SIBus
+#--------------------------------------------------------------------
+
+set SIBusName "SimpleMessageBus";
+set SIBusDesc "Messaging bus for SimpleMessage";
+JVcreateSIBus $NodeName $ServerName $SIBusName $SIBusDesc "false";
+
+#--------------------------------------------------------------------
+# Create SIB JMS Connection Factory
+#--------------------------------------------------------------------
+  
+set jmsCFName    "SimpleMessageConnectionFactory";
+set jmsCFJNDI    "jms/com/idc/mdb/SimpleMessageConnectionFactory";
+set jmsCFDesc    "SimpleMessageConnectionFactory";
+set jmsCFType    "queue";
+#   set secAuthAlias "N_O_N_E";
+set secAuthAlias "";
+JVcreateSIBJMSConnectionFactory $NodeName $jmsCFName $jmsCFJNDI $jmsCFDesc $jmsCFType $secAuthAlias $SIBusName;
+
+#--------------------------------------------------------------------
+# Create SIB JMS Queue that references a SIB Queue
+#--------------------------------------------------------------------
+  
+set jmsQName   "SimpleMessageQueue";
+set jmsQJNDI   "jms/com/idc/mdb/SimpleMessageQueue";
+set jmsQDesc   "SimpleMessageQueue";
+set SIBQName   "SIBSimpleMessageQueue";
+JVcreateSIBJMSQueue $NodeName $jmsQName $jmsQJNDI $jmsQDesc $SIBQName;
+
+#--------------------------------------------------------------------
+# Create SIB Queue
+#--------------------------------------------------------------------
+
+JVcreateSIBQueue $NodeName $ServerName $SIBQName $SIBusName;
+
+#--------------------------------------------------------------------
+# Create a SIB Activation Spec for an MDB Listening to a Queue
+#--------------------------------------------------------------------
+
+set activationSpecName     "SimpleMessageActivationSpec";
+set activationSpecJndiName "eis/$activationSpecName";
+set destinationType        "javax.jms.Queue";
+JVcreateSIBJMSActivationSpec $NodeName $activationSpecName $activationSpecJndiName $jmsQJNDI $destinationType $secAuthAlias $SIBusName;
+
+#--------------------------------------------------------------------
+# Save
+#--------------------------------------------------------------------
+
+JVsave;
+puts "after save";
+
+exit 0;

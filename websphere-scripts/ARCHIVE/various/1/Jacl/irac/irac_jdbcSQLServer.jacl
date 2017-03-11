@@ -1,0 +1,85 @@
+
+source ../libs/JVcreateJDBCProviderByTemplate.jacl;
+source ../libs/JVmodifyVariable.jacl;
+source ../libs/JVcreateDatasourceSQLServer.jacl;
+
+proc irac_jdbcSQLServer {NodeName ServerName} {
+
+#
+#  this driver has been deprecated
+#
+#   JVmodifyVariable "MSSQLSERVER_JDBC_DRIVER_PATH" "C:\\Program Files\\Microsoft SQL Server 2000 Driver for JDBC\\lib";
+#   JVcreateJDBCProviderByTemplate $NodeName $ServerName "Microsoft JDBC driver for MSSQLServer 2000" "SQLServer";
+#
+
+#
+#  The template I have used is:
+#
+#     WebSphere embedded ConnectJDBC driver for MS SQL Server
+#
+#     The implementation class name is:
+#
+#        com.ibm.websphere.jdbcx.sqlserver.SQLServerDataSource
+#
+#  this driver uses WAS_LIBS_DIR which is already set to
+#     C:\Program Files\IBM\Rational\SDP\6.0\runtimes\base_v6\lib
+#
+#   Uses the following libs:
+#
+#   ${WAS_LIBS_DIR}/sqlserver.jar
+#   ${WAS_LIBS_DIR}/base.jar
+#   ${WAS_LIBS_DIR}/util.jar
+#   ${WAS_LIBS_DIR}/spy.jar
+#
+
+   set templName    "WebSphere embedded ConnectJDBC driver for MS SQL Server";
+   set provName     "iRAC SQLServer";
+   JVcreateJDBCProviderByTemplate $NodeName $ServerName $templName $provName;
+
+   set templName    "WebSphere embedded ConnectJDBC for SQL Server DataSource";
+   set dsName       "";
+   set dsJNDI       "jdbc/com/hertz/irac/DB2Conversion";
+   set dsDesc       "";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "sqlserver";
+   set dbName       "DB2Conversion";
+   set dbSrvName    "area51sql";
+   set dbPort       "2433";
+   JVcreateDatasourceSQLServer $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort;
+
+   set templName    "WebSphere embedded ConnectJDBC for SQL Server DataSource";
+   set dsName       "jdbc_com_hertz_irac_HertzagentCommission";
+   set dsJNDI       "jdbc/com/hertz/irac/HertzagentCommission";
+   set dsDesc       "jdbc/com/hertz/irac/HertzagentCommission";
+   set dsAuthMech   "BASIC_PASSWORD";
+   set secAuthAlias  "sqlserver";
+   set dbName       "DB2Conversion";
+   set dbSrvName    "area51sql";
+   set dbPort       "2433";
+   JVcreateDatasourceSQLServer $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort;
+   
+   set dsJNDI       "jdbc/com/hertz/irac/SQLServerFleet";
+   set dbName       "FLEET";
+   JVcreateDatasourceSQLServer $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort;
+
+   set dsJNDI       "jdbc/com/hertz/irac/SQLServerJobs";
+   set dbName       "jobs";
+   JVcreateDatasourceSQLServer $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort;
+
+   set dsJNDI       "jdbc/com/hertz/irac/SQLServerPolicy";
+   set dbName       "policy";
+   JVcreateDatasourceSQLServer $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort;
+
+   set dsJNDI       "jdbc/com/hertz/irac/SQLServerRACLocations";
+   set dbName       "RACLocations";
+   JVcreateDatasourceSQLServer $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort;
+
+   set dsJNDI       "jdbc/com/hertz/irac/SQLServerTRCR";
+   set secAuthAlias  "sqlserver_hertz603";
+   set dbName       "TRCR";
+   set dbSrvName    "hertz604";
+   set dbPort       "1433";
+   JVcreateDatasourceSQLServer $NodeName $ServerName $provName $templName $dsName $dsJNDI $dsDesc $dsAuthMech $secAuthAlias $dbName $dbSrvName $dbPort;
+
+}
+

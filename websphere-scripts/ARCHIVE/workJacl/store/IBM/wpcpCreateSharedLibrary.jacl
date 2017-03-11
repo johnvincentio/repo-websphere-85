@@ -1,0 +1,39 @@
+set NodeName @NodeName@
+set ServerName @ServerName@
+# AppName, LibraryName, and cp1  are set in profiling jacl.
+
+
+#--------------------------------------------------------------
+# Main
+#--------------------------------------------------------------
+
+set NodeId [$AdminConfig getid /Node:$NodeName/]
+set ServerId [$AdminConfig getid /Server:$ServerName/]
+
+
+
+##### Create Library
+set LibraryId [$AdminConfig getid /Node:$NodeName/Library:$LibraryName/]
+if {$LibraryId != ""} {
+    puts stdout "/Node:$NodeName/Library:$LibraryName/ already exists, no Action taken"
+} else {
+	set NameList [list name $LibraryName]
+	set attrs [list $cp1 $NameList]
+	set Library [$AdminConfig create Library $NodeId $attrs]
+	if {$Library == ""} {
+		puts stdout "ERROR: /Node:$NodeName/Library:$LibraryName/ could not be created."
+		exit 1
+	} else {	
+		##### Modify Library
+		#set attrs [list $cp2 $cp3 $cp4 $cp5 $cp6]
+		#$AdminConfig modify $Library $attrs
+		#puts stdout "Library $LibraryName successfully created."
+		puts stdout "Library $LibraryName successfully created and modified."
+	}
+}
+
+
+puts stdout "Shared Library for '$LibraryName' successfully created or already there."
+puts " "
+$AdminConfig save
+

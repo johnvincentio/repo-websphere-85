@@ -1,0 +1,10 @@
+source ../libs/JVsetServerTraceOff.jacl;
+source ../libs/JVsetServerTraceOn.jacl;
+
+proc irac_trace {NodeName ServerName traceType} {
+   if {[string compare $traceType "on"] == 0} {
+      JVsetServerTraceOn $NodeName $ServerName;
+   } else {
+      JVsetServerTraceOff $NodeName $ServerName;
+   }
+}

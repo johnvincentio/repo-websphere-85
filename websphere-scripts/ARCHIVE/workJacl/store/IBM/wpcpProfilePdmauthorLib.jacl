@@ -1,0 +1,6 @@
+global cp1
+global AppName
+global LibraryName
+
+set AppName {pdmauthor}
+set LibraryName {CloudScapeLib}
